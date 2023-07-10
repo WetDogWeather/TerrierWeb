@@ -1,0 +1,9 @@
+.map {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* works, maybe find a better solution later? */
+    padding: 0;
+    pointer-events: auto;
+  }
+  

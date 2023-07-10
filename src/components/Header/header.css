@@ -1,0 +1,10 @@
+.header {
+    background-color: rgba(235, 135, 63, 0.8);
+    display: flex;
+  }
+  
+  .header-nav {
+    display: flex;
+    opacity: 100%;
+    pointer-events: auto;
+  }

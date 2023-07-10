@@ -1,0 +1,11 @@
+.media-controls {
+    background-color: pink;
+    width: 500px;
+  
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  
+    pointer-events: auto;
+  }

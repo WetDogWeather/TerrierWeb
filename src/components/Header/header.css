@@ -1,10 +1,25 @@
+#splash-text {
+  margin: auto;
+  margin-left: 15px;
+}
+
+#logo {
+  height: 100px;
+  margin-left: 10px;
+}
+
 .header {
-    background-color: rgba(235, 135, 63, 0.8);
-    display: flex;
-  }
-  
-  .header-nav {
-    display: flex;
-    opacity: 100%;
-    pointer-events: auto;
-  }
+  background-color: rgba(183,185,230,0.85);
+  display: flex;
+}
+
+.header-nav {
+  display: flex;
+  pointer-events: auto;
+  margin: auto;
+  margin-right: 10px;
+}
+
+.header-nav a {
+  padding: 20px;
+}

@@ -5,8 +5,8 @@ function Header(props) {
     return (
         <>
             <nav className="header">
-                <img src={wdwLogo} alt="Wet Dog Weather Logo" height="150px" />
-                <h2 style={{ marginRight: 'auto' }}>Terrier + MapLibre</h2>
+                <img id='logo' src={wdwLogo} alt="Wet Dog Weather Logo" />
+                <h1 id='splash-text'>Terrier + MapLibre</h1>
                 <ul className="header-nav"> {props.children} </ul>
             </nav>
         </>

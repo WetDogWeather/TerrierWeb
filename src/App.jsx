@@ -7,12 +7,15 @@ import Map from './components/Map/Map'
 import Legend from './components/Legend/Legend'
 import MediaControls from './components/Media Controls/MediaControls'
 
+import burgerIcon from './assets/menu-burger.png' // Maybe move this into the Burger class?
+import hideIcon from './assets/hide.png'
+
 export const GlobalStateContext = createContext()
 
 const initGlobalState = {
   mapState: 'none',           // none, temp, wind, or radar
   legendTempUnits: 'K',       // K, C, or F
-  animSpeed: 0.5,             // 0x - 10x, to 1 decimal place
+  animSpeed: 1,             // 0.0x - 9.9x, always to 1 decimal place
   controlsVisible: true
 }
 
@@ -36,8 +39,8 @@ function App() {
         {globalState.controlsVisible &&
           <>
             <Header>
-              <button onClick={() => setGlobalState({...globalState, controlsVisible: false})}>Hide/Unhide Controls</button>
-              <Burger icon='Dropdown'>
+              <a href='#' onClick={() => setGlobalState({...globalState, controlsVisible: false})}><img src={hideIcon} height='50px' /></a>
+              <Burger icon={burgerIcon}>
                 <Dropdown />
               </Burger>
             </Header>
@@ -52,3 +55,13 @@ function App() {
 }
 
 export default App
+
+/*
+ICON LINKS
+https://www.flaticon.com/free-icon/fullscreen_161728?term=fullscreen&page=1&position=5&origin=search&related_id=161728
+https://www.flaticon.com/free-icon/thermometer_808602
+https://www.flaticon.com/free-icon/wind_2011448
+https://www.flaticon.com/free-icon/radar_614511
+https://www.flaticon.com/free-icon-font/menu-burger_3917762
+https://www.flaticon.com/free-icon/settings_3524659?term=settings&page=1&position=5&origin=search&related_id=3524659
+*/

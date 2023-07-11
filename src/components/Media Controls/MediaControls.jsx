@@ -18,9 +18,11 @@ function MediaControls() {
         <>
             <div className='media-controls'>
                 <p id='media-date'>{currDate.toString()}</p>
-                <button>Play</button> {/* Doesn't do anything yet */}
-                <input type='range' min={startTime} max={endTime} onChange={(e) => handleChange(e)}/>
-                <p>{ globalState.animSpeed }x</p>
+                <div id='scrubber-controls'>
+                    <button>Play</button> {/* Doesn't do anything yet */}
+                    <input type='range' min={startTime} max={endTime} onChange={(e) => handleChange(e)} />
+                    <p>{(globalState.animSpeed).toFixed(1)}x</p>
+                </div>
             </div>
         </>
     )

@@ -1,11 +1,31 @@
 .media-controls {
-    background-color: pink;
-    width: 500px;
-  
-    position: absolute;
-    top: 90%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  
-    pointer-events: auto;
-  }
+  background-color: rgb(183, 185, 230);
+  width: 500px;
+  border-radius: 20px;
+
+  position: absolute;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  pointer-events: auto;
+}
+
+#media-date {
+  display: flex;
+  justify-content: center;
+}
+
+#scrubber-controls {
+  display: flex;
+  justify-content: center;
+}
+
+#scrubber-controls input {
+  width: 300px;
+  margin: 20px;
+}
+
+#scrubber-controls button {
+  height: 40px;
+}

@@ -2,22 +2,25 @@
   --transform-speed: 500ms;
 }
 
-a {
-  color: red;
-  font-size: 50px;
-  margin: 15px;
-}
-
 ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-h1 {
-  margin: 0; /* This line should be completely unnecessary, brute force fix, idk the main cause of the issue it's fixing. Must figure out before delivered. */
+body {
+  pointer-events: none; /* Fixes the UI blocking interactions with the mapbox */
+  overflow-y: hidden;
 }
 
-body {
-  pointer-events: none;
+h1 {
+  font-family: Arial;
+}
+
+p {
+  font-family: Arial;
+}
+
+label {
+  font-family: Arial;
 }

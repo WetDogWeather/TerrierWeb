@@ -1,14 +1,18 @@
 .legend {
-    background-color: rgba(57, 178, 75, 0.8);
-    padding: 10px;
-    width: 104px;
-    justify-content: center;
-  }
-  
-  .legend-box {
-    height: 25px;
-    width: 100px;
-    display: flex;
-    justify-content: center;
-    margin: 2px;
-  }
+  padding: 10px;
+  width: 104px;
+  justify-content: center;
+}
+
+.legend-box {
+  height: 25px;
+  width: 100px;
+  display: flex;
+  justify-content: center;
+  margin: 2px;
+  margin-left: 10px;
+}
+
+.legend h1 {
+  margin: 5px;
+}

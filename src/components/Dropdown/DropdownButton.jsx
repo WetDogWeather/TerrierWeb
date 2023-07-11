@@ -18,7 +18,7 @@ function DropdownButton(props) {
     return (
         <>
             <li>
-                <a href="#" onClick={() => handleClick()}> {props.icon} </a>
+                <a href='#' onClick={() => handleClick()}> <img class='dropdown-button' src={props.icon} height='70px'/></a>
                 {(dropdownState == props.newDropdownState) && props.children}
             </li>
         </>

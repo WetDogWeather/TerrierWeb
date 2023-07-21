@@ -4,9 +4,104 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Whirly Libre</title>
+
+    <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=default" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="detectmobilebrowser.js" crossorigin="anonymous" defer="defer"></script>
+    <script src="maplibre/maplibre-gl-dev.js" crossorigin="anonymous"></script>
+    <link href="maplibre/maplibre-gl-dev.js.map" rel="modulepreload" crossorigin="anonymous"/>
+    <link href="maplibre/maplibre-gl.css" rel="stylesheet" crossorigin="anonymous"/>
+    <script type="text/javascript" src="WhirlyGlobeWeb.js" defer="defer"></script>
+    <script type="text/javascript" src="controls.js" defer="defer"></script>
+
   </head>
   <body style="margin:0;"> <!-- Sole purpose of inline style is to override user agent stylesheet applied by browser -->
+    <div id='map'></div>
     <div id="root"></div>
+    <script type="text/javascript" defer="defer">
+      const controls = {};
+      var Module = {
+        preRun: [],
+        postRun: [],
+        emInitialized: false, // Set when the Emscripten runtime is loaded
+        doMapInit: true,      // MapLibre not currently deferred, can we do that?
+        noInitialRun: true,   // don't call main
+        noExitRuntime: true,  // Keep the Emscripten runtime from shutting down after async
+                              // calls because we aren't using the main loop mechanism.
+        canvas: null,         // filled in after GMap init
+        autoRepaint: 2000,    // draw a frame every few seconds even if nothing changed
+        debugLayers: false,
+        debugTracker: false,
+        debugJSFetch: false,
+        debugTemp: false,
+        debugWind: false,
+        debugRadar: false,
+
+        print: (function() {
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            text = text.replace(/&/g, "&amp;");
+            text = text.replace(/</g, "&lt;");
+            text = text.replace(/>/g, "&gt;");
+            text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+          };
+        })(),
+        setStatus: function(text) {
+          //console.log("Module.setStatus: '" + text + "'");
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          //console.log("Module.monitorRunDependencies(" + left + ")");
+        },
+        onRuntimeInitialized: function() {
+          console.log("Runtime Initialized");
+          if (window.mobile) {
+            const text = document.getElementById("frameText");
+            text.innerHTML = "Mobile not supported";
+            text.setAttribute("rows", 2);
+            text.classList.add("active");
+            return;
+          }
+          Module.emInitialized = true;
+          _postLoadInit();
+          initUI(controls);
+
+          Module.service = new Module.TrrService();
+          Module.service.stackName = "dev";
+          Module.service.apiVersion = 1;
+          Module.tempCadence = [ -24*3600, 24*3600, 40];
+          Module.windCadence = [ -25*3600, 24*3600, 40];
+          Module.radarCadence = [-48*3600,  0*3600, 40];
+
+          if (Module.doMapInit) {
+            const opts = {
+              container: "map",
+              //style: "./maplibre-demo.json",
+              style: "./maplibre-none.json",
+              antialias: true,
+              failIfMajorPerformanceCaveat: true,
+              center: [-100, 40],
+              zoom: 3
+            };
+            const map = new maplibregl.Map(opts);
+            _initMap("libre", map);
+          }
+          // Kick off UI polling
+          setTimeout(controls.updateFast, 500);
+
+          Module.onOverlayInitialized = (ov) => {
+            setTimeout(() => {
+              ["ne_50m_admin_0_countries","ne_50m_admin_1_states_provinces"].forEach(c =>
+                fetch("geojson/"+c+".geojson").then(result =>
+                  result.text().then(t => {
+                    console.debug("Adding " + c + ".geojson")
+                    ov.addGeoJSON(t);
+                  })));
+              }, 1000);
+          };
+        },
+      };
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

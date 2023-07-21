@@ -1,0 +1,88 @@
+body, html {
+    height: 100%;
+    width: 100%;
+  }
+  #controls {
+    width: 100%;
+  }
+  #controls .button {
+    min-width: 2em;
+  }
+  #controls #timeScrubber {
+    width: 50%;
+    min-width: 2em;
+  }
+  #controls #curTime {
+    width: 50%;
+    text-align: center;
+  }
+  div.conditional {
+    display: none;
+  }
+  div.active {
+    display: block;
+  }
+  #controls div#types table td {
+    padding-right: 0.5em;
+  }
+  #controls div#types table td.conditional {
+    display: none;
+  }
+  #controls div#types table td.active {
+    display: table-cell;
+  }
+  #controls div#types table thead {
+    font-size: 70%;
+  }
+  #controls div#types table thead.conditional {
+    display: none;
+  }
+  #controls div#types table thead.active {
+    display: table-header-group;
+  }
+  #map {
+    width: 90%;
+    height: 65%;
+  }
+  #animatingSpinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    margin: auto;
+    background: #fff;
+  }
+  #animatingSpinner.active {
+    display: block;
+  }
+  #frameText {
+    display: none;
+    width: 90%;
+    white-space: pre;
+    border-style: none;
+  }
+  #frameText.active {
+    display: block;
+  }
+  #heapSize {
+    font-size: 50%;
+  }
+  div.colormap {
+    margin: 0em;
+    padding: 0em;
+    width: fit-content;
+    background-image: url("../img/grid.png");
+    background-repeat: repeat;
+    background-size: 1em 1em;
+  }
+  span.colormapTitle {
+    padding: 1em 0.5em;
+    background-color: white;
+  }
+  span.colormapEntry {
+    display: inline-block;
+    height: 1em;
+    margin: 0;
+    padding: 0.5em;
+    border-width:0;
+    text-shadow: 1px 1px 3px white;
+  }

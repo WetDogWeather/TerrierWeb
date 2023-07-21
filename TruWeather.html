@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>TruWeather</title>
+    <link href="css/controls.css" rel="stylesheet"/>
+    <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=default" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="detectmobilebrowser.js" crossorigin="anonymous" defer="defer"></script>
+    <script src="maplibre/maplibre-gl-dev.js" crossorigin="anonymous"></script>
+    <link href="maplibre/maplibre-gl-dev.js.map" rel="modulepreload" crossorigin="anonymous"/>
+    <link href="maplibre/maplibre-gl.css" rel="stylesheet" crossorigin="anonymous"/>
+    <script type="text/javascript" src="WhirlyGlobeWeb.js" defer="defer"></script>
+    <script type="text/javascript" src="controls.js" defer="defer"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="radarColors" class="colormap conditional"></div>
+    <div id="windColors" class="colormap conditional"></div>
+    <div id="tempColors" class="colormap conditional"></div>
+    <div id="WindGustColors" class="colormap conditional"></div>
+    <div id="VisibilityColors" class="colormap conditional"></div>
+    <div id="PressureColors" class="colormap conditional"></div>
+    <div id="PrecipRateColors" class="colormap conditional"></div>
+    <div id="PrecipTypeColors" class="colormap conditional"></div>
+    <div id="CloudCoverColors" class="colormap conditional"></div>
+    <div id="CloudCeilingColors" class="colormap conditional"></div>
+    <span>Level<select id="levels" onchange="controls.setLevel(this.value)"></select></span>
+    <div id="controls">
+      <div id="timeline" class="conditional">
+        <div>
+          <input type="range" id="timeScrubber" class="" min="0" max="10000" value="0" oninput="Module.setTimeFrac(this.value/10000)"/>
+        </div>
+        <div>
+          <table>
+            <tr>
+              <td>Min</td>
+              <td><span id="minTime"></span></td>
+              <td>&nbsp;Animation Speed</td>
+              <td><input type="range" id="speedScrubber" class="" min="1" max="120" value="30" oninput="controls.onSpeedChange(this)"/></td>
+              <td rowspan="3" style="vertical-align: top;">
+                <svg id="animatingSpinner" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                  <circle cx="50" cy="50" r="40" fill="#3dd" stroke="#d88" stroke-width="3"></circle>
+                  <g transform="rotate(-23.43628 50 50)">
+                    <path d="M10 50 L90 50" stroke="#d88" stroke-width="3"></path>
+                    <ellipse cx="50" cy="50" ry="40" fill="none" stroke="#d88" stroke-width="3">
+                      <animate attributeName="rx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="40;0;40" begin="0s" />
+                    </ellipse>
+                    <ellipse cx="50" cy="50" ry="40" fill="none" stroke="#d88" stroke-width="3">
+                      <animate attributeName="rx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="40;0;40" begin="-0.3333s" />
+                    </ellipse>
+                    <ellipse cx="50" cy="50" ry="40" fill="none" stroke="#d88" stroke-width="3">
+                      <animate attributeName="rx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="40;0;40" begin="-0.6667s" />
+                    </ellipse>
+                  </g>
+                  </svg>
+              </td>
+            </tr>
+            <tr><td>Current</td><td><span id="curTime"></span></td></tr>
+            <tr><td>Max</td><td><span id="maxTime"></span></td></tr>
+          </table>
+          <input type="button" id="play" class="button" value="Play" name="play" onclick="controls.onPlayStop()"/>
+        </div>
+      </div>
+      <div>
+        <textarea id="frameText"></textarea>
+      </div>
+        <div id="types">
+        <table>
+          <thead class="conditional">
+            <tr>
+              <th></th>
+              <th>Opacity</th>
+              <th style="display:none">Min Importance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="tempControls">
+              <td>
+                <input type="checkbox" id="enableTemp" class="typeCheck" value="Temperature" onchange="controls.onTempCheck(this)" />
+                <label for="enableTemp">Temperature</label>
+              </td>
+              <td class="conditional">
+                <input type="range" id="tempAlpha" class="" min="0" max="255" value="192" oninput="controls.onTempOpacity(this)"/>
+              </td>
+              <td class="conditional" style="display:none">
+                <input type="range" id="tempImport" class="" min="5" max="100" value="10" oninput="controls.onTempImport(this)"/>
+                <span id="tempImportLabel"></span>
+              </td>
+              <td class="conditional">
+                <div>
+                  <span>Variable</span>
+                  <input type="radio" id="tempVarInterp0" name="tempVarInterp" value="0" onchange="controls.onTempVarInterp(this.value)" />
+                  <label for="tempVarInterp0">Nearest</label>
+                  <input type="radio" id="tempVarInterp1" name="tempVarInterp" value="1" checked onchange="controls.onTempVarInterp(this.value)" />
+                  <label for="tempVarInterp1">Linear</label>
+                  <input type="radio" id="tempVarInterp2" name="tempVarInterp" value="2" disabled onchange="controls.onTempVarInterp(this.value)" style="display:none"/>
+                  <label for="tempVarInterp2" style="display:none">Cubic</label>
+                </div>
+                <div>
+                  <span>Render</span>
+                  <input type="radio" id="tempVisInterp0" name="tempVisInterp" value="0" onchange="controls.onTempVisInterp(this.value)" />
+                  <label for="tempVisInterp0">Nearest</label>
+                  <input type="radio" id="tempVisInterp1" name="tempVisInterp" value="1" checked onchange="controls.onTempVisInterp(this.value)" />
+                  <label for="tempVisInterp1">Linear</label>
+                  <input type="radio" id="tempVisInterp2" name="tempVisInterp" value="2" disabled onchange="controls.onTempVisInterp(this.value)"/>
+                  <label for="tempVisInterp2" style="display:none">Cubic</label>
+                </div>
+              </td>
+              <td class="conditional">
+                <input type="radio" id="tempColor0" name="tempColor" value="0" onchange="controls.onTempColor(this.value)" />
+                <label for="tempColor0">Grey</label>
+                <input type="radio" id="tempColor1" name="tempColor" value="1" checked onchange="controls.onTempColor(this.value)" />
+                <label for="tempColor1">Not Grey</label>
+              </td>
+            </tr>
+            <tr id="windControls">
+              <td>
+                <input type="checkbox" id="enableWind" class="typeCheck" value="Wind" onchange="controls.onWindCheck(this)" />
+                <label for="enableWind">Wind</label>
+              </td>
+              <td class="conditional">
+                <input type="range" id="windAlpha" class="" min="0" max="255" value="192" oninput="controls.onWindOpacity(this)"/>
+              </td>
+              <td class="conditional" style="display:none">
+                <input type="range" id="windImport" class="" min="5" max="100" value="10" oninput="controls.onWindImport(this)"/>
+                <span id="windImportLabel"></span>
+              </td>
+              <td class="conditional">
+                <div>
+                  <span>Variable</span>
+                  <input type="radio" id="windVarInterp0" name="windVarInterp" value="0" onchange="controls.onWindVarInterp(this.value)" />
+                  <label for="windVarInterp0">Nearest</label>
+                  <input type="radio" id="windVarInterp1" name="windVarInterp" value="1" checked onchange="controls.onWindVarInterp(this.value)" />
+                  <label for="windVarInterp1">Linear</label>
+                  <input type="radio" id="windVarInterp2" name="windVarInterp" value="2" disabled onchange="controls.onWindVarInterp(this.value)" style="display:none"/>
+                  <label for="windVarInterp2" style="display:none">Cubic</label>
+                </div>
+                <div>
+                  <span>Render</span>
+                  <input type="radio" id="windVisInterp0" name="windVisInterp" value="0" onchange="controls.onWindVisInterp(this.value)" />
+                  <label for="windVisInterp0">Nearest</label>
+                  <input type="radio" id="windVisInterp1" name="windVisInterp" value="1" checked onchange="controls.onWindVisInterp(this.value)" />
+                  <label for="windVisInterp1">Linear</label>
+                  <input type="radio" id="windVisInterp2" name="windVisInterp" value="2" disabled onchange="controls.onWindVisInterp(this.value)" />
+                  <label for="windVisInterp2" style="display:none">Cubic</label>
+                </div>
+              </td>
+              <td class="conditional">
+                <input type="radio" id="windColor0" name="windColor" value="0" onchange="controls.onWindColor(this.value)" />
+                <label for="windColor0">Grey</label>
+                <input type="radio" id="windColor1" name="windColor" value="1" checked onchange="controls.onWindColor(this.value)" />
+                <label for="windColor1">Not Grey</label>
+              </td>
+            </tr>
+            <tr id="radarControls">
+              <td>
+                <input type="checkbox" id="enableRadar" class="typeCheck" value="Radar" onchange="controls.onRadarCheck(this)" />
+                <label for="enableRadar">Radar</label>
+              </td>
+              <td class="conditional">
+                <input type="range" id="radarAlpha" class="" min="0" max="255" value="192" oninput="controls.onRadarOpacity(this)"/>
+              </td>
+              <td class="conditional" style="display:none">
+                <input type="range" id="radarImport" class="" min="5" max="100" value="10" oninput="controls.onRadarImport(this)"/>
+                <span id="radarImportLabel"></span>
+              </td>
+              <td class="conditional">
+                <div>
+                  <span>Variable</span>
+                  <input type="radio" id="radarVarInterp0" name="radarVarInterp" value="0" onchange="controls.onRadarVarInterp(this.value)" />
+                  <label for="radarVarInterp0">Nearest</label>
+                  <input type="radio" id="radarVarInterp1" name="radarVarInterp" value="1" checked onchange="controls.onRadarVarInterp(this.value)" />
+                  <label for="radarVarInterp1">Linear</label>
+                  <input type="radio" id="radarVarInterp2" name="radarVarInterp" value="2" disabled onchange="controls.onRadarVarInterp(this.value)"  style="display:none"/>
+                  <label for="radarVarInterp2" style="display:none">Cubic</label>
+                </div>
+                <div>
+                  <span>Render</span>
+                  <input type="radio" id="radarVisInterp0" name="radarVisInterp" value="0" onchange="controls.onRadarVisInterp(this.value)" />
+                  <label for="radarVisInterp0">Nearest</label>
+                  <input type="radio" id="radarVisInterp1" name="radarVisInterp" value="1" checked onchange="controls.onRadarVisInterp(this.value)" />
+                  <label for="radarVisInterp1">Linear</label>
+                  <input type="radio" id="radarVisInterp2" name="radarVisInterp" value="2" disabled onchange="controls.onRadarVisInterp(this.value)" />
+                  <label for="tempVisInterp2" style="display:none">Cubic</label>
+                </div>
+              </td>
+              <td class="conditional">
+                <input type="radio" id="radarColor0" name="radarColor" value="0" onchange="controls.onRadarColor(this.value)" />
+                <label for="radarColor0">Grey</label>
+                <input type="radio" id="radarColor1" name="radarColor" value="1" checked onchange="controls.onRadarColor(this.value)" />
+                <label for="radarColor1">Not Grey</label>
+              </td>
+            </tr>
+            <tr id="gustControls">
+              <td>
+                <input type="checkbox" id="enableGust" class="typeCheck" value="Gust"
+                       onchange="controls.onTypeChecked(this.checked, 'WindGust')" />
+                <label for="enableGust">Gust</label>
+              </td>
+            </tr>
+            <tr id="visibilityControls">
+              <td>
+                <input type="checkbox" id="enableVisibility" class="typeCheck" value="Visibility"
+                       onchange="controls.onTypeChecked(this.checked, 'Visibility')" />
+                <label for="enableVisibility">Visibility</label>
+              </td>
+            </tr>
+            <tr id="pressureControls">
+              <td>
+                <input type="checkbox" id="enablePressure" class="typeCheck" value="Pressure"
+                       onchange="controls.onTypeChecked(this.checked, 'Pressure')" />
+                <label for="enablePressure">Pressure</label>
+              </td>
+            </tr>
+            <tr id="precipRateControls">
+              <td>
+                <input type="checkbox" id="enablePrecipRate" class="typeCheck" value="PrecipRate"
+                       onchange="controls.onTypeChecked(this.checked, 'PrecipRate')" />
+                <label for="enablePrecipRate">PrecipRate</label>
+              </td>
+            </tr>
+            <tr id="precipTypeControls">
+              <td>
+                <input type="checkbox" id="enablePrecipType" class="typeCheck" value="PrecipType"
+                       onchange="controls.onTypeChecked(this.checked, 'PrecipType')" />
+                <label for="enablePrecipType">PrecipType</label>
+              </td>
+            </tr>
+            <tr id="cloudCoverControls">
+              <td>
+                <input type="checkbox" id="enableCloudCover" class="typeCheck" value="CloudCover"
+                       onchange="controls.onTypeChecked(this.checked, 'CloudCover')" />
+                <label for="enableCloudCover">CloudCover</label>
+              </td>
+            </tr>
+            <tr id="cloudCeilingControls">
+              <td>
+                <input type="checkbox" id="enableCloudCeiling" class="typeCheck" value="CloudCeiling"
+                       onchange="controls.onTypeChecked(this.checked, 'CloudCeiling')" />
+                <label for="enableCloudCeiling">CloudCeiling</label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script type="text/javascript" defer="defer">
+      const controls = {};
+      var Module = {
+        preRun: [],
+        postRun: [],
+        emInitialized: false, // Set when the Emscripten runtime is loaded
+        doMapInit: true,      // MapLibre not currently deferred, can we do that?
+        noInitialRun: true,   // don't call main
+        noExitRuntime: true,  // Keep the Emscripten runtime from shutting down after async
+                              // calls because we aren't using the main loop mechanism.
+        canvas: null,         // filled in after GMap init
+        autoRepaint: 2000,    // draw a frame every few seconds even if nothing changed
+        debugLayers: true,
+        debugTracker: false,
+        debugJSFetch: false,
+        debugTemp: false,
+        debugWind: false,
+        debugRadar: false,
+
+        controllerState: {
+          "PrecipType": {
+            minImportanceFactor: 5,
+            snapToFrame: true,
+          }
+        },
+
+        print: (function() {
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            text = text.replace(/&/g, "&amp;");
+            text = text.replace(/</g, "&lt;");
+            text = text.replace(/>/g, "&gt;");
+            text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+          };
+        })(),
+        setStatus: function(text) {
+          //console.log("Module.setStatus: '" + text + "'");
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          //console.log("Module.monitorRunDependencies(" + left + ")");
+        },
+        onRuntimeInitialized: function() {
+          console.log("Runtime Initialized");
+          if (window.mobile) {
+            const text = document.getElementById("frameText");
+            text.innerHTML = "Mobile not supported";
+            text.setAttribute("rows", 2);
+            text.classList.add("active");
+            return;
+          }
+          Module.emInitialized = true;
+          _postLoadInit();
+          initUI(controls);
+
+          Module.service = new Module.TrrService();
+          Module.service.stackName = "truwx-3";
+          Module.tempCadence  = [ -6*3600, 48*3600, 40];
+          Module.windCadence  = [ -6*3600, 48*3600, 40];
+          Module.radarCadence = [-48*3600,  0*3600, 40];
+
+          //document.getElementById("enableTemp").checked = true;
+          //Module.enableTemp = true;
+          if (Module.doMapInit) {
+            const opts = {
+              container: "map",
+              style: "./maplibre-none.json",
+              antialias: true,
+              failIfMajorPerformanceCaveat: true,
+              center: [-80, 44],
+              zoom: 5
+            }
+            map = new maplibregl.Map(opts);
+            _initMap("libre", map);
+          }
+
+          //controls.onTempCheck({checked:true});
+          //controls.onRadarCheck({checked:true});
+          controls.onTempImport({value:80});
+          controls.onWindImport({value:80});
+          controls.onRadarImport({value:80});
+          controls.onSpeedChange({value:90});
+
+          // Kick off UI polling
+          setTimeout(controls.updateFast, 500);
+
+          Module.onOverlayInitialized = (ov) => {
+            setTimeout(() => {
+              ["ne_50m_admin_0_countries","ne_50m_admin_1_states_provinces"].forEach(c =>
+                fetch("geojson/"+c+".geojson").then(result =>
+                  result.text().then(t => {
+                    console.debug("Adding " + c + ".geojson")
+                    ov.addGeoJSON(t);
+                  })));
+              }, 1000);
+          };
+        },
+      };
+    </script>
+  </body>
+</html>

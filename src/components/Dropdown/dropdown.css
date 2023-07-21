@@ -24,6 +24,11 @@
   height: 600px;
   top: 0;
   right: 0;
+  vertical-align: center;
+}
+
+.dropdown-input {
+  display: block;
 }
 
 .dropdown-nav a {

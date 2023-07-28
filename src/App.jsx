@@ -9,9 +9,9 @@ import MediaControls from './components/Media Controls/MediaControls'
 import burgerIcon from './assets/menu-burger.png' // Maybe move this into the Burger class?
 import hideIcon from './assets/hide.png'
 
-import { tempColorUpdate, tempDataSampleUpdate, tempRenderSampleUpdate } from './MapUtils'
-import { windColorUpdate, windDataSampleUpdate, windRenderSampleUpdate } from './MapUtils'
-import { radarColorUpdate, radarDataSampleUpdate, radarRenderSampleUpdate } from './MapUtils'
+import { tempColorUpdate, tempDataSampleUpdate, tempRenderSampleUpdate, tempMinImportanceUpdate, tempOpacityUpdate } from './MapUtils'
+import { windColorUpdate, windDataSampleUpdate, windRenderSampleUpdate, windMinImportanceUpdate, windOpacityUpdate } from './MapUtils'
+import { radarColorUpdate, radarDataSampleUpdate, radarRenderSampleUpdate, radarMinImportanceUpdate, radarOpacityUpdate } from './MapUtils'
 
 
 export const GlobalStateContext = createContext()
@@ -21,12 +21,18 @@ const initGlobalState = {
   tempColored: true,
   tempDataSampleType: 1,      // 0 = Nearest, 1 = Linear, 2 = Cubic.
   tempRenderSampleType: 1,    // 0 = Nearest, 1 = Linear, 2 = Cubic.
+  tempOpacity: 192,           // 0 - 255.
+  tempMinImportance: 10,      // 5 - 100.
   windColored: true,
   windDataSampleType: 1,      // 0 = Nearest, 1 = Linear, 2 = Cubic.
   windRenderSampleType: 1,    // 0 = Nearest, 1 = Linear, 2 = Cubic.
+  windOpacity: 192,           // 0 - 255.
+  windMinImportance: 10,      // 5 - 100.
   radarColored: true,
   radarDataSampleType: 1,     // 0 = Nearest, 1 = Linear, 2 = Cubic.
   radarRenderSampleType: 1,   // 0 = Nearest, 1 = Linear, 2 = Cubic.
+  radarOpacity: 192,           // 0 - 255.
+  radarMinImportance: 10,      // 5 - 100.
   legendTempUnits: 'K',       // K, C, or F
   animSpeed: 1,               // 0.0x - 9.9x, always to 1 decimal place
   controlsVisible: true
@@ -38,25 +44,48 @@ function App() {
 
   // When the globalState changes, run the code here.
   useEffect(() => {
-    Module.enableTemp = false;
+    if (globalState.mapState == 'temp') {
+      Module.enableTemp = true;
+
     Module.enableWind = false;
     Module.enableRadar = false;
 
-    if (globalState.mapState == 'temp') {
-      Module.enableTemp = true;
       tempColorUpdate(globalState.tempColored);
       tempDataSampleUpdate(globalState.tempDataSampleType);
       tempRenderSampleUpdate(globalState.tempRenderSampleType);
+      tempOpacityUpdate(globalState.tempOpacity);
+      tempMinImportanceUpdate(globalState.tempMinImportance);
     } else if (globalState.mapState == 'wind') {
       Module.enableWind = true;
+
+      Module.enableTemp = false;
+      Module.enableRadar = false;
+
       windColorUpdate(globalState.windColored);
+      windDataSampleUpdate(globalState.windDataSampleType);
+      windRenderSampleUpdate(globalState.windRenderSampleType);
+      windOpacityUpdate(globalState.windOpacity);
+      windMinImportanceUpdate(globalState.windMinImportance);
     } else if (globalState.mapState == 'radar') {
       Module.enableRadar = true;
+
+      Module.enableTemp = false;
+      Module.enableWind = false;
+
       radarColorUpdate(globalState.radarColored);
+      radarDataSampleUpdate(globalState.radarDataSampleType);
+      radarRenderSampleUpdate(globalState.radarRenderSampleType);
+      radarOpacityUpdate(globalState.radarOpacity);
+      radarMinImportanceUpdate(globalState.radarMinImportance);
     }
 
     Module.updateOverlay();
   })
+
+  function hidePage() {
+    setGlobalState({...globalState, controlsVisible: false})
+    alert('Press any key to exit fullscreen');
+  }
 
   // When any key on the keyboard is pressed, unhide UI. (This still needs to be communicated to the user visually)
   useEffect(() => {
@@ -72,7 +101,7 @@ function App() {
         {globalState.controlsVisible &&
           <>
             <Header>
-              <a href='#' onClick={() => setGlobalState({...globalState, controlsVisible: false})}><img src={hideIcon} height='50px' /></a>
+              <a href='#' onClick={() => hidePage()}><img src={hideIcon} height='30px' /></a>
               <Burger icon={burgerIcon}>
                 <Dropdown />
               </Burger>

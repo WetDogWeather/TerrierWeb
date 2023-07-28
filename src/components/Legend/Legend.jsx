@@ -3,27 +3,58 @@ import { GlobalStateContext } from '../../App'
 import LegendContent from './LegendContent'
 import './legend.css'
 
+import { TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY } from '../../MapUtils'
+import { WIND_COLORS_GREY, WIND_COLORS_NOT_GREY } from '../../MapUtils'
+import { RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY } from '../../MapUtils'
+
 function Legend(props) {
 
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
 
-    const kelvinTemps = [255.37, 260.93, 266.58, 272.04, 277.59, 283.15, 288.71, 294.26, 299.82, 305.37, 310.93, 316.48]
-    var displayTemps = []
-    for (var i = 0; i < kelvinTemps.length; i++) {
-        if (globalState.legendTempUnits == 'K') {
-            displayTemps[i] = kelvinTemps[i]
-        } else if (globalState.legendTempUnits == 'C') {
-            displayTemps[i] = (kelvinTemps[i] - 273.15).toFixed(2)                  // Kelvin to Celsius formula
-        } else if (globalState.legendTempUnits == 'F') {
-            displayTemps[i] = (((kelvinTemps[i] - 273.15) * (9/5)) + 32).toFixed(2) // Kelvin to Farenheit formula
-        }
+    var currentShaderMap = new Module.TrrShaderColorMap(0, false, [], [])
+    var units = 'K'
+    switch (globalState.mapState) {
+        case 'temp':
+            units = globalState.legendTempUnits
+            if (globalState.tempColored) {
+                currentShaderMap = TEMP_COLORS_NOT_GREY
+            } else {
+                currentShaderMap = TEMP_COLORS_GREY
+            }
+            break;
+        case 'wind':
+            units = 'm/s'
+            if (globalState.windColored) {
+                currentShaderMap = WIND_COLORS_NOT_GREY
+            } else {
+                currentShaderMap = WIND_COLORS_GREY
+            }
+            break;
+        case 'radar':
+            units = 'dBz'
+            if (globalState.radarColored) {
+                currentShaderMap = RADAR_COLORS_NOT_GREY
+            } else {
+                currentShaderMap = RADAR_COLORS_GREY
+            }
+            break;
+        default:
+            currentShaderMap = new Module.TrrShaderColorMap(0, false, [], [])
+            break;
+
     }
 
     return (
         <>
             <div className='legend'>
                 <h1>Legend</h1>
-                <LegendContent requiredState='temp'>
+                <LegendContent shaderMap={currentShaderMap} units={units} />
+            </div>
+        </>
+    )
+}
+
+{/* <LegendContent requiredState='temp'>
                     <p className='legend-box' style={{ backgroundColor: '#FFBFFF' }}>{displayTemps[0]} {globalState.legendTempUnits}</p>
                     <p className='legend-box' style={{ backgroundColor: '#D873DB' }}>{displayTemps[1]} {globalState.legendTempUnits}</p>
                     <p className='legend-box' style={{ backgroundColor: '#913ABB' }}>{displayTemps[2]} {globalState.legendTempUnits}</p>
@@ -71,10 +102,6 @@ function Legend(props) {
                     <p className='legend-box' style={{ backgroundColor: '#F807F6' }}>65 dBz</p>
                     <p className='legend-box' style={{ backgroundColor: '#9A52C8' }}>70 dBz</p>
                     <p className='legend-box' style={{ backgroundColor: '#FCFBFA' }}>75 dBz</p>
-                </LegendContent>
-            </div>
-        </>
-    )
-}
+                </LegendContent> */}
 
 export default Legend

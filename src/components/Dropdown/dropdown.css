@@ -1,6 +1,6 @@
 .dropdown {
   height: 600px;
-  width: 400px;
+  width: 380px;
   border-radius: 20px;
   background-color: rgb(138, 141, 193);
   position: absolute;
@@ -15,16 +15,36 @@
 
 .dropdown-button {
   padding: 15px;
+  width: 50px;
+}
+
+.dropdown-button-active {
+  padding: 10px;
+  padding-right: 15px;
+  width: 50px;
+
+  background-color: rgba(183, 185, 230);
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-width: 5px 0px 5px 5px;
+  border-style: solid;
+  border-color: rgb(138, 141, 193);
 }
 
 .dropdown-content {
   background-color: rgba(183, 185, 230);
   position: absolute;
-  width: 300px;
+  width: 270px;
   height: 600px;
   top: 0;
   right: 0;
-  vertical-align: center;
+  padding-left: 30px;
+}
+
+.dropdown-content h1 {
+  text-align: center;
+  margin-right: 30px;
+  font-size: 38px;
 }
 
 .dropdown-input {
@@ -33,4 +53,10 @@
 
 .dropdown-nav a {
   padding: 0;
+}
+
+#frame-text {
+  font-size: 8px;
+  width: 240px;
+  height: 260px;
 }

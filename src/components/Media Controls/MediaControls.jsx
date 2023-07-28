@@ -12,6 +12,7 @@ function MediaControls() {
 
     const handleChange = (e) => {
         setCurrDate(new Date(Number(e.target.value)))
+        //Module.setTimeFrac(5000/10000);
     }
 
     return (

@@ -44,46 +44,55 @@ function App() {
 
   // When the globalState changes, run the code here.
   useEffect(() => {
-    if (globalState.mapState == 'temp') {
-      Module.enableTemp = true;
+    switch (globalState.mapState) {
 
-    Module.enableWind = false;
-    Module.enableRadar = false;
+      case 'temp':
+        Module.enableTemp = true;
 
-      tempColorUpdate(globalState.tempColored);
-      tempDataSampleUpdate(globalState.tempDataSampleType);
-      tempRenderSampleUpdate(globalState.tempRenderSampleType);
-      tempOpacityUpdate(globalState.tempOpacity);
-      tempMinImportanceUpdate(globalState.tempMinImportance);
-    } else if (globalState.mapState == 'wind') {
-      Module.enableWind = true;
+        Module.enableWind = false;
+        Module.enableRadar = false;
 
-      Module.enableTemp = false;
-      Module.enableRadar = false;
+        tempColorUpdate(globalState.tempColored);
+        tempDataSampleUpdate(globalState.tempDataSampleType);
+        tempRenderSampleUpdate(globalState.tempRenderSampleType);
+        tempOpacityUpdate(globalState.tempOpacity);
+        tempMinImportanceUpdate(globalState.tempMinImportance);
+        break;
 
-      windColorUpdate(globalState.windColored);
-      windDataSampleUpdate(globalState.windDataSampleType);
-      windRenderSampleUpdate(globalState.windRenderSampleType);
-      windOpacityUpdate(globalState.windOpacity);
-      windMinImportanceUpdate(globalState.windMinImportance);
-    } else if (globalState.mapState == 'radar') {
-      Module.enableRadar = true;
+      case 'wind':
+        Module.enableWind = true;
 
-      Module.enableTemp = false;
-      Module.enableWind = false;
+        Module.enableTemp = false;
+        Module.enableRadar = false;
 
-      radarColorUpdate(globalState.radarColored);
-      radarDataSampleUpdate(globalState.radarDataSampleType);
-      radarRenderSampleUpdate(globalState.radarRenderSampleType);
-      radarOpacityUpdate(globalState.radarOpacity);
-      radarMinImportanceUpdate(globalState.radarMinImportance);
+        windColorUpdate(globalState.windColored);
+        windDataSampleUpdate(globalState.windDataSampleType);
+        windRenderSampleUpdate(globalState.windRenderSampleType);
+        windOpacityUpdate(globalState.windOpacity);
+        windMinImportanceUpdate(globalState.windMinImportance);
+        break;
+
+      case 'radar':
+        Module.enableRadar = true;
+
+        Module.enableTemp = false;
+        Module.enableWind = false;
+
+        radarColorUpdate(globalState.radarColored);
+        radarDataSampleUpdate(globalState.radarDataSampleType);
+        radarRenderSampleUpdate(globalState.radarRenderSampleType);
+        radarOpacityUpdate(globalState.radarOpacity);
+        radarMinImportanceUpdate(globalState.radarMinImportance);
+        break;
+        
+      default:
+        break;
     }
-
     Module.updateOverlay();
   })
 
   function hidePage() {
-    setGlobalState({...globalState, controlsVisible: false})
+    setGlobalState({ ...globalState, controlsVisible: false })
     alert('Press any key to exit fullscreen');
   }
 
@@ -92,7 +101,7 @@ function App() {
     document.addEventListener('keydown', detectKeyDown, true)
   }, [])
   const detectKeyDown = (e) => {
-    setGlobalState(globalState => {return {...globalState, controlsVisible: true} }) // This nested function prevents the detectKeyDown from reading the default globalState.
+    setGlobalState(globalState => { return { ...globalState, controlsVisible: true } }) // This nested function prevents the detectKeyDown from reading the default globalState.
   }
 
   return (

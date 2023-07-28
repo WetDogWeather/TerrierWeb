@@ -41,7 +41,6 @@ export const RADAR_COLORS_NOT_GREY = new Module.TrrShaderColorMap(0, false, [
 //
 
 export function tempColorUpdate(isColored) {
-    _debounce(() => { console.log('hello: ' + isColored) }, 500);
     var newShaderColorMap;
 
     if (isColored) {

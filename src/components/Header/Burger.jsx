@@ -9,7 +9,7 @@ function Burger(props) {
 
     return (
         <>
-            <a href="#" onClick={() => setOpen(!open)}> <img src={props.icon} height='30px' /> </a>
+            <a href="#" draggable='false' onClick={() => setOpen(!open)}> <img draggable='false' src={props.icon} height='30px' /> </a>
             {open && props.children}
         </>
     )

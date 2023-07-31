@@ -15,16 +15,20 @@ body {
 
 h1 {
   font-family: Arial;
+  user-select: none;
 }
 
 h3 {
   font-family: Arial;
+  user-select: none;
 }
 
 p {
   font-family: Arial;
+  user-select: none;
 }
 
 label {
   font-family: Arial;
+  user-select: none;
 }

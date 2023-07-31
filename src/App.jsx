@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react'
+import debounce from 'lodash.debounce'
 
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
@@ -44,51 +45,7 @@ function App() {
 
   // When the globalState changes, run the code here.
   useEffect(() => {
-    switch (globalState.mapState) {
-
-      case 'temp':
-        Module.enableTemp = true;
-
-        Module.enableWind = false;
-        Module.enableRadar = false;
-
-        tempColorUpdate(globalState.tempColored);
-        tempDataSampleUpdate(globalState.tempDataSampleType);
-        tempRenderSampleUpdate(globalState.tempRenderSampleType);
-        tempOpacityUpdate(globalState.tempOpacity);
-        tempMinImportanceUpdate(globalState.tempMinImportance);
-        break;
-
-      case 'wind':
-        Module.enableWind = true;
-
-        Module.enableTemp = false;
-        Module.enableRadar = false;
-
-        windColorUpdate(globalState.windColored);
-        windDataSampleUpdate(globalState.windDataSampleType);
-        windRenderSampleUpdate(globalState.windRenderSampleType);
-        windOpacityUpdate(globalState.windOpacity);
-        windMinImportanceUpdate(globalState.windMinImportance);
-        break;
-
-      case 'radar':
-        Module.enableRadar = true;
-
-        Module.enableTemp = false;
-        Module.enableWind = false;
-
-        radarColorUpdate(globalState.radarColored);
-        radarDataSampleUpdate(globalState.radarDataSampleType);
-        radarRenderSampleUpdate(globalState.radarRenderSampleType);
-        radarOpacityUpdate(globalState.radarOpacity);
-        radarMinImportanceUpdate(globalState.radarMinImportance);
-        break;
-        
-      default:
-        break;
-    }
-    Module.updateOverlay();
+    debounceHandler(globalState);
   })
 
   function hidePage() {
@@ -96,7 +53,7 @@ function App() {
     alert('Press any key to exit fullscreen');
   }
 
-  // When any key on the keyboard is pressed, unhide UI. (This still needs to be communicated to the user visually)
+  // When any key on the keyboard is pressed, unhide UI.
   useEffect(() => {
     document.addEventListener('keydown', detectKeyDown, true)
   }, [])
@@ -110,7 +67,7 @@ function App() {
         {globalState.controlsVisible &&
           <>
             <Header>
-              <a href='#' onClick={() => hidePage()}><img src={hideIcon} height='30px' /></a>
+              <a href='#' draggable='false' onClick={() => hidePage()}><img draggable='false' src={hideIcon} height='30px' /></a>
               <Burger icon={burgerIcon}>
                 <Dropdown />
               </Burger>
@@ -124,6 +81,54 @@ function App() {
     </>
   )
 }
+
+const debounceHandler = debounce((globalState) => {
+  switch (globalState.mapState) {
+
+    case 'temp':
+      Module.enableTemp = true;
+
+      Module.enableWind = false;
+      Module.enableRadar = false;
+
+      tempColorUpdate(globalState.tempColored);
+      tempDataSampleUpdate(globalState.tempDataSampleType);
+      tempRenderSampleUpdate(globalState.tempRenderSampleType);
+      tempOpacityUpdate(globalState.tempOpacity);
+      tempMinImportanceUpdate(globalState.tempMinImportance);
+      break;
+
+    case 'wind':
+      Module.enableWind = true;
+
+      Module.enableTemp = false;
+      Module.enableRadar = false;
+
+      windColorUpdate(globalState.windColored);
+      windDataSampleUpdate(globalState.windDataSampleType);
+      windRenderSampleUpdate(globalState.windRenderSampleType);
+      windOpacityUpdate(globalState.windOpacity);
+      windMinImportanceUpdate(globalState.windMinImportance);
+      break;
+
+    case 'radar':
+      Module.enableRadar = true;
+
+      Module.enableTemp = false;
+      Module.enableWind = false;
+
+      radarColorUpdate(globalState.radarColored);
+      radarDataSampleUpdate(globalState.radarDataSampleType);
+      radarRenderSampleUpdate(globalState.radarRenderSampleType);
+      radarOpacityUpdate(globalState.radarOpacity);
+      radarMinImportanceUpdate(globalState.radarMinImportance);
+      break;
+
+    default:
+      break;
+  }
+  Module.updateOverlay();
+}, 1000);
 
 export default App
 

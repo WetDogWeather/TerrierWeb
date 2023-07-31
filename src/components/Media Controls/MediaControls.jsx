@@ -1,18 +1,20 @@
+import debounce from 'lodash.debounce'
+import moment from 'moment' // date formatter
+
 import { useContext, useState } from 'react'
 import { GlobalStateContext } from '../../App'
 import './mediacontrols.css'
 
 function MediaControls() {
 
-    var startTime = 1641072720000 // Jan 01, 2022 in milliseconds
-    var endTime = 1672608720000 // Jan 01, 2023 in milliseconds
-
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
-    const [currDate, setCurrDate] = useState(new Date(startTime))
+
+    // Needs work. minTime doesn't get the correct value, because the UI updates before the map can be set-up. Maybe set this to "fetching time..." and then reset it once the map loads? Not sure.
+    const [currDate, setCurrDate] = useState(moment(Number(Module.tracker.minTime)).format('dddd, MMMM Do, h:mm a'))
 
     const handleChange = (e) => {
-        setCurrDate(new Date(Number(e.target.value)))
-        //Module.setTimeFrac(5000/10000);
+        Module.setTimeFrac(e.target.value / 10000);
+        setCurrDate(moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a'))
     }
 
     return (
@@ -20,12 +22,20 @@ function MediaControls() {
             <div className='media-controls'>
                 <p id='media-date'>{currDate.toString()}</p>
                 <div id='scrubber-controls'>
-                    <button>Play</button> {/* Doesn't do anything yet */}
-                    <input type='range' min={startTime} max={endTime} onChange={(e) => handleChange(e)} />
+                    <button onClick={(e) => { onPlay(globalState.mapState) }}>Play</button>
+                    <input type='range' min='0' max='10000' onChange={(e) => handleChange(e)} />
                     <p>{(globalState.animSpeed).toFixed(1)}x</p>
                 </div>
             </div>
         </>
     )
 }
+
+const onPlay = debounce((mapState) => {
+    console.log(Module.tracker.minTime)
+    if (mapState != 'none') {
+        Module.togglePlay()
+    }
+}, 1000)
+
 export default MediaControls

@@ -90,6 +90,7 @@ function App() {
 // the buttons are clicked, which is inefficient.
 //
 // Should I look into throttling? I don't know what that is but it seems like an alternative to debounce.
+// ^ Throttling instead of debouncing looks promising.
 const debounceHandler = debounce((globalState) => {
   switch (globalState.mapState) {
 

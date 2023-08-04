@@ -22,7 +22,8 @@ function Dropdown(props) {
     const [dropdownState, setDropdownState] = useState((globalState.mapState == 'none') ? 'temp' : globalState.mapState) // Defaults dropdown to the temperature content when dropdown is openned for the first time.
 
     const updateAnimSpeed = (e) => {
-        var newSpeed = e.target.value / 10
+        var newSpeed = e.target.value / 10 // Animation speed range goes from 1-99, but the real values that interact with the code should be 0.1-9.9
+        Module.setPlayInterval(99 - e.target.value|0 + 1) // 99 is the max value of the animation speed range
         setGlobalState({ ...globalState, animSpeed: newSpeed })
     }
 

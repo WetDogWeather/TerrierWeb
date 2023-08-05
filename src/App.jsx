@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from 'react'
 import debounce from 'lodash.debounce'
+import throttle from 'lodash.throttle'
 
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
@@ -82,16 +83,8 @@ function App() {
   )
 }
 
-// This is poorly implemented. Since the debounce is 1 second, any update to the map will take at least
-// 1 second before the update is actually called. I'm not sure how to fix this, I want to get the function
-// to run immedietely and then stop all new calls within a 1 second timeframe, but I don't know enough about
-// debouncing to get that to work. One solution might be to get only debounce if the mapState changed, but I'm
-// unsure if that should be a variable in globalState, which I believe will update the UI several times any time
-// the buttons are clicked, which is inefficient.
-//
-// Should I look into throttling? I don't know what that is but it seems like an alternative to debounce.
-// ^ Throttling instead of debouncing looks promising.
-const debounceHandler = debounce((globalState) => {
+// Changing opacity should not be throttled.
+const debounceHandler = throttle((globalState) => {
   switch (globalState.mapState) {
 
     case 'temp':

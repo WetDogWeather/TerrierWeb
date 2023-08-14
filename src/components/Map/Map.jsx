@@ -3,6 +3,7 @@ var init = false;
 function Map(props) {
 
     if (!init) {
+      init = true;
         var initializationFunction = (ov) => {
           console.log('===================overlay initialized!');
           props.initLayer.enable(true);
@@ -19,11 +20,12 @@ function Map(props) {
       
         // This code might need work
         if (Module.emInitialized == true) {
-          initializationFunction(Module.overlay)
+          setTimeout(() => {
+            initializationFunction(Module.overlay)
+          }, 50)
         } else {
           Module.onOverlayInitialized = initializationFunction
         }
-        init = true;
       }
 
     return (

@@ -1,7 +1,8 @@
 import { createContext, useState, useEffect } from 'react'
-import debounce from 'lodash.debounce'
+import { Helmet } from 'react-helmet'
 import throttle from 'lodash.throttle'
 
+import Map from './components/Map/Map'
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
@@ -11,42 +12,39 @@ import MediaControls from './components/Media Controls/MediaControls'
 import burgerIcon from './assets/menu-burger.png'
 import hideIcon from './assets/hide.png'
 
-import { tempColorUpdate, tempDataSampleUpdate, tempRenderSampleUpdate, tempMinImportanceUpdate, tempOpacityUpdate } from './MapUtils'
-import { windColorUpdate, windDataSampleUpdate, windRenderSampleUpdate, windMinImportanceUpdate, windOpacityUpdate } from './MapUtils'
-import { radarColorUpdate, radarDataSampleUpdate, radarRenderSampleUpdate, radarMinImportanceUpdate, radarOpacityUpdate } from './MapUtils'
+import tempIcon from './assets/thermometer.png'
+import windIcon from './assets/wind.png'
+import radarIcon from './assets/radar.png'
 
+import Layer from './layers/Layer.js'
+import { TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY } from './layers/ColorMaps.js'
+import { WIND_COLORS_GREY, WIND_COLORS_NOT_GREY } from './layers/ColorMaps.js'
+import { RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY } from './layers/ColorMaps.js'
 
 export const GlobalStateContext = createContext()
 
 const initGlobalState = {
-  mapState: 'none',           // none, temp, wind, or radar
-  tempColored: true,
-  tempDataSampleType: 1,      // 0 = Nearest, 1 = Linear, 2 = Cubic.
-  tempRenderSampleType: 1,    // 0 = Nearest, 1 = Linear, 2 = Cubic.
-  tempOpacity: 192,           // 0 - 255.
-  tempMinImportance: 10,      // 5 - 100.
-  windColored: true,
-  windDataSampleType: 1,      // 0 = Nearest, 1 = Linear, 2 = Cubic.
-  windRenderSampleType: 1,    // 0 = Nearest, 1 = Linear, 2 = Cubic.
-  windOpacity: 192,           // 0 - 255.
-  windMinImportance: 10,      // 5 - 100.
-  radarColored: true,
-  radarDataSampleType: 1,     // 0 = Nearest, 1 = Linear, 2 = Cubic.
-  radarRenderSampleType: 1,   // 0 = Nearest, 1 = Linear, 2 = Cubic.
-  radarOpacity: 192,           // 0 - 255.
-  radarMinImportance: 10,      // 5 - 100.
+  mapState: 0,                // 0 = temperature, 1 = wind, 2 = radar
   legendTempUnits: 'K',       // K, C, or F
   animSpeed: 1,               // 0.0x - 9.9x, always to 1 decimal place
-  controlsVisible: true
+  controlsVisible: true,
+  initalized: false,
+
+  layers: [new Layer('Temperature', tempIcon, Module, 'tempCtl', 'enableTemp', 'K', TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY),
+  new Layer('Wind', windIcon, Module, 'windCtl', 'enableWind', 'm/s', WIND_COLORS_GREY, WIND_COLORS_NOT_GREY),
+  new Layer('Radar', radarIcon, Module, 'radarCtl', 'enableRadar', 'dBz', RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY)]
 }
 
 function App() {
+
+  console.log(' -- App.jsx rendered')
 
   const [globalState, setGlobalState] = useState(initGlobalState) // Object containing keys / values in initialGlobalState is shared across many components at the same time.
 
   // When the globalState changes, run the code here.
   useEffect(() => {
-    debounceHandler(globalState)
+    console.log('globalState changed')
+    //debounceHandler(globalState)
   })
 
   function hidePage() {
@@ -64,6 +62,23 @@ function App() {
 
   return (
     <>
+    { /*
+      <Helmet>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Whirly Libre</title>
+
+        <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=default" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="detectmobilebrowser.js" crossorigin="anonymous" defer="defer"></script>
+        <script src="maplibre/maplibre-gl-dev.js" crossorigin="anonymous"></script>
+        <link href="maplibre/maplibre-gl-dev.js.map" rel="modulepreload" crossorigin="anonymous" />
+        <link href="maplibre/maplibre-gl.css" rel="stylesheet" crossorigin="anonymous" />
+        <link rel="stylesheet" href="map.css" />
+        <script type="text/javascript" src="WhirlyGlobeWeb.js" defer="defer"></script>
+        <script type="text/javascript" src="controls.js" defer="defer"></script>
+      </Helmet>
+  */ }
+      <Map initLayer={globalState.layers[0]} />
       <GlobalStateContext.Provider value={[globalState, setGlobalState]}> {/* Every component within these brackets has access to globalState and setGlobalState */}
         {globalState.controlsVisible &&
           <>
@@ -82,55 +97,6 @@ function App() {
     </>
   )
 }
-
-// Changing opacity should not be throttled.
-const debounceHandler = throttle((globalState) => {
-  switch (globalState.mapState) {
-
-    case 'temp':
-      Module.enableTemp = true;
-
-      Module.enableWind = false;
-      Module.enableRadar = false;
-
-      tempColorUpdate(globalState.tempColored);
-      tempDataSampleUpdate(globalState.tempDataSampleType);
-      tempRenderSampleUpdate(globalState.tempRenderSampleType);
-      tempOpacityUpdate(globalState.tempOpacity);
-      tempMinImportanceUpdate(globalState.tempMinImportance);
-      break;
-
-    case 'wind':
-      Module.enableWind = true;
-
-      Module.enableTemp = false;
-      Module.enableRadar = false;
-
-      windColorUpdate(globalState.windColored);
-      windDataSampleUpdate(globalState.windDataSampleType);
-      windRenderSampleUpdate(globalState.windRenderSampleType);
-      windOpacityUpdate(globalState.windOpacity);
-      windMinImportanceUpdate(globalState.windMinImportance);
-      break;
-
-    case 'radar':
-      Module.enableRadar = true;
-
-      Module.enableTemp = false;
-      Module.enableWind = false;
-
-      radarColorUpdate(globalState.radarColored);
-      radarDataSampleUpdate(globalState.radarDataSampleType);
-      radarRenderSampleUpdate(globalState.radarRenderSampleType);
-      radarOpacityUpdate(globalState.radarOpacity);
-      radarMinImportanceUpdate(globalState.radarMinImportance);
-      break;
-
-    default:
-      break;
-  }
-  Module.updateOverlay();
-}, 1000);
 
 export default App
 

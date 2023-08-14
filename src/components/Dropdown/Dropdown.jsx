@@ -5,26 +5,69 @@ import DropdownButton from './DropdownButton'
 import DropdownContent from './DropdownContent'
 import './dropdown.css'
 
-import tempIcon from '../../assets/thermometer.png'
-import windIcon from '../../assets/wind.png'
-import radarIcon from '../../assets/radar.png'
 import settingsIcon from '../../assets/settings.png'
 import attributionIcon from '../../assets/copyright.png'
-
-import { tempOpacityUpdate, windOpacityUpdate, radarOpacityUpdate } from '../../MapUtils'
-import { tempMinImportanceUpdate, windMinImportanceUpdate, radarMinImportanceUpdate } from '../../MapUtils'
 
 export const DropdownStateContext = createContext()
 
 function Dropdown(props) {
 
+    console.log(' -- Dropdown.jsx rendered')
+
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
-    const [dropdownState, setDropdownState] = useState((globalState.mapState == 'none') ? 'temp' : globalState.mapState) // Defaults dropdown to the temperature content when dropdown is openned for the first time.
+    const [dropdownState, setDropdownState] = useState(globalState.mapState) // Defaults dropdown to the temperature content when dropdown is openned for the first time.
 
     const updateAnimSpeed = (e) => {
         var newSpeed = e.target.value / 10 // Animation speed range goes from 1-99, but the real values that interact with the code should be 0.1-9.9
-        Module.setPlayInterval(99 - e.target.value|0 + 1) // 99 is the max value of the animation speed range
+        Module.setPlayInterval(99 - e.target.value | 0 + 1) // 99 is the max value of the animation speed range
         setGlobalState({ ...globalState, animSpeed: newSpeed })
+    }
+
+    var dropdown
+
+    // Generating dropdown menu based on layers
+    for (var i = 0; i < globalState.layers.length; i++) {
+        const id = i; // Constant so that the onClick events don't read the final value of i.
+        var content = (
+            <>
+                <DropdownButton icon={ globalState.layers[id].getIcon() } newDropdownState={id} newMapState={id}>
+                    <DropdownContent>
+                        <h1> { globalState.layers[id].getDisplayName() } </h1>
+                        <h3>Colors</h3>
+                        <div className='dropdown-input'>
+                            <input type='radio' id='wind-grey' name='color' onClick={() => globalState.layers[id].colorUpdate(false)} defaultChecked={!globalState.layers[id].colored} />
+                            <label for='wind-grey'>Grey</label>
+                            <input type='radio' id='wind-color' name='color' onClick={() => globalState.layers[id].colorUpdate(true)} defaultChecked={globalState.layers[id].colored} />
+                            <label for='wind-color'>Color</label><br />
+                        </div>
+                        <h3>Data Sample Type</h3>
+                        <div className='dropdown-input'>
+                            <input type='radio' id='wind-variable-nearest' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(0)} defaultChecked={(globalState.windDataSampleType == 0)} />
+                            <label for='wind-variable-nearest'>Nearest</label>
+                            <input type='radio' id='wind-variable-linear' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(1)} defaultChecked={(globalState.windDataSampleType == 1)} />
+                            <label for='wind-variable-linear'>Linear</label>
+                            <input type='radio' id='wind-variable-cubic' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(2)} defaultChecked={(globalState.windDataSampleType == 2)} disabled />
+                            <label for='wind-variable-cubic'>Cubic</label><br />
+                        </div>
+                        <h3>Render Sample Type</h3>
+                        <div className='dropdown-input'>
+                            <input type='radio' id='wind-render-nearest' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(0)} defaultChecked={(globalState.windRenderSampleType == 0)} />
+                            <label for='wind-render-nearest'>Nearest</label>
+                            <input type='radio' id='wind-render-linear' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(1)} defaultChecked={(globalState.windRenderSampleType == 1)} />
+                            <label for='wind-render-linear'>Linear</label>
+                            <input type='radio' id='wind-render-cubic' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(2)} defaultChecked={(globalState.windRenderSampleType == 2)} disabled />
+                            <label for='wind-render-cubic'>Cubic</label><br />
+                        </div>
+                        <p>Opacity</p>
+                        <input type='range' min='0' max='255' defaultValue={globalState.windOpacity} onChange={(e) => globalState.layers[id].opacityUpdate(e.target.value)} />
+                        <p>Min Importance</p>
+                        <input type='range' min='5' max='100' defaultValue={globalState.windMinImportance} onChange={(e) => globalState.layers[id].minImportanceUpdate(e.target.value)} />
+                        <br />
+                    </DropdownContent>
+                </DropdownButton>
+            </>
+        )
+        dropdown = [dropdown, content]
     }
 
     return (
@@ -32,112 +75,7 @@ function Dropdown(props) {
             <DropdownStateContext.Provider value={[dropdownState, setDropdownState]}>
                 <nav className='dropdown'>
                     <ul className='dropdown-nav'>
-                        <DropdownButton icon={tempIcon} newDropdownState='temp' newDisplayState='temp'>
-                            <DropdownContent>
-                                <h1>Temperature</h1>
-                                <h3>Colors</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='temp-grey' name='color' onClick={() => setGlobalState({ ...globalState, tempColored: false })} defaultChecked={!globalState.tempColored} />
-                                    <label for='temp-grey'>Grey</label>
-                                    <input type='radio' id='temp-color' name='color' onClick={() => setGlobalState({ ...globalState, tempColored: true })} defaultChecked={globalState.tempColored} />
-                                    <label for='temp-color'>Color</label><br />
-                                </div>
-                                <h3>Data Sample Type</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='temp-variable-nearest' name='variable' onClick={() => setGlobalState({ ...globalState, tempDataSampleType: 0 })} defaultChecked={(globalState.tempDataSampleType == 0)} />
-                                    <label for='temp-variable-nearest'>Nearest</label>
-                                    <input type='radio' id='temp-variable-linear' name='variable' onClick={() => setGlobalState({ ...globalState, tempDataSampleType: 1 })} defaultChecked={(globalState.tempDataSampleType == 1)} />
-                                    <label for='temp-variable-linear'>Linear</label>
-                                    <input type='radio' id='temp-variable-cubic' name='variable' onClick={() => setGlobalState({ ...globalState, tempDataSampleType: 2 })} defaultChecked={(globalState.tempDataSampleType == 2)} disabled />
-                                    <label for='temp-variable-cubic'>Cubic</label><br />
-                                </div>
-                                <h3>Render Sample Type</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='temp-render-nearest' name='render' onClick={() => setGlobalState({ ...globalState, tempRenderSampleType: 0 })} defaultChecked={(globalState.tempRenderSampleType == 0)} />
-                                    <label for='temp-render-nearest'>Nearest</label>
-                                    <input type='radio' id='temp-render-linear' name='render' onClick={() => setGlobalState({ ...globalState, tempRenderSampleType: 1 })} defaultChecked={(globalState.tempRenderSampleType == 1)} />
-                                    <label for='temp-render-linear'>Linear</label>
-                                    <input type='radio' id='temp-render-cubic' name='render' onClick={() => setGlobalState({ ...globalState, tempRenderSampleType: 2 })} defaultChecked={(globalState.tempRenderSampleType == 2)} disabled />
-                                    <label for='temp-render-cubic'>Cubic</label><br />
-                                </div>
-                                <p>Opacity</p>
-                                <input type='range' min='0' max='255' defaultValue={globalState.tempOpacity} onChange={(e) => setGlobalState({ ...globalState, tempOpacity: e.target.value })} />
-                                <p>Min Importance</p>
-                                <input type='range' min='5' max='100' defaultValue={globalState.tempMinImportance} onChange={(e) => setGlobalState({ ...globalState, tempMinImportanceUpdate: e.target.value })} />
-                                <br />
-                            </DropdownContent>
-                        </DropdownButton>
-                        <DropdownButton icon={windIcon} newDropdownState='wind' newDisplayState='wind' >
-                            <DropdownContent>
-                                <h1>Wind</h1>
-                                <h3>Colors</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='wind-grey' name='color' onClick={() => setGlobalState({ ...globalState, windColored: false })} defaultChecked={!globalState.windColored} />
-                                    <label for='wind-grey'>Grey</label>
-                                    <input type='radio' id='wind-color' name='color' onClick={() => setGlobalState({ ...globalState, windColored: true })} defaultChecked={globalState.windColored} />
-                                    <label for='wind-color'>Color</label><br />
-                                </div>
-                                <h3>Data Sample Type</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='wind-variable-nearest' name='variable' onClick={() => setGlobalState({ ...globalState, windDataSampleType: 0 })} defaultChecked={(globalState.windDataSampleType == 0)} />
-                                    <label for='wind-variable-nearest'>Nearest</label>
-                                    <input type='radio' id='wind-variable-linear' name='variable' onClick={() => setGlobalState({ ...globalState, windDataSampleType: 1 })} defaultChecked={(globalState.windDataSampleType == 1)} />
-                                    <label for='wind-variable-linear'>Linear</label>
-                                    <input type='radio' id='wind-variable-cubic' name='variable' onClick={() => setGlobalState({ ...globalState, windDataSampleType: 2 })} defaultChecked={(globalState.windDataSampleType == 2)} disabled />
-                                    <label for='wind-variable-cubic'>Cubic</label><br />
-                                </div>
-                                <h3>Render Sample Type</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='wind-render-nearest' name='render' onClick={() => setGlobalState({ ...globalState, windRenderSampleType: 0 })} defaultChecked={(globalState.windRenderSampleType == 0)} />
-                                    <label for='wind-render-nearest'>Nearest</label>
-                                    <input type='radio' id='wind-render-linear' name='render' onClick={() => setGlobalState({ ...globalState, windRenderSampleType: 1 })} defaultChecked={(globalState.windRenderSampleType == 1)} />
-                                    <label for='wind-render-linear'>Linear</label>
-                                    <input type='radio' id='wind-render-cubic' name='render' onClick={() => setGlobalState({ ...globalState, windRenderSampleType: 2 })} defaultChecked={(globalState.windRenderSampleType == 2)} disabled />
-                                    <label for='wind-render-cubic'>Cubic</label><br />
-                                </div>
-                                <p>Opacity</p>
-                                <input type='range' min='0' max='255' defaultValue={globalState.windOpacity} onChange={(e) => setGlobalState({ ...globalState, windOpacity: e.target.value })} />
-                                <p>Min Importance</p>
-                                <input type='range' min='5' max='100' defaultValue={globalState.windMinImportance} onChange={(e) => setGlobalState({ ...globalState, windMinImportance: e.target.value })} />
-                                <br />
-                            </DropdownContent>
-                        </DropdownButton>
-                        <DropdownButton icon={radarIcon} newDropdownState='radar' newDisplayState='radar'>
-                            <DropdownContent>
-                                <h1>Radar</h1>
-                                <h3>Colors</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='radar-grey' name='color' onClick={() => setGlobalState({ ...globalState, radarColored: false })} defaultChecked={!globalState.radarColored} />
-                                    <label for='radar-grey'>Grey</label>
-                                    <input type='radio' id='radar-color' name='color' onClick={() => setGlobalState({ ...globalState, radarColored: true })} defaultChecked={globalState.radarColored} />
-                                    <label for='radar-color'>Color</label><br />
-                                </div>
-                                <h3>Data Sample Type</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='radar-variable-nearest' name='variable' onClick={() => setGlobalState({ ...globalState, radarDataSampleType: 0 })} defaultChecked={(globalState.radarDataSampleType == 0)} />
-                                    <label for='radar-variable-nearest'>Nearest</label>
-                                    <input type='radio' id='radar-variable-linear' name='variable' onClick={() => setGlobalState({ ...globalState, radarDataSampleType: 1 })} defaultChecked={(globalState.radarDataSampleType == 1)} />
-                                    <label for='radar-variable-linear'>Linear</label>
-                                    <input type='radio' id='radar-variable-cubic' name='variable' onClick={() => setGlobalState({ ...globalState, radarDataSampleType: 2 })} defaultChecked={(globalState.radarDataSampleType == 2)} disabled />
-                                    <label for='radar-variable-cubic'>Cubic</label><br />
-                                </div>
-                                <h3>Render Sample Type</h3>
-                                <div className='dropdown-input'>
-                                    <input type='radio' id='radar-render-nearest' name='render' onClick={() => setGlobalState({ ...globalState, radarRenderSampleType: 0 })} defaultChecked={(globalState.radarRenderSampleType == 0)} />
-                                    <label for='radar-render-nearest'>Nearest</label>
-                                    <input type='radio' id='radar-render-linear' name='render' onClick={() => setGlobalState({ ...globalState, radarRenderSampleType: 1 })} defaultChecked={(globalState.radarRenderSampleType == 1)} />
-                                    <label for='radar-render-linear'>Linear</label>
-                                    <input type='radio' id='radar-render-cubic' name='render' onClick={() => setGlobalState({ ...globalState, radarRenderSampleType: 2 })} defaultChecked={(globalState.radarRenderSampleType == 2)} disabled />
-                                    <label for='radar-render-cubic'>Cubic</label><br />
-                                </div>
-                                <p>Opacity</p>
-                                <input type='range' min='0' max='255' defaultValue='192' onChange={(e) => setGlobalState({ ...globalState, radarOpacity: e.target.value })} />
-                                <br />
-                                <p>Min Importance</p>
-                                <input type='range' min='5' max='100' defaultValue='10' onChange={(e) => setGlobalState({ ...globalState, radarMinImportance: e.target.value })} />
-                                <br />
-                            </DropdownContent>
-                        </DropdownButton>
+                        {dropdown}
                         <DropdownButton icon={settingsIcon} newDropdownState='settings'>
                             <DropdownContent>
                                 { /* I need to fix a lot of the line breaks in here. */}
@@ -177,6 +115,7 @@ function Dropdown(props) {
     )
 }
 
+// Textbox inside of the settings page.
 function updateFrameInfo() {
     // Extract from vectors and combine
     const all = [];

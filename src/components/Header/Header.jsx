@@ -2,6 +2,9 @@ import wdwLogo from '../../assets/wdw.png'
 import './header.css'
 
 function Header(props) {
+
+    console.log(' -- Header.jsx rendered')
+
     return (
         <>
             <nav className="header">

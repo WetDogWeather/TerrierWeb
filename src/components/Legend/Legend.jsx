@@ -3,46 +3,48 @@ import { GlobalStateContext } from '../../App'
 import LegendContent from './LegendContent'
 import './legend.css'
 
-import { TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY } from '../../MapUtils'
-import { WIND_COLORS_GREY, WIND_COLORS_NOT_GREY } from '../../MapUtils'
-import { RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY } from '../../MapUtils'
-
 function Legend(props) {
 
+    console.log(' -- Legend.jsx rendered')
+
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
+    // set a useState boolean if the legend is in greyscale
 
     var currentShaderMap = new Module.TrrShaderColorMap(0, false, [], [])
     var units = 'K'
-    switch (globalState.mapState) {
-        case 'temp':
-            units = globalState.legendTempUnits
-            if (globalState.tempColored) {
-                currentShaderMap = TEMP_COLORS_NOT_GREY
-            } else {
-                currentShaderMap = TEMP_COLORS_GREY
-            }
-            break;
-        case 'wind':
-            units = 'm/s'
-            if (globalState.windColored) {
-                currentShaderMap = WIND_COLORS_NOT_GREY
-            } else {
-                currentShaderMap = WIND_COLORS_GREY
-            }
-            break;
-        case 'radar':
-            units = 'dBz'
-            if (globalState.radarColored) {
-                currentShaderMap = RADAR_COLORS_NOT_GREY
-            } else {
-                currentShaderMap = RADAR_COLORS_GREY
-            }
-            break;
-        default:
-            currentShaderMap = new Module.TrrShaderColorMap(0, false, [], [])
-            break;
 
-    }
+    currentShaderMap = globalState.layers[globalState.mapState].getColorMap()
+    units = globalState.layers[globalState.mapState].getUnits()
+
+    // switch (globalState.mapState) {
+    //     case 'temp':
+    //         units = globalState.legendTempUnits
+    //         if (globalState.tempColored) {
+    //             currentShaderMap = TEMP_COLORS_NOT_GREY
+    //         } else {
+    //             currentShaderMap = TEMP_COLORS_GREY
+    //         }
+    //         break;
+    //     case 'wind':
+    //         units = 'm/s'
+    //         if (globalState.windColored) {
+    //             currentShaderMap = WIND_COLORS_NOT_GREY
+    //         } else {
+    //             currentShaderMap = WIND_COLORS_GREY
+    //         }
+    //         break;
+    //     case 'radar':
+    //         units = 'dBz'
+    //         if (globalState.radarColored) {
+    //             currentShaderMap = RADAR_COLORS_NOT_GREY
+    //         } else {
+    //             currentShaderMap = RADAR_COLORS_GREY
+    //         }
+    //         break;
+    //     default:
+    //         currentShaderMap = new Module.TrrShaderColorMap(0, false, [], [])
+    //         break;
+    // }
 
     return (
         <>

@@ -5,6 +5,8 @@ import './header.css'
 
 function Burger(props) {
 
+    console.log(' -- Burger.jsx rendered')
+
     const [open, setOpen] = useState(false)
 
     return (

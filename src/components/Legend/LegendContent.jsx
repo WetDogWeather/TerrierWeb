@@ -3,6 +3,9 @@ import { GlobalStateContext } from '../../App'
 import './legend.css'
 
 function LegendContent(props) {
+
+    console.log(' -- LegendContent.jsx rendered')
+
     var legend = generateLegend(props.shaderMap, props.units)
 
     return (

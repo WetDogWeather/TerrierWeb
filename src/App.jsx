@@ -1,8 +1,8 @@
 import { createContext, useState, useEffect } from 'react'
-import { Helmet } from 'react-helmet'
+import { HelmetProvider, Helmet } from 'react-helmet-async'
 import throttle from 'lodash.throttle'
 
-import Map from './components/Map/Map'
+//import Map from './components/Map/Map'
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
@@ -35,11 +35,41 @@ const initGlobalState = {
   new Layer('Radar', radarIcon, Module, 'radarCtl', 'enableRadar', 'dBz', RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY)]
 }
 
+var init = false;
+
 function App() {
 
   console.log(' -- App.jsx rendered')
 
   const [globalState, setGlobalState] = useState(initGlobalState) // Object containing keys / values in initialGlobalState is shared across many components at the same time.
+
+  if (!init) {
+    var initializationFunction = (ov) => {
+      console.log('===================overlay initialized!');
+      globalState.layers[0].enable(true);
+      setTimeout(() => {
+        ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
+          fetch("geojson/" + c + ".geojson").then(result =>
+            result.text().then(t => {
+              console.debug("Adding " + c + ".geojson")
+              ov.addGeoJSON(t);
+            })));
+        //console.log(Module.tempCtl);
+      }, 1000);
+    };
+
+    // This code might need work
+    if (Module.emInitialized == true) {
+      console.log('Module.emInitialized is true')
+      setTimeout(() => {
+        initializationFunction(Module.overlay)
+      }, 50)
+    } else {
+      console.log('Module.emInitialized is false')
+      Module.onOverlayInitialized = initializationFunction
+    }
+    init = true;
+  }
 
   // When the globalState changes, run the code here.
   useEffect(() => {
@@ -62,23 +92,6 @@ function App() {
 
   return (
     <>
-    { /*
-      <Helmet>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Whirly Libre</title>
-
-        <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=default" crossorigin="anonymous"></script>
-        <script type="text/javascript" src="detectmobilebrowser.js" crossorigin="anonymous" defer="defer"></script>
-        <script src="maplibre/maplibre-gl-dev.js" crossorigin="anonymous"></script>
-        <link href="maplibre/maplibre-gl-dev.js.map" rel="modulepreload" crossorigin="anonymous" />
-        <link href="maplibre/maplibre-gl.css" rel="stylesheet" crossorigin="anonymous" />
-        <link rel="stylesheet" href="map.css" />
-        <script type="text/javascript" src="WhirlyGlobeWeb.js" defer="defer"></script>
-        <script type="text/javascript" src="controls.js" defer="defer"></script>
-      </Helmet>
-  */ }
-      <Map initLayer={globalState.layers[0]} />
       <GlobalStateContext.Provider value={[globalState, setGlobalState]}> {/* Every component within these brackets has access to globalState and setGlobalState */}
         {globalState.controlsVisible &&
           <>

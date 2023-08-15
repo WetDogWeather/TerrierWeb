@@ -20,17 +20,7 @@ function DropdownButton(props) {
     function handleClick() {
         if (props.newMapState != undefined) {
             setGlobalState({ ...globalState, mapState: props.newMapState })
-
             updateLayers(props.newMapState, globalState.layers)
-            // This needs to be throttled or debounced
-            /*for (var i = 0; i < globalState.layers.length; i++) {
-                if (i == props.newMapState) {
-                    globalState.layers[i].enable(true)
-                } else {
-                    globalState.layers[i].enable(false)
-                }
-                Module.updateOverlay()
-            }*/
         }
 
         setDropdownState(props.newDropdownState)

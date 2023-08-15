@@ -1,5 +1,4 @@
-import '../../WhirlyGlobeWeb'
-
+//import '../../WhirlyGlobeWeb'
 
 export const TEMP_COLORS_GREY = new Module.TrrShaderColorMap(0, false, [255.372, 316.483], [0xFF000000, 0xFFFFFFFF]);
 export const TEMP_COLORS_NOT_GREY = new Module.TrrShaderColorMap(0, false,

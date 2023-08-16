@@ -16,7 +16,7 @@ import tempIcon from './assets/thermometer.png'
 import windIcon from './assets/wind.png'
 import radarIcon from './assets/radar.png'
 
-import Layer from './layers/Layer.js'
+import Layer from './Layer.js'
 
 var init = false;
 

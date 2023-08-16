@@ -1,12 +1,7 @@
-// constructor()
-// colorUpdate() -- toggles this.colored, then switches colormap (should I change name to toggleColor)?
-// 
-
-import Legend from '../components/Legend/Legend'
+import Legend from './components/Legend/Legend'
 import { forceUpdate } from 'react'
 
 export default class Layer {
-    // include internal name, icon, display name,
 
     constructor(displayName, icon, module, controlName, enableName, units, colorsGrey, colorsNotGrey) {
 
@@ -55,11 +50,12 @@ export default class Layer {
         }
 
         this.colored = isNowColored;
-        //Legend.forceUpdate();
     }
 
     dataSampleUpdate(n) {
         var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl.
+        this.dataSampleType = n;
+
         const v = Module.TexInterpType.values[n || 0];
         if (control && control.varInterp != v) {
             control.varInterp = v;
@@ -67,7 +63,9 @@ export default class Layer {
     }
 
     renderSampleUpdate(n) {
-        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl. 
+        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl.
+        this.renderSampleType = n;
+
         const v = this.module.TexInterpType.values[n || 0];
         if (control && control.visInterp != v) {
             control.visInterp = v;
@@ -76,12 +74,16 @@ export default class Layer {
 
     opacityUpdate(n) {
         var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl. 
+        this.opacity = n;
+
         control.opacity = n / 255;
         this.module.repaint();
     }
 
     minImportanceUpdate(n) {
         var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl. 
+        this.minImportance = n;
+
         if (control) {
             control.minImportanceFactor = Math.min(10, Math.max(0.5, n));
         }

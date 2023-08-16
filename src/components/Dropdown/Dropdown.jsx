@@ -35,33 +35,33 @@ function Dropdown(props) {
                         <h1> { globalState.layers[id].getDisplayName() } </h1>
                         <h3>Colors</h3>
                         <div className='dropdown-input'>
-                            <input type='radio' id='wind-grey' name='color' onClick={() => globalState.layers[id].colorUpdate(false)} defaultChecked={!globalState.layers[id].colored} />
-                            <label for='wind-grey'>Grey</label>
-                            <input type='radio' id='wind-color' name='color' onClick={() => globalState.layers[id].colorUpdate(true)} defaultChecked={globalState.layers[id].colored} />
-                            <label for='wind-color'>Color</label><br />
+                            <input type='radio' id='grey' name='color' onClick={() => globalState.layers[id].colorUpdate(false)} defaultChecked={!globalState.layers[id].colored} />
+                            <label for='grey'>Grey</label>
+                            <input type='radio' id='color' name='color' onClick={() => globalState.layers[id].colorUpdate(true)} defaultChecked={globalState.layers[id].colored} />
+                            <label for='color'>Color</label><br />
                         </div>
                         <h3>Data Sample Type</h3>
                         <div className='dropdown-input'>
-                            <input type='radio' id='wind-variable-nearest' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(0)} defaultChecked={(globalState.windDataSampleType == 0)} />
-                            <label for='wind-variable-nearest'>Nearest</label>
-                            <input type='radio' id='wind-variable-linear' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(1)} defaultChecked={(globalState.windDataSampleType == 1)} />
-                            <label for='wind-variable-linear'>Linear</label>
-                            <input type='radio' id='wind-variable-cubic' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(2)} defaultChecked={(globalState.windDataSampleType == 2)} disabled />
-                            <label for='wind-variable-cubic'>Cubic</label><br />
+                            <input type='radio' id='variable-nearest' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(0)} defaultChecked={(globalState.layers[id].dataSampleType == 0)} />
+                            <label for='variable-nearest'>Nearest</label>
+                            <input type='radio' id='variable-linear' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(1)} defaultChecked={(globalState.layers[id].dataSampleType == 1)} />
+                            <label for='variable-linear'>Linear</label>
+                            <input type='radio' id='variable-cubic' name='variable' onClick={() => globalState.layers[id].dataSampleUpdate(2)} defaultChecked={(globalState.layers[id].dataSampleType == 2)} disabled />
+                            <label for='variable-cubic'>Cubic</label><br />
                         </div>
                         <h3>Render Sample Type</h3>
                         <div className='dropdown-input'>
-                            <input type='radio' id='wind-render-nearest' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(0)} defaultChecked={(globalState.windRenderSampleType == 0)} />
-                            <label for='wind-render-nearest'>Nearest</label>
-                            <input type='radio' id='wind-render-linear' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(1)} defaultChecked={(globalState.windRenderSampleType == 1)} />
-                            <label for='wind-render-linear'>Linear</label>
-                            <input type='radio' id='wind-render-cubic' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(2)} defaultChecked={(globalState.windRenderSampleType == 2)} disabled />
-                            <label for='wind-render-cubic'>Cubic</label><br />
+                            <input type='radio' id='render-nearest' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(0)} defaultChecked={(globalState.layers[id].renderSampleType == 0)} />
+                            <label for='render-nearest'>Nearest</label>
+                            <input type='radio' id='render-linear' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(1)} defaultChecked={(globalState.layers[id].renderSampleType == 1)} />
+                            <label for='render-linear'>Linear</label>
+                            <input type='radio' id='render-cubic' name='render' onClick={() => globalState.layers[id].renderSampleUpdate(2)} defaultChecked={(globalState.layers[id].renderSampleType == 2)} disabled />
+                            <label for='render-cubic'>Cubic</label><br />
                         </div>
                         <p>Opacity</p>
-                        <input type='range' min='0' max='255' defaultValue={globalState.windOpacity} onChange={(e) => globalState.layers[id].opacityUpdate(e.target.value)} />
+                        <input type='range' min='0' max='255' defaultValue={globalState.layers[id].opacity} onChange={(e) => globalState.layers[id].opacityUpdate(e.target.value)} />
                         <p>Min Importance</p>
-                        <input type='range' min='5' max='100' defaultValue={globalState.windMinImportance} onChange={(e) => globalState.layers[id].minImportanceUpdate(e.target.value)} />
+                        <input type='range' min='5' max='100' defaultValue={globalState.layers[id.minImportance]} onChange={(e) => globalState.layers[id].minImportanceUpdate(e.target.value)} />
                         <br />
                     </DropdownContent>
                 </DropdownButton>

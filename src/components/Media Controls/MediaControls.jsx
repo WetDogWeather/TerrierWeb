@@ -63,7 +63,7 @@ function MediaControls() {
                     document.getElementById('scrubber-range').value = ((Number(Module.tracker.curTime) - Number(Module.tracker.minTime)) / range) * 10000
                     setCurrDate(moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a'))
                     console.log('updating scrubber...')
-                }, 500 / globalState.animSpeed) // Getting a faster interval when animSpeed is higher, no hard science going on here.
+                }, 100 / globalState.animSpeed) // Getting a faster interval when animSpeed is higher, no hard science going on here.
             } else { // if map is currently NOT playing
                 clearInterval(intervalId)
             }

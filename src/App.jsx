@@ -80,7 +80,6 @@ function App() {
 
   if (!init) {
     var initializationFunction = (ov) => {
-      console.log('===================overlay initialized!');
       globalState.layers[0].enable(true);
       setTimeout(() => {
         ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
@@ -89,7 +88,6 @@ function App() {
               console.debug("Adding " + c + ".geojson")
               ov.addGeoJSON(t);
             })));
-        //console.log(Module.tempCtl);
       }, 1000);
     };
 
@@ -105,12 +103,6 @@ function App() {
     }
     init = true;
   }
-
-  // When the globalState changes, run the code here.
-  useEffect(() => {
-    console.log('globalState changed')
-    //debounceHandler(globalState)
-  })
 
   function hidePage() {
     setGlobalState({ ...globalState, controlsVisible: false })

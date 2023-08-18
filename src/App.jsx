@@ -1,8 +1,5 @@
 import { createContext, useState, useEffect } from 'react'
-import { HelmetProvider, Helmet } from 'react-helmet-async'
-import throttle from 'lodash.throttle'
 
-//import Map from './components/Map/Map'
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
@@ -64,17 +61,17 @@ function App() {
 
   const initGlobalState = {
     mapState: 0,                // 0 = temperature, 1 = wind, 2 = radar
-    legendTempUnits: 'K',       // K, C, or F
     animSpeed: 1,               // 0.0x - 9.9x, always to 1 decimal place
     controlsVisible: true,
-    initalized: false,
+    legendVisible: true,
+    defaultTime: -1,            // Place to store string of date from Module.tracker.curTime. This is set in MediaControls.jsx
 
     layers: [new Layer('Temperature', tempIcon, Module, 'tempCtl', 'enableTemp', 'K', TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY),
     new Layer('Wind', windIcon, Module, 'windCtl', 'enableWind', 'm/s', WIND_COLORS_GREY, WIND_COLORS_NOT_GREY),
-    new Layer('Radar', radarIcon, Module, 'radarCtl', 'enableRadar', 'dBz', RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY)]
-  }
+    new Layer('Radar', radarIcon, Module, 'radarCtl', 'enableRadar', 'dBz', RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY)],
 
-  console.log(' -- App.jsx rendered')
+    forceRender: 0              // this variable gets updated when the ui needs to force update.
+  }
 
   const [globalState, setGlobalState] = useState(initGlobalState) // Object containing keys / values in initialGlobalState is shared across many components at the same time.
 
@@ -93,12 +90,10 @@ function App() {
 
     // This code might need work
     if (Module.emInitialized == true) {
-      console.log('Module.emInitialized is true')
       setTimeout(() => {
         initializationFunction(Module.overlay)
       }, 50)
     } else {
-      console.log('Module.emInitialized is false')
       Module.onOverlayInitialized = initializationFunction
     }
     init = true;
@@ -132,7 +127,9 @@ function App() {
             <MediaControls />
           </>
         }
-        <Legend />
+        {globalState.legendVisible &&
+          <Legend />
+        }
       </GlobalStateContext.Provider>
     </>
   )

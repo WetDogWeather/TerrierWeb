@@ -4,9 +4,6 @@ import './header.css'
 // Simply renders or de-renders children on click.
 
 function Burger(props) {
-
-    console.log(' -- Burger.jsx rendered')
-
     const [open, setOpen] = useState(false)
 
     return (

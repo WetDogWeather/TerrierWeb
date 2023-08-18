@@ -1,11 +1,9 @@
 import './dropdown.css'
 
-/* NOT SURE IF THIS COMPONENT IS REALLY NECESSARY */
+// Renders children.
+// Might move everything into DropdownButton.jsx.
 
 function DropdownContent(props) {
-
-    console.log(' -- DropdownContent.jsx rendered')
-
     return (
         <>
             <div className='dropdown-content'>

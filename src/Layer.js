@@ -1,6 +1,3 @@
-import Legend from './components/Legend/Legend'
-import { forceUpdate } from 'react'
-
 export default class Layer {
 
     constructor(displayName, icon, module, controlName, enableName, units, colorsGrey, colorsNotGrey) {

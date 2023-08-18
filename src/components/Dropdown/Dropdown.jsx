@@ -10,10 +10,11 @@ import attributionIcon from '../../assets/copyright.png'
 
 export const DropdownStateContext = createContext()
 
+// Handles the main layout for the dropdown menu.
+// Does not handle logic for button functionality, it simply calls the component.
+// Go to DropdownButton.jsx for that.
+
 function Dropdown(props) {
-
-    console.log(' -- Dropdown.jsx rendered')
-
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
     const [dropdownState, setDropdownState] = useState(globalState.mapState) // Defaults dropdown to the temperature content when dropdown is openned for the first time.
 
@@ -23,21 +24,48 @@ function Dropdown(props) {
         setGlobalState({ ...globalState, animSpeed: newSpeed })
     }
 
+    function setUnits(id, unit) {
+        console.log(id)
+        globalState.layers[id].units = unit
+        setGlobalState({ ...globalState, forceRender: globalState.forceRender + 1 }) // Updating the globalState so App.jsx runs again, causing the UI to re-render.
+    }
+
+    function changeLayerColor(id, colored) {
+        globalState.layers[id].colorUpdate(colored)
+        setGlobalState({ ...globalState, forceRender: globalState.forceRender + 1 }) // Updating the globalState so App.jsx runs again, causing the UI to re-render.
+    }
+
     var dropdown
+
+    // Unique HTML elements for specific layers. Added onto the bottom of the dropdown content.
+    const uniqueElements = [(
+        <>
+            <h3>Units</h3>
+            <input type='radio' id='kelvin' name='temp-units' onClick={() => setUnits(0, 'K')} defaultChecked={globalState.layers[0].units == 'K'} />
+            <label for='kelvin'>Kelvin</label>
+            <input type='radio' id='celsius' name='temp-units' onClick={() => setUnits(0, 'C')} defaultChecked={globalState.layers[0].units == 'C'} />
+            <label for='celsius'>Celsius</label>
+            <input type='radio' id='fahrenheit' name='temp-units' onClick={() => setUnits(0, 'F')} defaultChecked={globalState.layers[0].units == 'F'} />
+            <label for='fahrenheit'>Fahrenheit</label><br />
+            <br />
+        </>
+    ),
+    (<></>),
+    (<></>)]
 
     // Generating dropdown menu based on layers
     for (var i = 0; i < globalState.layers.length; i++) {
         const id = i; // Constant so that the onClick events don't read the final value of i.
         var content = (
             <>
-                <DropdownButton icon={ globalState.layers[id].getIcon() } newDropdownState={id} newMapState={id}>
+                <DropdownButton icon={globalState.layers[id].getIcon()} newDropdownState={id} newMapState={id}>
                     <DropdownContent>
-                        <h1> { globalState.layers[id].getDisplayName() } </h1>
+                        <h1> {globalState.layers[id].getDisplayName()} </h1>
                         <h3>Colors</h3>
                         <div className='dropdown-input'>
-                            <input type='radio' id='grey' name='color' onClick={() => globalState.layers[id].colorUpdate(false)} defaultChecked={!globalState.layers[id].colored} />
+                            <input type='radio' id='grey' name='color' onClick={() => changeLayerColor(id, false)} defaultChecked={!globalState.layers[id].colored} />
                             <label for='grey'>Grey</label>
-                            <input type='radio' id='color' name='color' onClick={() => globalState.layers[id].colorUpdate(true)} defaultChecked={globalState.layers[id].colored} />
+                            <input type='radio' id='color' name='color' onClick={() => changeLayerColor(id, true)} defaultChecked={globalState.layers[id].colored} />
                             <label for='color'>Color</label><br />
                         </div>
                         <h3>Data Sample Type</h3>
@@ -63,6 +91,7 @@ function Dropdown(props) {
                         <p>Min Importance</p>
                         <input type='range' min='5' max='100' defaultValue={globalState.layers[id.minImportance]} onChange={(e) => globalState.layers[id].minImportanceUpdate(e.target.value)} />
                         <br />
+                        { uniqueElements[id] }
                     </DropdownContent>
                 </DropdownButton>
             </>
@@ -78,16 +107,10 @@ function Dropdown(props) {
                         {dropdown}
                         <DropdownButton icon={settingsIcon} newDropdownState='settings'>
                             <DropdownContent>
-                                { /* I need to fix a lot of the line breaks in here. */}
                                 <h1>Settings</h1>
                                 <br />
-                                <input type='radio' id='kelvin' name='temp-units' onClick={() => setGlobalState({ ...globalState, legendTempUnits: 'K' })} defaultChecked={globalState.legendTempUnits == 'K'} />
-                                <label for='kelvin'>Kelvin</label><br />
-                                <input type='radio' id='celsius' name='temp-units' onClick={() => setGlobalState({ ...globalState, legendTempUnits: 'C' })} defaultChecked={globalState.legendTempUnits == 'C'} />
-                                <label for='celsius'>Celsius</label><br />
-                                <input type='radio' id='fahrenheit' name='temp-units' onClick={() => setGlobalState({ ...globalState, legendTempUnits: 'F' })} defaultChecked={globalState.legendTempUnits == 'F'} />
-                                <label for='fahrenheit'>Fahrenheit</label><br />
-                                <br />
+                                <input type='checkbox' id='hide-legend' onClick={() => setGlobalState({ ...globalState, legendVisible: !globalState.legendVisible })} defaultChecked={!globalState.legendVisible} />
+                                <label for='hide-legend'>Hide Legend</label>
                                 <p>Animation Speed</p>
                                 <input type='range' id='animation-speed' min='0' max='99' value={globalState.animSpeed * 10} onChange={(e) => updateAnimSpeed(e)} />
                                 <br /><br />

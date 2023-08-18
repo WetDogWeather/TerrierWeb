@@ -11,9 +11,6 @@ import throttle from 'lodash.throttle'
 var hclick = 0
 
 function DropdownButton(props) {
-
-    console.log(' -- DropdownButton.jsx rendered')
-
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
     const [dropdownState, setDropdownState] = useContext(DropdownStateContext)
 

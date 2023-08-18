@@ -6,6 +6,7 @@
   position: absolute;
   top: 120px;
   right: 20px;
+  transition: width 2s;
 }
 
 .dropdown-nav {

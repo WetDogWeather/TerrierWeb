@@ -6,7 +6,9 @@ import './dropdown.css'
 import debounce from 'lodash.debounce'
 import throttle from 'lodash.throttle'
 
+//
 // Renders <DropdownContent> inside <Dropdown> if this button is pressed.
+//
 
 var hclick = 0
 
@@ -19,7 +21,6 @@ function DropdownButton(props) {
             setGlobalState({ ...globalState, mapState: props.newMapState })
             updateLayers(props.newMapState, globalState.layers)
         }
-
         setDropdownState(props.newDropdownState)
     }
 
@@ -33,18 +34,10 @@ function DropdownButton(props) {
     )
 }
 
-// Should try to get the debounce function to run within the Dropdown function, so it has direct access to props.newMapState and globalState.layers
+// Should try to get this function to run within the Dropdown function, so it has direct access to props.newMapState and globalState.layers[]
 // If it is in DropdownButton(), each button on the UI will have its own debounce function. They won't be universal.
 // Declaring it outside of the scope will make sure every Dropdown Button on the UI will use the same debounce.
 const updateLayers = throttle((id, layers) => {
-    console.log(id)
-    console.log(layers)
-    console.log(layers[id])
-
-    hclick++
-    console.log('updateLayers ran ' + hclick + ' total times')
-
-
     for (var i = 0; i < layers.length; i++) {
         if (i == id) {
             layers[i].enable(true)
@@ -53,6 +46,6 @@ const updateLayers = throttle((id, layers) => {
         }
     }
 
-}, 1000)
+}, 3000)
 
 export default DropdownButton

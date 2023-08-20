@@ -13,7 +13,8 @@ import tempIcon from './assets/thermometer.png'
 import windIcon from './assets/wind.png'
 import radarIcon from './assets/radar.png'
 
-import Layer from './Layer.js'
+import Layer from './Layers/Layer.jsx'
+import TemperatureLayer from './Layers/TemperatureLayer.jsx'
 
 var init = false;
 
@@ -66,7 +67,7 @@ function App() {
     legendVisible: true,
     defaultTime: -1,            // Place to store string of date from Module.tracker.curTime. This is set in MediaControls.jsx
 
-    layers: [new Layer('Temperature', tempIcon, Module, 'tempCtl', 'enableTemp', 'K', TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY),
+    layers: [new TemperatureLayer('Temperature', tempIcon, Module, 'tempCtl', 'enableTemp', 'K', TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY),
     new Layer('Wind', windIcon, Module, 'windCtl', 'enableWind', 'm/s', WIND_COLORS_GREY, WIND_COLORS_NOT_GREY),
     new Layer('Radar', radarIcon, Module, 'radarCtl', 'enableRadar', 'dBz', RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY)],
 

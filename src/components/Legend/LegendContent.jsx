@@ -1,16 +1,13 @@
-import { useContext } from 'react'
-import { GlobalStateContext } from '../../App'
 import './legend.css'
 
+//
+//  Takes in the shaderMap and units passed form Legend.jsx, then generates the legend based on that information.
+//
+
 function LegendContent(props) {
-
-    console.log(' -- LegendContent.jsx rendered')
-
-    var legend = generateLegend(props.shaderMap, props.units)
-
     return (
         <>
-            {legend}
+            { generateLegend(props.shaderMap, props.units) }
         </>
     )
 }
@@ -21,6 +18,8 @@ function generateLegend(shaderMap, units) {
     for (var i = 0; i < shaderMap.colors.length; i++) {
         var color = shaderMap.colors[i].str;
         var value = shaderMap.values[i];
+
+        // May want to consider moving this logic into TemperatureLayer.
         switch (units) {
             case 'F':
                 value = (((value - 273.15) * (9 / 5)) + 32); // Kelvin to Farenheit formula

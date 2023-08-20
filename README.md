@@ -4,8 +4,6 @@ New Terrier Web Interface
 ### Required Software
 Node.js
 
-Note: Project was run on a windows machine. I have not tested this on MacOS.
-
 ### Instructions for Command Prompt
 * Navigate to project folder inside command prompt
 * Run npm i (Installs packages from package.json and package-lock.json)

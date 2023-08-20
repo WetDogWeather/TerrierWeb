@@ -10,13 +10,15 @@ import attributionIcon from '../../assets/copyright.png'
 
 export const DropdownStateContext = createContext()
 
+//
 // Handles the main layout for the dropdown menu.
 // Does not handle logic for button functionality, it simply calls the component.
 // Go to DropdownButton.jsx for that.
+//
 
-function Dropdown(props) {
+function Dropdown() {
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
-    const [dropdownState, setDropdownState] = useState(globalState.mapState) // Defaults dropdown to the temperature content when dropdown is openned for the first time.
+    const [dropdownState, setDropdownState] = useState(globalState.mapState)
 
     const updateAnimSpeed = (e) => {
         var newSpeed = e.target.value / 10 // Animation speed range goes from 1-99, but the real values that interact with the code should be 0.1-9.9
@@ -24,36 +26,13 @@ function Dropdown(props) {
         setGlobalState({ ...globalState, animSpeed: newSpeed })
     }
 
-    function setUnits(id, unit) {
-        console.log(id)
-        globalState.layers[id].units = unit
-        setGlobalState({ ...globalState, forceRender: globalState.forceRender + 1 }) // Updating the globalState so App.jsx runs again, causing the UI to re-render.
-    }
-
     function changeLayerColor(id, colored) {
         globalState.layers[id].colorUpdate(colored)
         setGlobalState({ ...globalState, forceRender: globalState.forceRender + 1 }) // Updating the globalState so App.jsx runs again, causing the UI to re-render.
     }
 
-    var dropdown
-
-    // Unique HTML elements for specific layers. Added onto the bottom of the dropdown content.
-    const uniqueElements = [(
-        <>
-            <h3>Units</h3>
-            <input type='radio' id='kelvin' name='temp-units' onClick={() => setUnits(0, 'K')} defaultChecked={globalState.layers[0].units == 'K'} />
-            <label for='kelvin'>Kelvin</label>
-            <input type='radio' id='celsius' name='temp-units' onClick={() => setUnits(0, 'C')} defaultChecked={globalState.layers[0].units == 'C'} />
-            <label for='celsius'>Celsius</label>
-            <input type='radio' id='fahrenheit' name='temp-units' onClick={() => setUnits(0, 'F')} defaultChecked={globalState.layers[0].units == 'F'} />
-            <label for='fahrenheit'>Fahrenheit</label><br />
-            <br />
-        </>
-    ),
-    (<></>),
-    (<></>)]
-
     // Generating dropdown menu based on layers
+    var dropdown
     for (var i = 0; i < globalState.layers.length; i++) {
         const id = i; // Constant so that the onClick events don't read the final value of i.
         var content = (
@@ -89,9 +68,9 @@ function Dropdown(props) {
                         <p>Opacity</p>
                         <input type='range' min='0' max='255' defaultValue={globalState.layers[id].opacity} onChange={(e) => globalState.layers[id].opacityUpdate(e.target.value)} />
                         <p>Min Importance</p>
-                        <input type='range' min='5' max='100' defaultValue={globalState.layers[id.minImportance]} onChange={(e) => globalState.layers[id].minImportanceUpdate(e.target.value)} />
+                        <input type='range' min='5' max='100' defaultValue={globalState.layers[id].minImportance} onChange={(e) => globalState.layers[id].minImportanceUpdate(e.target.value)} />
                         <br />
-                        { uniqueElements[id] }
+                        { globalState.layers[id].uniqueDropdownElements }
                     </DropdownContent>
                 </DropdownButton>
             </>

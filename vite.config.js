@@ -25,7 +25,7 @@ export default defineConfig({
           dest: ''
         },
         {
-          src: 'maplibre-none.json',
+          src: 'maplibre-demo.json',
           dest: ''
         }
       ]

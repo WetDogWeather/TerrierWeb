@@ -11281,14 +11281,6 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
           Module.onOverlayInitialized(Module.overlay);
         }
       }
-
-      // Note: Turning on temperature
-      const TEMP_COLORS_NOT_GREY = new Module.TrrShaderColorMap(0, false,
-        [255.372, 260.928, 266.483, 272.039, 277.594, 283.15, 288.706, 294.261, 299.817, 305.372, 310.928, 316.483],
-        [0xFFFFBFFF, 0xFFD873DB, 0xFF913ABB, 0xFF372398, 0xFF00B6DC, 0xFF02D786, 0xFF40C604, 0xFFFFFF00, 0xFFFB7700, 0xFFD22402, 0xFFA20902, 0xFFEED9D8]);
-      Module.enableTemp = true
-      Module.tempColorMap = TEMP_COLORS_NOT_GREY
-      Module.updateOverlay()
   
       // Used to keep canvas height and width matching our render buffer
       function resizeCanvasToDisplaySize(canvas) {

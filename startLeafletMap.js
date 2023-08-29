@@ -1,5 +1,5 @@
 import Terrier from "./terrier.js"
-import "./L.CanvasLayer.js"
+import "./L.RealtimeCanvasLayer.js"
 
 // L.TerrierLayer = L.CanvasLayer.extend({
 //     onAdd: function(map) {
@@ -47,7 +47,7 @@ function startMap() {
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	}).addTo(map);
 
-    var canvasLayer = L.canvasLayer()
+    var canvasLayer = L.realtimeCanvasLayer()
     canvasLayer.delegate({
         onLayerDidMount() {
             Terrier.start('truwx', canvasLayer._canvas, (ovl) => {

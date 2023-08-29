@@ -33,12 +33,15 @@ class TerrierOverlay {
     startLayer(layerName,level,colorMap) {
 
         // Note: Turn this into a lookup into the stack contents and make it generally more generic
+        var ctl = null
+        var name = null
         switch (layerName) {
             case "wind_uv":
                 break;
             case "wind_speed_gust":
                 break;
             case "temperature":
+                ctl = globalThis.Module.tempCtl
                 globalThis.Module.enableTemp = true
                 globalThis.Module.tempColorMap = colorMap ? colorMap : this.terrierModule.TEMP_COLORS_NOT_GREY;
                 if (level !== null && level !== undefined) {
@@ -60,7 +63,12 @@ class TerrierOverlay {
                 return null
         }
 
+        // This creates the controls if they're not there already
         globalThis.Module.updateOverlay()
+
+        // ctl.varInterp = globalThis.Module.TexInterpType.Nearest
+        // ctl.visInterp = globalThis.Module.TexInterpType.Nearest
+        ctl.minImportanceFactor = 4.0
 
         return layerName
     }
@@ -111,6 +119,10 @@ class TerrierOverlay {
             scale: zoom, 
             projMatrix: transMat
         }
+        // console.log("lon = " + lon)
+        // console.log("lat = " + lat)
+        // console.log("zoom = " + zoom)
+        // console.log("projMatrix = " + transMat)
         if (globalThis.Module.repaint !== undefined) {
             globalThis.Module.repaint()
         }

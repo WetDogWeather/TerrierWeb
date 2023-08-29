@@ -39,8 +39,10 @@ import "./L.RealtimeCanvasLayer.js"
 
 // An example of starting up terrier
 function startMap() {
-    var map = L.map('map').setView([51.505, -0.09], 13);
-    map.zoomAnimation = true
+    var map = L.map('map', {
+        zoomAnimation: false,
+        zoomAnimationThreshold: 0.0
+    }).setView([51.505, -0.09], 6);
 
 	var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
@@ -68,9 +70,11 @@ function startMap() {
             var px = map.getPixelBounds()
             let far = 10.0
             let near = -10.0
+            // console.log('pixelBounds = ' + px.min + ' ' + px.max)
+            // console.log('width = ' + canvasLayer._canvas.width + " height = " + canvasLayer._canvas.height)
             var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
-                             0.0, -2/(px.max.y-px.min.y), 0.0, 0.0,  
-                             0.0, 0.0, -2/(far-near), 0.0,
+                             0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
+                             0.0, 0.0, -2.0/(far-near), 0.0,
                              -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
             var geoCenter = map.getCenter()
             Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)

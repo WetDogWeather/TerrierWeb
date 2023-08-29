@@ -98,7 +98,8 @@ L.RealtimeCanvasLayer = (L.Layer ? L.Layer : L.Class).extend({
         var del = this._delegate || this;
         del.onLayerDidMount && del.onLayerDidMount(); // -- callback\
         this._updatePosition();
-        this.needRedraw();
+        this._startFrameUpdate()
+        this._frameUpdateMode = false
     },
     
     //-------------------------------------------------------------
@@ -152,6 +153,8 @@ L.RealtimeCanvasLayer = (L.Layer ? L.Layer : L.Class).extend({
                                                 corner : corner
                                             });
         this._frameDraw = null;
+
+        return false
     },
     // -- L.DomUtil.setTransform from leaflet 1.0.0 to work on 0.0.7
     //------------------------------------------------------------------------------
@@ -196,9 +199,9 @@ L.RealtimeCanvasLayer = (L.Layer ? L.Layer : L.Class).extend({
         if (!this._frameDraw) {
             this._frameDraw = 
             L.Util.requestAnimFrame(() => {
-                this.drawLayer()
+                var success = this.drawLayer()
                 var keepDrawing = false
-                if (this._frameUpdateMode) {
+                if (this._frameUpdateMode || !success) {
                     keepDrawing = true
                 } else {
                     // Countdown a number of frames after we're 'done'

@@ -1639,8 +1639,8 @@ function unexportedRuntimeSymbol(sym) {
 // === Body ===
 
 var ASM_CONSTS = {
-  218852: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 219054: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  218916: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 219118: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(async () => { return Emval.toHandle(await (await fetch(UTF8ToString(url_ptr))).json()); }); }
 
@@ -12371,8 +12371,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits");
-var ___start_em_js = Module['___start_em_js'] = 219100;
-var ___stop_em_js = Module['___stop_em_js'] = 219249;
+var ___start_em_js = Module['___start_em_js'] = 219164;
+var ___stop_em_js = Module['___stop_em_js'] = 219313;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {

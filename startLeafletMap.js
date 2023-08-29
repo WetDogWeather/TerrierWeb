@@ -74,8 +74,6 @@ function startMap() {
                              -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
             var geoCenter = map.getCenter()
             Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
-
-            console.log("Draw time")
         }
     })
     canvasLayer.addTo(map)

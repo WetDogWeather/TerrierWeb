@@ -10676,7 +10676,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
   
         _updateLayerStates(rc, requestUpdate);
   
-        if (Module.controllers.length) {
+        if (Module.controllers.length && requestUpdate !== undefined) {
           requestUpdate();
         }
       } finally {

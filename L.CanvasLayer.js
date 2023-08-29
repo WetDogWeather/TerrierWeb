@@ -62,7 +62,7 @@ L.CanvasLayer = (L.Layer ? L.Layer : L.Class).extend({
         var events = {
             resize: this._onLayerDidResize,
             move: this._onLayerDidMove,
-            moveend: this._onLayerDidMove,
+            // moveend: this._onLayerDidMove,
             zoom: this._onLayerDidMove
         };
         if (this._map.options.zoomAnimation && L.Browser.any3d) {

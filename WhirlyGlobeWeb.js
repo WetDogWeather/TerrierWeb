@@ -11241,97 +11241,6 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
     webGLOverlayView.setMap(map);
   }
   
-  function _initWebglCanvas(mapCanvas) {
-    console.log("Initializing Webgl takeover");
-  
-    Module.repaint = function() {
-    };
-    _initUI(() => Module.animateFor(5000));
-
-    // Note: Canvas is already set by this point
-      _glfwInit();
-
-      var gl = Module.canvas.getContext('webgl2');
-      // gl.clearColor(1.0, 0.0, 0.0, 1.0)
-      // gl.clear(gl.COLOR_BUFFER_BIT)
-
-      const handle = GL.registerContext(gl, gl.getContextAttributes());
-      if (handle) {
-        Module.ctx = GL.getContext(handle).GLctx;
-        GL.makeContextCurrent(handle);
-        Module.useWebGL = true;
-        Browser.init();
-  
-        // todo: delete old overlay?
-        if (!Module.overlay) {
-          Module.overlay = new Module.MapOverlay();
-          Module.overlay.setup();
-        }
-  
-        //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
-  
-        if (!Module.service) {
-          Module.service = new Module.TrrService();
-          Module.service.stackName = "dev";
-        }
-  
-        Module.updateOverlay();
-
-        if (Module.onOverlayInitialized) {
-          Module.onOverlayInitialized(Module.overlay);
-        }
-      }
-  
-      // Used to keep canvas height and width matching our render buffer
-      function resizeCanvasToDisplaySize(canvas) {
-        // Lookup the size the browser is displaying the canvas in CSS pixels.
-        const displayWidth  = canvas.clientWidth;
-        const displayHeight = canvas.clientHeight;
-       
-        // Check if the canvas is not the same size.
-        const needResize = canvas.width  !== displayWidth ||
-                           canvas.height !== displayHeight;
-       
-        if (needResize) {
-          // Make the canvas the same size
-          canvas.width  = displayWidth;
-          canvas.height = displayHeight;
-        }
-       
-        return needResize;
-      }
-
-      // Note: This is the render function
-      renderFunc = () => {
-        if (gl && Module.overlay) {
-
-          // Note: Can we drive this with a size change event instead?
-          resizeCanvasToDisplaySize(Module.canvas)
-          
-          const stack = createGLStateStack(gl);
-          stack.push();
-          {
-            const width = Module.canvas.width;
-            const height = Module.canvas.height;
-            // const center = Module.map.getCenter();
-            // const zoom = Module.map.getZoom();
-            // const fieldOfView = Module.map._fov * 180 / Math.PI;
-            const tileSize = 256; //Module.map.transform.tileSize;
-            Module.overlay.render(width, height, tileSize, 40.30387495761434, -92.71091461181572, 3.0, NaN,
-              8.521923829699595,
-               [1.3491414554374488, 0, 0, 0, -0, -3, -0, -0, 0, 0, -0.0001457713744925914, -0.0001419727718999506, -1312.5722827026586, 4962.65744717959, 824.7792642140469, 825]);
-
-            Module.lastRenderTime = new Date().getTime();
-          }
-          stack.pop();
-        }
-      }
-
-      // Note: Testing
-      setInterval(function() {
-        renderFunc()
-      }, 100);      
-  }
   
   function _initMapLibre(map) {
     if (!Module.emInitialized) {
@@ -11441,13 +11350,104 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       map.addLayer(customLayer);
     });
   }
+  
+  
+  function _initWebglCanvas(canvas) {
+    if (!Module.emInitialized) {
+      console.log("Deferring Map Init");
+      Module.doMapInit = true;
+      return;
+    }
+  
+    Module.canvas = canvas
+  
+    console.log("Initializing WebGL Canvas Overlay");
+  
+    _initUI();
+    const gl = canvas.getContext("webgl2");
+  
+    _glfwInit();
+  
+    const handle = GL.registerContext(gl, gl.getContextAttributes());
+    if (handle) {
+      Module.ctx = GL.getContext(handle).GLctx;
+      GL.makeContextCurrent(handle);
+      Module.useWebGL = true;
+      Browser.init();
+  
+      // todo: delete old overlay?
+      if (!Module.overlay) {
+        Module.overlay = new Module.MapOverlay();
+        Module.overlay.setup();
+      }
+  
+      //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
+  
+      if (!Module.service) {
+        Module.service = new Module.TrrService();
+        Module.service.stackName = "dev";
+      }
+  
+      Module.updateOverlay();
+  
+      if (Module.onOverlayInitialized) {
+        Module.onOverlayInitialized(Module.overlay);
+      }
+    }
+  
+    renderFunc = () => {
+      // The layer can assume blending and depth state is set to allow the layer to properly blend and clip other layers.
+      // The layer cannot make any other assumptions about the current GL state.
+      // ... only use the render method for drawing directly into the main framebuffer.
+      // The blend function is set to gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA).
+      // `matrix` projects spherical mercator coordinates to gl coordinates.
+      // The spherical mercator coordinate [0, 0] represents the top left corner of the mercator world and [1, 1] the bottom right corner.
+      // When the renderingMode is "3d" , the z coordinate is conformal.
+      // (A box with identical x, y, and z lengths in mercator units would be rendered as a cube.)
+  
+      //var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), modelTransform.rotateX);
+      //var rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), modelTransform.rotateY);
+      //var rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), modelTransform.rotateZ);
+      //var m = new THREE.Matrix4().fromArray(matrix);
+      //var l = new THREE.Matrix4().makeTranslation(modelTransform.translateX,modelTransform.translateY,modelTransform.translateZ)
+      //  .scale(new THREE.Vector3(modelTransform.scale,-modelTransform.scale,modelTransform.scale)
+      //  .multiply(rotationX).multiply(rotationY).multiply(rotationZ);
+      //this.camera.projectionMatrix = m.multiply(l);
+  
+      if (gl && Module.overlay) {
+        const transform = Module.transform;
+        if (transform === undefined) {
+          return
+        }
+  
+        const stack = createGLStateStack(gl);
+        stack.push();
+        {
+          const width = Module.canvas.width;
+          const height = Module.canvas.height;
+          const tileSize = 128;
+          Module.overlay.render(width, height, tileSize, 
+            transform.centerLng, transform.centerLat, transform.zoom, 0.0,
+            transform.zoom,
+            transform.projMatrix);
+  
+          Module.lastRenderTime = new Date().getTime();
+        }
+        stack.pop();
+      }
+    } // render
+    
+    Module.repaint = function() {
+      renderFunc()
+    };
+  }
   function _initMap(type, ...args) {
     if (type == "google") {
       _initGoogleMap(...args);
     } else if (type == "libre") {
       _initMapLibre(...args);
     } else if (type == "webglcanvas") {
-      _initWebglCanvas(...args)
+      _initWebglCanvas(...args);
     }
   }
   Module["_initMap"] = _initMap;
@@ -13079,11 +13079,11 @@ run();
 
 
 // end include: postamble.js
-// include: /Users/timsylvester/src/wdw/Emscripten/emscripten/src/js/post.js
+// include: /Users/sjg/dev/Emscripten/emscripten/src/js/post.js
 
 
-// end include: /Users/timsylvester/src/wdw/Emscripten/emscripten/src/js/post.js
-// include: /Users/timsylvester/src/public/emsdk/upstream/emscripten/src/emrun_postjs.js
+// end include: /Users/sjg/dev/Emscripten/emscripten/src/js/post.js
+// include: /Users/sjg/dev/emsdk/upstream/emscripten/src/emrun_postjs.js
 /**
  * @license
  * Copyright 2013 The Emscripten Authors
@@ -13181,4 +13181,4 @@ if (typeof window == "object" && (typeof ENVIRONMENT_IS_PTHREAD == 'undefined' |
 }
 
 
-// end include: /Users/timsylvester/src/public/emsdk/upstream/emscripten/src/emrun_postjs.js
+// end include: /Users/sjg/dev/emsdk/upstream/emscripten/src/emrun_postjs.js

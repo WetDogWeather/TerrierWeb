@@ -101,6 +101,20 @@ class TerrierOverlay {
     addGeoJSON(geojson) {
         globalThis.Module.overlay.addGeoJSON(geojson)
     }
+
+    // Update the transform used to move the map around
+    updateTransform(lon, lat, zoom, transMat) {
+        globalThis.Module.transform = {
+            centerLng: lon,
+            centerLat: lat,
+            zoom: zoom,
+            scale: zoom, 
+            projMatrix: transMat
+        }
+        if (globalThis.Module.repaint !== undefined) {
+            globalThis.Module.repaint()
+        }
+    }
 }
 
 // Putting all the Terrier methods into one class

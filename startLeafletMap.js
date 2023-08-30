@@ -61,8 +61,10 @@ function startMap() {
                             ovl.addGeoJSON(t)
                         })))                
 
-                // Turn on the temperature layer
+                // Turn on a layer
                 let tempLayerId = ovl.startLayer('temperature')
+                // let windLayerID = ovl.startLayer('wind_uv')
+                // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
             })
         },
 

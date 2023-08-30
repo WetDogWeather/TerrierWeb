@@ -47,7 +47,6 @@ class TerrierOverlay {
             case "wind_speed_gust":
                 break;
             case "temperature":
-                ctl = globalThis.Module.tempCtl
                 globalThis.Module.enableTemp = true
                 globalThis.Module.tempColorMap = colorMap ? colorMap : this.terrierModule.TEMP_COLORS_NOT_GREY;
                 if (level !== null && level !== undefined) {
@@ -71,6 +70,8 @@ class TerrierOverlay {
 
         // This creates the controls if they're not there already
         globalThis.Module.updateOverlay()
+
+        ctl = globalThis.Module.tempCtl
 
         // ctl.varInterp = globalThis.Module.TexInterpType.Nearest
         // ctl.visInterp = globalThis.Module.TexInterpType.Nearest

@@ -195,24 +195,25 @@ L.RealtimeCanvasLayer = (L.Layer ? L.Layer : L.Class).extend({
     },
 
     // Used internally.  Keeps rendering until frameUpdateMode is turned off
+    // Note: Just always rendering.  Right now the render function checks if it should skip
     _registerFrameUpdate: function() {
         if (!this._frameDraw) {
             this._frameDraw = 
             L.Util.requestAnimFrame(() => {
-                var success = this.drawLayer()
-                var keepDrawing = false
-                if (this._frameUpdateMode || !success) {
-                    keepDrawing = true
-                } else {
-                    // Countdown a number of frames after we're 'done'
-                    if (this._frameCountdown > 0) {
-                        this._frameCountdown = this._frameCountdown - 1
-                        keepDrawing = true
-                    }
-                }
-                if (keepDrawing) {
+                this.drawLayer()
+                // var keepDrawing = false
+                // if (this._frameUpdateMode || !success) {
+                //     keepDrawing = true
+                // } else {
+                //     // Countdown a number of frames after we're 'done'
+                //     if (this._frameCountdown > 0) {
+                //         this._frameCountdown = this._frameCountdown - 1
+                //         keepDrawing = true
+                //     }
+                // }
+                // if (keepDrawing) {
                     this._registerFrameUpdate()
-                }
+                // }
             }, this);
         }
     },

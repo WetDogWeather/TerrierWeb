@@ -10,7 +10,9 @@ import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS.js';
 // The core of this example is from:
 //  https://openlayers.org/doc/quickstart.html
 
-const tileServer = "https://truwx.api.wetdogweather.com/"
+// Construct the base URL for API queries
+const stackName = "dev"
+const tileServer = "https://" + stackName + ".api.wetdogweather.com/"
 
 // This is the important bit, the getCapabilities call
 const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SERVICE=WMTS"

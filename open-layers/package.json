@@ -1,5 +1,5 @@
 {
-  "name": "olexample",
+  "name": "open-layers",
   "version": "1.0.0",
   "scripts": {
     "start": "vite",
@@ -11,6 +11,7 @@
     "vite": "^4.0.4"
   },
   "dependencies": {
-    "ol": "latest"
+    "ol": "latest",
+    "vite-plugin-static-copy": "^0.17.0"
   }
 }

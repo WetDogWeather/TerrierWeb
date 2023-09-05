@@ -1,18 +1,9 @@
-# OpenLayers + Vite
+### README
 
-This example demonstrates how the `ol` package can be used with [Vite](https://vitejs.dev/).
+This directory contains an OpenLayers example that reads WMTS and WMS data sources.
 
-To get started, run the following (requires Node 14+):
+To build and run this example, load the [build](build.md) page.
 
-    npx create-ol-app my-app --template vite
+To create this example from scratch yourself or to just understand how it works, read the [from_scratch](from_scratch.md) page.
 
-Then change into your new `my-app` directory and start a development server (available at http://localhost:5173):
-
-    cd my-app
-    npm start
-
-To generate a build ready for production:
-
-    npm run build
-
-Then deploy the contents of the `dist` directory to your server.  You can also run `npm run serve` to serve the results of the `dist` directory for preview.
+For questions, contact support@wetdogweather.com.

@@ -1,1 +1,1 @@
-../../terrier.js
+../../terrier/terrier.js

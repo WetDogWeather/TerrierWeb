@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { MapContainer, TileLayer } from "react-leaflet";
 import TerrierLayer from "./TerrierLayer.jsx";
-// import TerrierLayer from './TerrierLayer.jsx'
 import './App.css'
 
 function App() {

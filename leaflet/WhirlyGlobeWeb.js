@@ -1,1 +1,1 @@
-../WhirlyGlobeWeb.js
+../terrier/WhirlyGlobeWeb.js

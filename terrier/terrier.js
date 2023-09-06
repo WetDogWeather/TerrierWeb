@@ -247,7 +247,7 @@ class TerrierModule {
                 _postLoadInit();
 
                 globalThis.Module.service = new globalThis.Module.TrrService();
-                globalThis.Module.service.stackName = "dev";
+                globalThis.Module.service.stackName = stackName;
                 globalThis.Module.service.apiVersion = 1;
                 globalThis.Module.tempCadence = [-24 * 3600, 24 * 3600, 40];
                 globalThis.Module.windCadence = [-25 * 3600, 24 * 3600, 40];

@@ -52,7 +52,7 @@ function startMap() {
     var canvasLayer = L.realtimeCanvasLayer()
     canvasLayer.delegate({
         onLayerDidMount() {
-            Terrier.start('truwx', canvasLayer._canvas, (ovl) => {
+            Terrier.start('dev', canvasLayer._canvas, (ovl) => {
                 // Toss in country/state outlines
                 ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
                     fetch("geojson/" + c + ".geojson").then(result =>

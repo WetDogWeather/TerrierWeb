@@ -117,7 +117,36 @@ class TerrierOverlay {
         globalThis.Module.overlay.addGeoJSON(geojson)
     }
 
+    // Return the current time in seconds from the epoch (1970)
+    getCurrentTime() {
+        return globalThis.Module.curTime
+    }
+
+    // Set the current time in seconds from the epoch (1970)
+    setCurrentTime(epoch) {
+        if (globalThis.Module === undefined) { return }
+        // TODO: Cache this if there's no Module yet
+
+        globalThis.Module.curTime = epoch
+    }
+
+    // Play from beginning to end of the current times available
+    timePlay() {
+        if (globalThis.Module === undefined) { return }
+
+        globalThis.Module.tracker.play()  
+    }
+
+    // Stop animating over time
+    timePause() {
+        if (globalThis.Module === undefined) { return }
+
+        globalThis.Module.tracker.stop()
+    }
+
     // Update the transform used to move the map around
+    // Don't call this unless you know you should, as
+    //  it's pretty different between toolkits
     updateTransform(lon, lat, zoom, transMat) {
         globalThis.Module.transform = {
             centerLng: lon,
@@ -159,8 +188,6 @@ class TerrierModule {
             return
         }
 
-        // TODO: Do something with the stackName
-        
         // Emscripten is expecting this global Module to be defined
         //  and it will merge these contents with its own
         globalThis.Module = {

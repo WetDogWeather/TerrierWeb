@@ -34,8 +34,17 @@ function TerrierLayer() {
 
               // Turn on a layer
               let tempLayerId = ovl.startLayer('temperature')
+
               // let windLayerID = ovl.startLayer('wind_uv')
               // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
+
+              // To set the time to now + 1hr
+              // let d = new Date();
+              // let now = d.getTime() / 1000
+              // ovl.setCurrentTime(now+1*60*60)
+
+              // To animate over the available time
+              ovl.timePlay()
           })
       },
 

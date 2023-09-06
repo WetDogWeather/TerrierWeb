@@ -2,6 +2,7 @@ import './style.css';
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
+import ImageWMS from 'ol/source/ImageWMS'
 import { none } from 'ol/centerconstraint';
 
 import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
@@ -28,7 +29,6 @@ fetch(capURL)
     return response.text();
   })
   .then(function (text) {
-    text = text.replaceAll('ows:Identification','ows:Identifier')
     // This will parse our capabilities return (e.g. getCapabilities)
     // It's OpenLayers functionality and appears to be one of the better implementations
     let parser = new WMTSCapabilities();

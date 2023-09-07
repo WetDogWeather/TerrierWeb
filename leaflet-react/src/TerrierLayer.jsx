@@ -21,46 +21,38 @@ function TerrierLayer() {
     }
     terrierInit = true
 
-    canvasLayer.delegate({
-      onLayerDidMount() {
-          Terrier.start('dev', canvasLayer._canvas, (ovl) => {
-              // Toss in country/state outlines
-              ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
-                  fetch("geojson/" + c + ".geojson").then(result =>
-                      result.text().then(t => {
-                          console.debug("Adding " + c + ".geojson")
-                          ovl.addGeoJSON(t)
-                      })))                
+    // Tell Terrier to hook itself into the canvas and start loading itself
+    // This calls the Leaflet variant
+    Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
+      // Tell us what's in the stack
+      ovl.fetchStackContents((contents) => {
+        console.log("Stack contains:\n" + contents)
+      });
 
-              // Turn on a layer
-              let tempLayerId = ovl.startLayer('temperature')
+      // Toss in country/state outlines
+      ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
+        fetch("geojson/" + c + ".geojson").then(result =>
+            result.text().then(t => {
+                console.debug("Adding " + c + ".geojson")
+                ovl.addGeoJSON(t)
+            })))                
 
-              // let windLayerID = ovl.startLayer('wind_uv')
-              // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
+      // Turn on a layer
+      let tempLayerId = ovl.startLayer('temperature')
 
-              // To set the time to now + 1hr
-              // let d = new Date();
-              // let now = d.getTime() / 1000
-              // ovl.setCurrentTime(now+1*60*60)
+      // let windLayerID = ovl.startLayer('wind_uv')
+      // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
 
-              // To animate over the available time
-              ovl.timePlay()
-          })
-      },
+      // To set the time to now + 1hr
+      // let d = new Date();
+      // let now = d.getTime() / 1000
+      // ovl.setCurrentTime(now+1*60*60)
 
-      onDrawLayer(info) {
-          var px = map.getPixelBounds()
-          let far = 10.0
-          let near = -10.0
-          var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
-                           0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
-                           0.0, 0.0, -2.0/(far-near), 0.0,
-                           -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
-          var geoCenter = map.getCenter()
-          Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
-      }
-  })
-  canvasLayer.addTo(map)
+      // To animate over the available time
+      ovl.timePlay()
+    })
+
+    canvasLayer.addTo(map)
 }, [])
 
   return (

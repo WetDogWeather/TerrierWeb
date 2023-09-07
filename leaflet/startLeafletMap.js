@@ -50,38 +50,21 @@ function startMap() {
 	}).addTo(map);
 
     var canvasLayer = L.realtimeCanvasLayer()
-    canvasLayer.delegate({
-        onLayerDidMount() {
-            Terrier.start('dev', canvasLayer._canvas, (ovl) => {
-                // Toss in country/state outlines
-                ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
-                    fetch("geojson/" + c + ".geojson").then(result =>
-                        result.text().then(t => {
-                            console.debug("Adding " + c + ".geojson")
-                            ovl.addGeoJSON(t)
-                        })))                
+    Terrier.startLeaflet('dev', canvasLayer, (ovl) => {
+        // Toss in country/state outlines
+        ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
+            fetch("geojson/" + c + ".geojson").then(result =>
+                result.text().then(t => {
+                    console.debug("Adding " + c + ".geojson")
+                    ovl.addGeoJSON(t)
+                })))                
 
-                // Turn on a layer
-                let tempLayerId = ovl.startLayer('temperature')
-                // let windLayerID = ovl.startLayer('wind_uv')
-                // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
-            })
-        },
-
-        onDrawLayer(info) {
-            var px = map.getPixelBounds()
-            let far = 10.0
-            let near = -10.0
-            // console.log('pixelBounds = ' + px.min + ' ' + px.max)
-            // console.log('width = ' + canvasLayer._canvas.width + " height = " + canvasLayer._canvas.height)
-            var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
-                             0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
-                             0.0, 0.0, -2.0/(far-near), 0.0,
-                             -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
-            var geoCenter = map.getCenter()
-            Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
-        }
+        // Turn on a layer
+        let tempLayerId = ovl.startLayer('temperature')
+        // let windLayerID = ovl.startLayer('wind_uv')
+        // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
     })
+
     canvasLayer.addTo(map)
 }
 

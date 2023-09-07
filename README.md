@@ -1,13 +1,13 @@
-# TerrierWeb
-New Terrier Web Interface
+### TerrierWeb Repo
 
-### Required Software
-Node.js
+This repo contains examples for using Boxer services, sometimes directly and sometimes through the Terrier for Web library.
 
-### Instructions for Command Prompt
-* Navigate to project folder inside command prompt
-* Run npm i (Installs packages from package.json and package-lock.json)
-  * If you get package conflict errors, try npm i --force
-* Run npm run dev
-* Go to the local-host it gives you
-* When you are done viewing, type Ctrl+C into the console
+[Open Layers example](open-layers/readme.md) shows how to directly use WMTS and WMS endpoints through Open Layers.
+
+[Leaflet Example](leaflet/readme.md) integrates Terrier for Web directly on top of Leaflet, directly in Javascript.
+
+[React Leaflet Example](leaflet-react/readme.md) integrates Terrier for Web into React Leaflet.
+
+[MapLibre React](maplibre-react/readme.md) is our test app for Terrier (Web) using MapLibre and React.
+
+The terrier directory contains the files Terrier for Web will need to run on a web site.  These are the Terrier library itself.

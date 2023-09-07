@@ -1,0 +1,66 @@
+import { useState, useRef, useEffect } from 'react'
+import { useMap } from "react-leaflet";
+import Terrier from "./terrier.js"
+import './L.RealtimeCanvasLayer.js'
+import './terrierLayer.css'
+
+var terrierInit = false
+
+function TerrierLayer() {
+  const [count, setCount] = useState(0)
+  
+  const map = useMap()
+  console.log('map center:', map.getCenter())
+
+  var canvasLayer = L.realtimeCanvasLayer()
+
+  const canvasRef = useRef(null)
+  useEffect(() => {
+    if (terrierInit) {
+      return
+    }
+    terrierInit = true
+
+    // Tell Terrier to hook itself into the canvas and start loading itself
+    // This calls the Leaflet variant
+    Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
+      // Tell us what's in the stack
+      ovl.fetchStackContents((contents) => {
+        console.log("Stack contains:\n" + contents)
+      });
+
+      // Toss in country/state outlines
+      ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
+        fetch("geojson/" + c + ".geojson").then(result =>
+            result.text().then(t => {
+                console.debug("Adding " + c + ".geojson")
+                ovl.addGeoJSON(t)
+            })))                
+
+      // Turn on a layer
+      let tempLayerId = ovl.startLayer('temperature')
+
+      // let windLayerID = ovl.startLayer('wind_uv')
+      // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
+
+      // To set the time to now + 1hr
+      // let d = new Date();
+      // let now = d.getTime() / 1000
+      // ovl.setCurrentTime(now+1*60*60)
+
+      // To animate over the available time
+      ovl.timePlay()
+    })
+
+    canvasLayer.addTo(map)
+}, [])
+
+  return (
+    // <div id="terrierLayer">
+    <canvas ref={canvasRef} >
+    </canvas>
+    // </div>
+  );
+}
+
+export default TerrierLayer

@@ -10676,7 +10676,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
   
         _updateLayerStates(rc, requestUpdate);
   
-        if (Module.controllers.length) {
+        if (Module.controllers.length && requestUpdate !== undefined) {
           requestUpdate();
         }
       } finally {
@@ -11333,8 +11333,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
             const zoom = Module.map.getZoom();
             const fieldOfView = Module.map._fov * 180 / Math.PI;
             const tileSize = 256; //Module.map.transform.tileSize;
-            Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom, fieldOfView,
-              Module.map.transform.scale,
+            Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom,
               Module.map.transform.projMatrix);
   
             //if (Module.isPlaying()) {
@@ -11350,11 +11349,103 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       map.addLayer(customLayer);
     });
   }
+  
+  
+  function _initWebglCanvas(canvas) {
+    if (!Module.emInitialized) {
+      console.log("Deferring Map Init");
+      Module.doMapInit = true;
+      return;
+    }
+  
+    Module.canvas = canvas
+  
+    console.log("Initializing WebGL Canvas Overlay");
+  
+    _initUI();
+    const gl = canvas.getContext("webgl2");
+  
+    _glfwInit();
+  
+    const handle = GL.registerContext(gl, gl.getContextAttributes());
+    if (handle) {
+      Module.ctx = GL.getContext(handle).GLctx;
+      GL.makeContextCurrent(handle);
+      Module.useWebGL = true;
+      Browser.init();
+  
+      // todo: delete old overlay?
+      if (!Module.overlay) {
+        Module.overlay = new Module.MapOverlay();
+        Module.overlay.setup();
+      }
+  
+      //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
+  
+      if (!Module.service) {
+        Module.service = new Module.TrrService();
+        Module.service.stackName = "dev";
+      }
+  
+      Module.updateOverlay();
+  
+      if (Module.onOverlayInitialized) {
+        Module.onOverlayInitialized(Module.overlay);
+      }
+    }
+  
+    renderFunc = () => {
+      // The layer can assume blending and depth state is set to allow the layer to properly blend and clip other layers.
+      // The layer cannot make any other assumptions about the current GL state.
+      // ... only use the render method for drawing directly into the main framebuffer.
+      // The blend function is set to gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA).
+      // `matrix` projects spherical mercator coordinates to gl coordinates.
+      // The spherical mercator coordinate [0, 0] represents the top left corner of the mercator world and [1, 1] the bottom right corner.
+      // When the renderingMode is "3d" , the z coordinate is conformal.
+      // (A box with identical x, y, and z lengths in mercator units would be rendered as a cube.)
+  
+      //var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), modelTransform.rotateX);
+      //var rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), modelTransform.rotateY);
+      //var rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), modelTransform.rotateZ);
+      //var m = new THREE.Matrix4().fromArray(matrix);
+      //var l = new THREE.Matrix4().makeTranslation(modelTransform.translateX,modelTransform.translateY,modelTransform.translateZ)
+      //  .scale(new THREE.Vector3(modelTransform.scale,-modelTransform.scale,modelTransform.scale)
+      //  .multiply(rotationX).multiply(rotationY).multiply(rotationZ);
+      //this.camera.projectionMatrix = m.multiply(l);
+  
+      if (gl && Module.overlay) {
+        const transform = Module.transform;
+        if (transform === undefined) {
+          return
+        }
+  
+        const stack = createGLStateStack(gl);
+        stack.push();
+        {
+          const width = Module.canvas.width;
+          const height = Module.canvas.height;
+          const tileSize = 128;
+          Module.overlay.render(width, height, tileSize, 
+            transform.centerLng, transform.centerLat, transform.zoom,
+            transform.projMatrix);
+  
+          Module.lastRenderTime = new Date().getTime();
+        }
+        stack.pop();
+      }
+    } // render
+    
+    Module.repaint = function() {
+      renderFunc()
+    };
+  }
   function _initMap(type, ...args) {
     if (type == "google") {
       _initGoogleMap(...args);
     } else if (type == "libre") {
       _initMapLibre(...args);
+    } else if (type == "webglcanvas") {
+      _initWebglCanvas(...args);
     }
   }
   Module["_initMap"] = _initMap;
@@ -12986,11 +13077,11 @@ run();
 
 
 // end include: postamble.js
-// include: /Users/timsylvester/src/wdw/Emscripten/emscripten/src/js/post.js
+// include: /Users/sjg/dev/Emscripten/emscripten/src/js/post.js
 
 
-// end include: /Users/timsylvester/src/wdw/Emscripten/emscripten/src/js/post.js
-// include: /Users/timsylvester/src/public/emsdk/upstream/emscripten/src/emrun_postjs.js
+// end include: /Users/sjg/dev/Emscripten/emscripten/src/js/post.js
+// include: /Users/sjg/dev/emsdk/upstream/emscripten/src/emrun_postjs.js
 /**
  * @license
  * Copyright 2013 The Emscripten Authors
@@ -13088,4 +13179,4 @@ if (typeof window == "object" && (typeof ENVIRONMENT_IS_PTHREAD == 'undefined' |
 }
 
 
-// end include: /Users/timsylvester/src/public/emsdk/upstream/emscripten/src/emrun_postjs.js
+// end include: /Users/sjg/dev/emsdk/upstream/emscripten/src/emrun_postjs.js

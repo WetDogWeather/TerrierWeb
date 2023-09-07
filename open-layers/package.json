@@ -1,0 +1,17 @@
+{
+  "name": "open-layers",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "dev": "vite --port 4000"
+  },
+  "devDependencies": {
+    "vite": "^4.0.4"
+  },
+  "dependencies": {
+    "ol": "latest",
+    "vite-plugin-static-copy": "^0.17.0"
+  }
+}

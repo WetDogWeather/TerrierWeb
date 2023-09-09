@@ -38,10 +38,22 @@ function TerrierLayer() {
             })))                
 
       // Turn on a layer
-      let tempLayerId = ovl.startLayer('temperature')
+      // let tempLayer = ovl.startLayer('temperature', {
+      //     // colorMap: {}
+      //     // level: 80
+      //     interpMode: 'nearest',
+      //     opacity: 0.5,
+      //     importFactor: 1.0,
+      // })
 
-      // let windLayerID = ovl.startLayer('wind_uv')
-      // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
+      let windLayer = ovl.startLayer('windUV', {
+          // colorMap: {}
+          // level: 80
+          interpMode: 'nearest',
+          // interpMode: 'linear',
+          opacity: 0.75,
+          importFactor: 1.0,
+      })
 
       // To set the time to now + 1hr
       // let d = new Date();
@@ -49,7 +61,7 @@ function TerrierLayer() {
       // ovl.setCurrentTime(now+1*60*60)
 
       // To animate over the available time
-      ovl.timePlay()
+      ovl.timePlay({period: 10.0})
     })
 
     canvasLayer.addTo(map)

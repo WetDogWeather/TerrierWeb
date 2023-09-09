@@ -1,42 +1,6 @@
 import Terrier from "./terrier.js"
 import "./L.RealtimeCanvasLayer.js"
 
-// L.TerrierLayer = L.CanvasLayer.extend({
-//     onAdd: function(map) {
-//         var pane = map.getPane(this.options.pane);
-//         this._container = L.DomUtil.create("canvas");
-//         this._container.name = "Custom Layer Canvas"
-
-//         pane.appendChild(this._container);
-
-//         // Calculate initial position of container with `L.Map.latLngToLayerPoint()`, `getPixelOrigin()` and/or `getPixelBounds()`
-
-//         // L.DomUtil.setPosition(this._container, point);
-
-//         // Add and position children elements if needed
-
-
-//         map.on('zoomend viewreset', this._update, this);
-//     },
-
-//     onRemove: function(map) {
-//         L.DomUtil.remove(this._container);
-//         map.off('zoomend viewreset', this._update, this);
-//     },
-
-//     _update: function() {
-//         // Recalculate position of container
-
-//         L.DomUtil.setPosition(this._container, point);        
-
-//         // Add/remove/reposition children elements if needed
-//     }
-// });
-
-// L.terrierLayer = (name, options) => {
-//     return new L.TerrierLayer(name, options);
-// }
-
 // An example of starting up terrier
 function startMap() {
     var map = L.map('map', {
@@ -52,17 +16,39 @@ function startMap() {
     var canvasLayer = L.realtimeCanvasLayer()
     Terrier.startLeaflet('dev', canvasLayer, (ovl) => {
         // Toss in country/state outlines
-        ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
-            fetch("geojson/" + c + ".geojson").then(result =>
-                result.text().then(t => {
-                    console.debug("Adding " + c + ".geojson")
-                    ovl.addGeoJSON(t)
-                })))                
+        // ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
+        //     fetch("geojson/" + c + ".geojson").then(result =>
+        //         result.text().then(t => {
+        //             console.debug("Adding " + c + ".geojson")
+        //             ovl.addGeoJSON(t)
+        //         })))                
 
-        // Turn on a layer
-        let tempLayerId = ovl.startLayer('temperature')
-        // let windLayerID = ovl.startLayer('wind_uv')
-        // let cloudCeilingId = ovl.startLayer('cloud_ceiling')
+        // Turn on temperature as a layer
+        // let tempLayer = ovl.startLayer('temperature', {
+        //     // colorMap: {}
+        //     // level: 80
+        //     interpMode: 'nearest',
+        //     opacity: 0.5,
+        //     importFactor: 1.0,
+        // })
+        // let windLayer = ovl.startLayer('windUV', {
+        //     // colorMap: {}
+        //     // level: 80
+        //     interpMode: 'nearest',
+        //     opacity: 0.5,
+        //     importFactor: 1.0,
+        // })
+        let radarLayer = ovl.startLayer('radar', {
+            // colorMap: {}
+            // level: 80
+            interpMode: 'linear',
+            opacity: 0.75,
+            importFactor: 5.0
+        })
+
+        // let cloudCeiling = ovl.startLayer('cloud_ceiling')
+
+        ovl.timePlay({period: 10.0})
     })
 
     canvasLayer.addTo(map)

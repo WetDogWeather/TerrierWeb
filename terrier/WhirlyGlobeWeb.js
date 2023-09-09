@@ -10737,15 +10737,33 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         Module.repaint();
       }
     };
-    Module.togglePlay = () => {
+    Module.play = () => {
       if (Module.tracker) {
-        Module.tracker.isPlaying ? Module.tracker.stop() : Module.tracker.play();
+        if (!Module.tracker.isPlaying) {
+          Module.tracker.play();
+        }
   
         Module.controllers.forEach(x => x.loadAllFrames = Module.tracker.isPlaying);
   
       }
-      requestUpdate();
-    }; // togglePlay
+      if (requestUpdate) {
+        requestUpdate();
+      }
+    }; // play
+
+    Module.pause = () => {
+      if (Module.tracker) {
+        if (Module.tracker.isPlaying) {
+          Module.tracker.stop()
+        }
+        Module.controllers.forEach(x => x.loadAllFrames = Module.tracker.isPlaying);
+      }
+      if (requestUpdate) {
+        requestUpdate();
+      }
+    }; // play
+
+
   }
   
   function _updateLayerStates(rc, updateFunction) {
@@ -10815,8 +10833,9 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.tempCtl.start(null);
       change = true;  
     }
+    Module.controllerState['Temperature'].controller = Module.tempCtl
   
-    let state = Module.controllerState['Visibility'] || null;
+    state = Module.controllerState['Visibility'] || null;
     if (state && !state.enabled && state.controller) {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
@@ -11027,7 +11046,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       }
       Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker);
       Module.radarCtl.debugMode = !!Module.debugRadar;
-      Module.radarCtl.scale = Module.radarScale || 0.25;
+      Module.radarCtl.scale = Module.radarScale || 0.5;
       Module.radarCtl.opacity = 0.75;
       Module.radarCtl.varInterp = Module.TexInterpType.Linear;
       Module.radarCtl.visInterp = Module.TexInterpType.Linear;
@@ -11050,7 +11069,8 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.radarCtl.start(null);
       change = true;
     }
-  
+    Module.controllerState['Radar'].controller = Module.radarCtl
+
     // Wind
     if (!Module.enableWind && Module.windCtl) {
       if (Module.debugLayers) {
@@ -11090,6 +11110,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.windCtl.start(null);
       change = true;
     }
+    Module.controllerState['WindUV'].controller = Module.windCtl
   
     Module.controllers = [Module.windCtl, Module.tempCtl, Module.radarCtl].
                           concat(Module.controllerState.types.map(x=>Module.controllerState[x].controller)).

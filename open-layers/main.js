@@ -11,11 +11,12 @@ const osmTileLayer = new TileLayer({source: new OSM()});
 let layers = [osmTileLayer]
 
 // Set this to WMS or WMTS to trigger the different examples
-let service='WMS'
-// let service='WMTS'
+// let service='WMS'
+let service='WMTS'
 
 // Construct the base URL for API queries
-const stackName = "truwx-dev"
+// Note: Our dev stack isn't provisioned for performant WMS queries.  Use your own, which is.
+const stackName = "dev"
 const tileServer = "https://" + stackName + ".api.wetdogweather.com/"
 
 // This is the important bit, the getCapabilities call
@@ -24,7 +25,7 @@ const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SE
 if (service == 'WMS') {
   // Create a layer from WMS data
   let data = new WMSData(capURL);
-  let dataLayer = await data.getLayer('truwx-ny-none-temperature-2m-16-projected', 'mp_jet');
+  let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected', 'mp_jet');
   let bbox = data.getBBox();
 
   const imgLayer = new ImageLayer({
@@ -36,9 +37,21 @@ if (service == 'WMS') {
 } else {
   // Create a layer from WMTS data
   let data = new WMTSData(capURL);
-  let dataLayer = await data.getLayer('truwx-ny-none-temperature-2m-16-projected')
+  let dataLayer = await data.getLayer('gfs-global-atmos-temperature-2m-16-projected')
   
-  const dataTileLayer =  new TileLayer({opacity: 1.0, source: dataLayer});
+  const dataTileLayer =  new TileLayer({opacity: 0.5, source: dataLayer});
+
+  // Iterate through the list of times available
+  // setInterval(()=> {
+  //   let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
+  //   console.log("Switching time to " + newDim)
+  //   dataLayer.updateDimensions({'time': newDim});
+  //   dataLayer.curTimeDim = dataLayer.curTimeDim + 1
+  //   if (dataLayer.curTimeDim >= dataLayer.timeDim.Value.length) {
+  //     dataLayer.curTimeDim = 0
+  //   }
+  // }, 2000)
+
   layers.push(dataTileLayer);
 }
 

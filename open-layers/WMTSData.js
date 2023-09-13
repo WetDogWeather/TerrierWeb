@@ -1,7 +1,9 @@
-
 import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
 import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS.js';
+
+// Helper object to tease details out of the capabilities return
 class WMTSData {
+    // Pass in the raw capabilities return
     constructor(capability_file) {
     
         this.responsePromise = fetch(capability_file)
@@ -17,17 +19,24 @@ class WMTSData {
         });
     }
 
+    // Look for a name of the given layer
     async getLayer(name) {
         const data = await this.responsePromise;
         return await this.process_layer(data, name);
-        
     }
 
+    // Look for a layer of the given name (local version)
     async process_layer(data, name) {
         return new Promise((resolve, reject) => {
             try {
-                const layer =  optionsFromCapabilities(data, {'layer': name});
-                const wmts = new WMTS(layer);
+                const layer = optionsFromCapabilities(data, {'layer': name});
+
+                // We know there's a time dimension available in WDW data sets, so let's find that
+                let timeDim = data.Contents.Layer.find((el) => el.Identifier == layer.layer).Dimension[0]
+
+                const wmts = new WMTS(layer, {opacity: 0.5});
+                wmts.timeDim = timeDim
+                wmts.curTimeDim = 0
                 resolve(wmts);
             } catch(error) {
                 reject(error);

@@ -1639,8 +1639,8 @@ function unexportedRuntimeSymbol(sym) {
 // === Body ===
 
 var ASM_CONSTS = {
-  218852: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 219054: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  218868: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 219070: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(async () => { return Emval.toHandle(await (await fetch(UTF8ToString(url_ptr))).json()); }); }
 
@@ -10737,33 +10737,31 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         Module.repaint();
       }
     };
-    Module.play = () => {
-      if (Module.tracker) {
-        if (!Module.tracker.isPlaying) {
-          Module.tracker.play();
+      Module.play = () => {
+        if (Module.tracker) {
+          if (!Module.tracker.isPlaying) {
+            Module.tracker.play();
+          }
+    
+          Module.controllers.forEach(x => x.loadAllFrames = Module.tracker.isPlaying);
+    
         }
-  
-        Module.controllers.forEach(x => x.loadAllFrames = Module.tracker.isPlaying);
-  
-      }
-      if (requestUpdate) {
-        requestUpdate();
-      }
-    }; // play
-
-    Module.pause = () => {
-      if (Module.tracker) {
-        if (Module.tracker.isPlaying) {
-          Module.tracker.stop()
+        if (requestUpdate) {
+          requestUpdate();
         }
-        Module.controllers.forEach(x => x.loadAllFrames = Module.tracker.isPlaying);
-      }
-      if (requestUpdate) {
-        requestUpdate();
-      }
-    }; // play
-
-
+      }; // play
+  
+      Module.pause = () => {
+        if (Module.tracker) {
+          if (Module.tracker.isPlaying) {
+            Module.tracker.stop()
+          }
+          Module.controllers.forEach(x => x.loadAllFrames = Module.tracker.isPlaying);
+        }
+        if (requestUpdate) {
+          requestUpdate();
+        }
+      }; // pause
   }
   
   function _updateLayerStates(rc, updateFunction) {
@@ -10835,7 +10833,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
     }
     Module.controllerState['Temperature'].controller = Module.tempCtl
   
-    state = Module.controllerState['Visibility'] || null;
+    let state = Module.controllerState['Visibility'] || null;
     if (state && !state.enabled && state.controller) {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
@@ -11046,7 +11044,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       }
       Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker);
       Module.radarCtl.debugMode = !!Module.debugRadar;
-      Module.radarCtl.scale = Module.radarScale || 0.5;
+      Module.radarCtl.scale = Module.radarScale || 0.25;
       Module.radarCtl.opacity = 0.75;
       Module.radarCtl.varInterp = Module.TexInterpType.Linear;
       Module.radarCtl.visInterp = Module.TexInterpType.Linear;
@@ -11070,7 +11068,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       change = true;
     }
     Module.controllerState['Radar'].controller = Module.radarCtl
-
+  
     // Wind
     if (!Module.enableWind && Module.windCtl) {
       if (Module.debugLayers) {
@@ -11280,6 +11278,30 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       }
     };
     _initUI(() => Module.animateFor(5000));
+
+    // We'll check our own renderer periodically to see if it has changes to
+    //  draw and keep drawing until it doesn't
+    // TODO: Have some way to shut this down
+    Module.animationFrameRequested = false
+    let repaintAndSchedule = () => {
+      Module.repaint()
+      Module.animationFrameRequested = false        
+      if (Module.overlay.hasChanges()) {
+        Module.animationFrameRequested = true
+        Module.requestAnimationFrame(() => {
+          repaintAndSchedule()
+        })
+      }
+    }
+    setInterval(() => {
+      if (!Module.overlay) { return }
+      if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
+        Module.animationFrameRequested = true
+        Module.requestAnimationFrame(() => {
+          repaintAndSchedule()
+        })
+      }
+    },100);
   
     const customLayer = {
       id: 'terrier',
@@ -11355,18 +11377,15 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
             const fieldOfView = Module.map._fov * 180 / Math.PI;
             const tileSize = 256; //Module.map.transform.tileSize;
             Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom,
-              Module.map.transform.projMatrix);
+              Module.map.transform.projMatrix, true);
   
-            //if (Module.isPlaying()) {
-              Module.map.triggerRepaint();
-            //}
             Module.lastRenderTime = new Date().getTime();
           }
           stack.pop();
         }
       } // render
     };  // customLayer
-    map.on('style.load', function () {
+    map.on('load', function () {
       map.addLayer(customLayer);
     });
   }
@@ -11448,7 +11467,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
           const tileSize = 128;
           Module.overlay.render(width, height, tileSize, 
             transform.centerLng, transform.centerLat, transform.zoom,
-            transform.projMatrix);
+            transform.projMatrix, false);
   
           Module.lastRenderTime = new Date().getTime();
         }
@@ -12390,8 +12409,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits");
-var ___start_em_js = Module['___start_em_js'] = 219100;
-var ___stop_em_js = Module['___stop_em_js'] = 219249;
+var ___start_em_js = Module['___start_em_js'] = 219116;
+var ___stop_em_js = Module['___stop_em_js'] = 219265;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {

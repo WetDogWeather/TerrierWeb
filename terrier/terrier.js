@@ -59,6 +59,11 @@ class TerrierLayer {
     setOpacity(opacity) {
         this.state.controller.opacity = opacity
     }
+
+    // Change the color map being used for display
+    setColorMap(colorMap) {
+        this.state.controller.colorMap = colorMap
+    }
 }
 
 // Represents an overlay into another map toolkit or

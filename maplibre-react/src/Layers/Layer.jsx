@@ -2,14 +2,14 @@ import React from 'react'
 
 export default class Layer {
 
-    constructor(displayName, icon, module, controlName, enableName, units, colorsGrey, colorsNotGrey) {
+    constructor(terrierOvl, displayName, icon, layerName, level, units, colorsGrey, colorsNotGrey) {
 
         // Parameters
+        this.terrierOvl = terrierOvl
         this.displayName = displayName;
         this.icon = icon;
-        this.module = module;
-        this.controlName = controlName; // 'tempCtl', 'windCtl', or 'radarCtl'
-        this.enableName = enableName;
+        this.layerName = layerName; // 'temperature', 'windUV', or 'radar'
+        this.level = level
         this.colorsGrey = colorsGrey;
         this.colorsNotGrey = colorsNotGrey;
         this.units = units; // temp = 'K' / 'F' / 'C'    wind = 'm/s'    radar = 'dBz'
@@ -20,9 +20,21 @@ export default class Layer {
         this.renderSampleType = 1;    // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
         this.minImportance = 10;      // 5 - 100.
+
+        this.layer = null
     }
 
-    enable(bool) {
+    enable(onOff) {
+        if (onOff) {
+            if (this.layer == null) {
+                this.layer = this.terrierOvl.startLayer(this.layerName)
+            }
+        } else {
+            if (this.layer != null) {
+                this.terrierOvl.stopLayer(this.layer)
+                this.layer = null
+            }
+        }
         this.module[this.enableName] = bool;
         this.module.updateOverlay();
         if (bool) {
@@ -35,7 +47,6 @@ export default class Layer {
     }
 
     colorUpdate(isNowColored) {
-        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl. 
         var newShaderColorMap;
 
         if (isNowColored) {
@@ -45,47 +56,45 @@ export default class Layer {
         }
 
         if (control) {
-            control.colorMap = newShaderColorMap;
+            this.layer.setColorMap(newShaderColorMap)
         }
 
         this.colored = isNowColored;
     }
 
     dataSampleUpdate(n) {
-        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl.
         this.dataSampleType = n;
+        // TODO: Put this back
 
-        const v = Module.TexInterpType.values[n || 0];
-        if (control && control.varInterp != v) {
-            control.varInterp = v;
-        }
+        // const v = Module.TexInterpType.values[n || 0];
+        // if (control && control.varInterp != v) {
+        //     control.varInterp = v;
+        // }
     }
 
     renderSampleUpdate(n) {
-        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl.
+        // TODO: Put this back
+
         this.renderSampleType = n;
 
-        const v = this.module.TexInterpType.values[n || 0];
-        if (control && control.visInterp != v) {
-            control.visInterp = v;
-        }
+        // const v = this.module.TexInterpType.values[n || 0];
+        // if (control && control.visInterp != v) {
+        //     control.visInterp = v;
+        // }
     }
 
     opacityUpdate(n) {
-        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl. 
         this.opacity = n;
 
-        control.opacity = n / 255;
-        this.module.repaint();
+        // TODO: Make this from 0 to 1
+        this.layer.setOpacity(n / 255)
     }
 
     minImportanceUpdate(n) {
-        var control = this.module[this.controlName]; // Effectively Module.tempCtl / windCtl / radarCtl. 
         this.minImportance = n;
 
-        if (control) {
-            control.minImportanceFactor = Math.min(10, Math.max(0.5, n));
-        }
+        this.layer.setImportanceScale(n)
+            // control.minImportanceFactor = Math.min(10, Math.max(0.5, n));
     }
 
     getDisplayName() {

@@ -22,7 +22,8 @@ function Dropdown() {
 
     const updateAnimSpeed = (e) => {
         var newSpeed = e.target.value / 10 // Animation speed range goes from 1-99, but the real values that interact with the code should be 0.1-9.9
-        Module.setPlayInterval(99 - e.target.value | 0 + 1) // 99 is the max value of the animation speed range
+        // TODO: Put this back
+        // Module.setPlayInterval(99 - e.target.value | 0 + 1) // 99 is the max value of the animation speed range
         setGlobalState({ ...globalState, animSpeed: newSpeed })
     }
 
@@ -121,11 +122,12 @@ function Dropdown() {
 function updateFrameInfo() {
     // Extract from vectors and combine
     const all = [];
-    Module.controllers.forEach(ctl => {
-        const frames = ctl.getCurFrames();
-        const count = frames ? frames.size() : 0;
-        for (let i = 0; i < count; ++i) { all.push(frames.get(i)); }
-    });
+    // TODO: Put this back
+    // Module.controllers.forEach(ctl => {
+    //     const frames = ctl.getCurFrames();
+    //     const count = frames ? frames.size() : 0;
+    //     for (let i = 0; i < count; ++i) { all.push(frames.get(i)); }
+    // });
 
     const frames = all.map(f => {
         const manifest = f.manifest;

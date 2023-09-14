@@ -16,7 +16,7 @@ var intervalId // id for the setInterval that resets the time scrubber when the 
 function MediaControls() {
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
 
-    const [currDate, setCurrDate] = useState((globalState.defaultTime == -1) ? 'No data being displayed...' : moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a'))
+    const [currDate, setCurrDate] = useState((globalState.defaultTime == -1) ? 'No data being displayed...' : moment(Number(Terrier.ovl.getCurrentTime())).format('dddd, MMMM Do, h:mm a'))
     const [oldMapState, setOldMapState] = useState(0) // Used to know if the mapState switches, so the date can be reset.
     const [scrubberValue, setScrubberValue] = useState(5000) // Ranges from 0 to 10,000.
     const [togglePlayButton, setTogglePlayButton] = useState(playIcon)
@@ -26,24 +26,22 @@ function MediaControls() {
     if (globalState.defaultTime == -1) { // Called only when map is initialized for the first time.
         // Timeout so this doesn't run before Module is fully initialized.
         setTimeout(() => {
-            setGlobalState({ ...globalState, defaultTime: moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a') })
-            setCurrDate(moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a'))
+            setGlobalState({ ...globalState, defaultTime: moment(Number(Terrier.ovl.getCurrentTime())).format('dddd, MMMM Do, h:mm a') })
+            setCurrDate(moment(Number(Terrier.ovl.getCurrentTime())).format('dddd, MMMM Do, h:mm a'))
         }, 1000)
     }
 
     // Setting the scrubber value when this component re-renders.
     // Making sure the icon is correct.
     // This logic is necessary incase the MediaControls need to de-render and re-render because of fullscreen.
-    if (Module.emInitialized == true && initialized == false) {
+    const timeRange = Terrier.ovl.getTimeRange()
+    const range = (Number(timeRange[0]) - Number(timeRange[1]))
+    var newScrubberVal = ((Number(Terrier.ovl.getCurrentTime()) - Number(timeRange[0])) / range) * 10000
+    setScrubberValue(newScrubberVal)
 
-        const range = (Number(Module.tracker.maxTime) - Number(Module.tracker.minTime))
-        var newScrubberVal = ((Number(Module.tracker.curTime) - Number(Module.tracker.minTime)) / range) * 10000
-        setScrubberValue(newScrubberVal)
+    setTogglePlayButton(Terrier.ovl.isTimePlaying() ? pauseIcon : playIcon)
 
-        setTogglePlayButton(Module.tracker.isPlaying ? pauseIcon : playIcon)
-
-        setInitialized(true)
-    }
+    setInitialized(true)
 
     if (oldMapState != globalState.mapState) { // Detecting when layers switch
         setOldMapState(globalState.mapState)
@@ -52,8 +50,9 @@ function MediaControls() {
 
     const handleChange = (e) => {
         if (globalState.mapState != -1) {
-            Module.setTimeFrac(e.target.value / 10000)
-            setCurrDate(moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a'))
+            // TODO: Fix this
+            // Module.setTimeFrac(e.target.value / 10000)
+            setCurrDate(moment(Number(Terrier.ovl.getCurrentTime())).format('dddd, MMMM Do, h:mm a'))
             if (togglePlayButton == pauseIcon) { // If play mode is currently on
                 setTogglePlayButton(playIcon)
                 clearInterval(intervalId)
@@ -67,13 +66,14 @@ function MediaControls() {
 
             // This timeout allows togglePlay to run out of synch with MediaControls, so it doesn't slow the code down.
             // If it were to run synchronously, the play/pause has a noticeable lag when changing symbols.
-            setTimeout(() => Module.togglePlay(), 1)
+            setTimeout(() => Terrier.ovl.timePlay(), 1)
 
             if (togglePlayButton == playIcon) {
-                const range = (Number(Module.tracker.maxTime) - Number(Module.tracker.minTime))
+                const timeRange = Terrier.ovl.getTimeRange()
+                const range = (Number(timeRange[1]) - Number(timeRange[0]))
                 intervalId = setInterval(() => {
-                    document.getElementById('scrubber-range').value = ((Number(Module.tracker.curTime) - Number(Module.tracker.minTime)) / range) * 10000
-                    setCurrDate(moment(Number(Module.tracker.curTime)).format('dddd, MMMM Do, h:mm a'))
+                    document.getElementById('scrubber-range').value = ((Number(Terrier.ovl.getCurrentTime()) - Number(timeRange[0])) / range) * 10000
+                    setCurrDate(moment(Number(Terrier.ovl.getCurrentTime())).format('dddd, MMMM Do, h:mm a'))
                 }, 100 / ( globalState.animSpeed * globalState.animSpeed )) // Getting a faster interval when animSpeed is higher so it's smoother, no hard science going on here.
             } else {
                 clearInterval(intervalId)

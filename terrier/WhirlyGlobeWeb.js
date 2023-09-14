@@ -11278,30 +11278,30 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       }
     };
     _initUI(() => Module.animateFor(5000));
-
-    // We'll check our own renderer periodically to see if it has changes to
-    //  draw and keep drawing until it doesn't
-    // TODO: Have some way to shut this down
-    Module.animationFrameRequested = false
-    let repaintAndSchedule = () => {
-      Module.repaint()
-      Module.animationFrameRequested = false        
-      if (Module.overlay.hasChanges()) {
-        Module.animationFrameRequested = true
-        Module.requestAnimationFrame(() => {
-          repaintAndSchedule()
-        })
+  
+      // We'll check our own renderer periodically to see if it has changes to
+      //  draw and keep drawing until it doesn't
+      // TODO: Have some way to shut this down
+      Module.animationFrameRequested = false
+      let repaintAndSchedule = () => {
+        Module.repaint()
+        Module.animationFrameRequested = false
+        if (Module.overlay.hasChanges()) {
+          Module.animationFrameRequested = true
+          Module.requestAnimationFrame(() => {
+            repaintAndSchedule()
+          })
+        }
       }
-    }
-    setInterval(() => {
-      if (!Module.overlay) { return }
-      if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
-        Module.animationFrameRequested = true
-        Module.requestAnimationFrame(() => {
-          repaintAndSchedule()
-        })
-      }
-    },100);
+      setInterval(() => {
+        if (!Module.overlay) { return }
+        if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
+          Module.animationFrameRequested = true
+          Module.requestAnimationFrame(() => {
+            repaintAndSchedule()
+          })
+        }
+      },100);
   
     const customLayer = {
       id: 'terrier',

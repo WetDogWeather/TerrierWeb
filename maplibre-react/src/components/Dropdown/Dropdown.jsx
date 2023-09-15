@@ -13,7 +13,7 @@ import attributionIcon from '../../assets/copyright.png'
 // Go to DropdownButton.jsx for that.
 //
 
-function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legend, enableLegend}) {
+function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legendVisible, setLegendVisible}) {
     const [curSelection,_setCurSelection] = useState(curLayer)
     const numLayers = layers.length
 
@@ -79,8 +79,12 @@ function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legen
                 <div className='dropdown-content' key={'settings-content'}>
                     <h1>Settings</h1>
                     <br />
-                    <input type='checkbox' id='hide-legend' onChange={(val) => enableLegend(!val)} />
-                    <label htmlFor='hide-legend'>Hide Legend</label>
+
+                    <label>
+                        <input type="checkbox" checked={!legendVisible} onChange={() => setLegendVisible(!legendVisible)}/>
+                    Hide Legend
+                    </label>
+
                     <p>Animation Speed</p>
                     <input type='range' id='animation-speed' min='0' max='99'
                         value={animSpeed * 10} onChange={(e) => updateAnimSpeed(e)} />

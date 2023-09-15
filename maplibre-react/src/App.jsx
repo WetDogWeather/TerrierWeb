@@ -86,7 +86,7 @@ function App() {
               <Burger icon={burgerIcon}>
                 <Dropdown layers={layers} curLayer={curLayer} setCurLayer={setCurLayer} 
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed} 
-                          enableLegend={setLegendVisible}
+                          legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                           setLayerColor={setLayerColor} />
               </Burger>
             </Header>

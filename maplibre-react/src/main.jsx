@@ -6,9 +6,7 @@ import './index.css'
 // Let the module start the React app
 function _appStartup() {
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
       <App />
-  </React.StrictMode>,
 )
 }
 

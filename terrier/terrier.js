@@ -25,9 +25,25 @@ class TerrierLayer {
 
     // Stop and clean up layer
     stop() {
-        if (this.state !== null) {
-            this.state.enabled = false
-        }
+        switch (this.name) {
+            // Three of these are special
+            case "wind_uv":
+            case "windUV":
+                globalThis.Module.enableWind = false
+                break;
+            case "temperature":
+                globalThis.Module.enableTemp = false
+                break;
+            case "radar":
+                globalThis.Module.enableRadar = false
+                break;
+            // And the rest more generic
+            default:
+                if (this.state !== null) {
+                    this.state.enabled = false
+                }
+                break;
+        }        
     }
 
     // Set the display interpolation mode

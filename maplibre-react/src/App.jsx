@@ -1,66 +1,99 @@
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState, useEffect, useRef, createRef } from 'react'
+import Terrier from "../terrier.js"
 
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
-import Legend from './components/Legend/Legend'
-import MediaControls from './components/Media Controls/MediaControls'
+// import Legend from './components/Legend/Legend'
+// import MediaControls from './components/Media Controls/MediaControls'
 import Map from './components/map.jsx';
+import Layer from './Layers/Layer.jsx'
+import TemperatureLayer from './Layers/TemperatureLayer.jsx'
 
+import tempIcon from './assets/thermometer.png'
+import windIcon from './assets/wind.png'
+import radarIcon from './assets/radar.png'
 import burgerIcon from './assets/menu-burger.png'
 import hideIcon from './assets/hide.png'
 
-var init = false;
-
-export const GlobalStateContext = createContext()
+export const AppContext = createContext()
 
 function App() {
+  const [controlsVisible, setControlsVisible] = useState(true)
+  const [legendVisible, setLegendVisible] = useState(true)
+  const [mapState, setMapState] = useState(0)
+  const [curLayer, setCurLayer] = useState(-1)
+  const [layers, setLayers] = useState([])
+  const [animSpeed, setAnimSpeed] = useState(0.0)
+  const [curTime, setCurTime] = useState(-1)
+  const [terrierOvl, setTerrierOvl] = useState(null)
 
-  const initGlobalState = {
-    mapState: 0,                // 0 = temperature, 1 = wind, 2 = radar
-    animSpeed: 1,               // 0.0x - 9.9x, always to 1 decimal place
-    controlsVisible: true,
-    legendVisible: true,
-    defaultTime: -1,            // Place to store string of date from curTime. This is set in MediaControls.jsx
+  // This will turn on the layer as requested
+  useEffect(() => {
+    for (var layerId=0;layerId<layers.length;layerId++) {
+      if (layerId != curLayer) {
+        layers[layerId].enable(false)
+      }
+    }
+    if (curLayer >= 0 && curLayer < layers.length)
+      layers[curLayer].enable(true)
+  },[curLayer])
 
-    layers: [],
+  // Change the layer's color
+  const setLayerColor = (layerId, colorMode) => {
+    layers[layerId].colorUpdate(colored)
   }
 
-  const [globalState, setGlobalState] = useState(initGlobalState) // Object containing keys / values in initialGlobalState is shared across many components at the same time.
+  const map = createRef();
 
   function hidePage() {
-    setGlobalState({ ...globalState, controlsVisible: false })
+    setControlsVisible(false)
     alert('Press any key to exit fullscreen')
   }
 
   // When any key on the keyboard is pressed, unhide UI.
+  const detectKeyDown = (e) => {
+    setControlsVisible(true)
+  }
   useEffect(() => {
     document.addEventListener('keydown', detectKeyDown, true)
+
+    return () => {
+      document.removeEventListener('keydown', detectKeyDown)
+    }
   }, [])
-  const detectKeyDown = (e) => {
-    setGlobalState(globalState => { return { ...globalState, controlsVisible: true } }) // This nested function prevents the detectKeyDown from reading the default globalState.
+
+  // Called by the map component when Terrier has been properly set up
+  let terrierReady = (ovl) => {
+    setTerrierOvl(ovl)
+    // Set up the layers we know about and enable the first one
+    let newLayers = [new TemperatureLayer(ovl, 'Temperature', tempIcon, 'temperature', null, 'K', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY),
+    new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY),
+      new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY)]
+    setLayers(newLayers)
+    setCurLayer(0)
   }
 
   return (
     <>
-      <GlobalStateContext.Provider value={[globalState, setGlobalState]}> {/* Every component within these brackets has access to globalState and setGlobalState */}
-        {globalState.controlsVisible &&
+        {controlsVisible &&
           <>
             <Header>
               <a href='#' draggable='false' onClick={() => hidePage()}><img draggable='false' src={hideIcon} height='30px' /></a>
               <Burger icon={burgerIcon}>
-                <Dropdown />
+                <Dropdown layers={layers} curLayerId={curLayer} setCurLayer={setCurLayer} 
+                          animSpeed={animSpeed} setAnimSpeed={setAnimSpeed} 
+                          setLayerColor={setLayerColor} />
               </Burger>
             </Header>
 
             {/* <MediaControls /> */}
           </>
         }
-        {globalState.legendVisible 
-          && <Legend />
+        {legendVisible 
+          // && <Legend />
         }
-        <Map/>
-      </GlobalStateContext.Provider>
+        <Map ref={map} readyFunc={terrierReady}/>
     </>
   )
 }

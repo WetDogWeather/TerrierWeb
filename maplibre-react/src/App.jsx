@@ -28,7 +28,7 @@ function App() {
   const [curTime, setCurTime] = useState(-1)
   const [terrierOvl, setTerrierOvl] = useState(null)
 
-  // This will turn on the layer as requested
+  // Turn on the layer when someone messes with curLayer
   useEffect(() => {
     for (var layerId=0;layerId<layers.length;layerId++) {
       if (layerId != curLayer) {
@@ -81,8 +81,9 @@ function App() {
             <Header>
               <a href='#' draggable='false' onClick={() => hidePage()}><img draggable='false' src={hideIcon} height='30px' /></a>
               <Burger icon={burgerIcon}>
-                <Dropdown layers={layers} curLayerId={curLayer} setCurLayer={setCurLayer} 
+                <Dropdown layers={layers} curLayer={curLayer} setCurLayer={setCurLayer} 
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed} 
+                          enableLegend={setLegendVisible}
                           setLayerColor={setLayerColor} />
               </Burger>
             </Header>

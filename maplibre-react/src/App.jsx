@@ -4,7 +4,7 @@ import Terrier from "../terrier.js"
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
-// import Legend from './components/Legend/Legend'
+import Legend from './components/Legend/Legend'
 // import MediaControls from './components/Media Controls/MediaControls'
 import Map from './components/map.jsx';
 import Layer from './Layers/Layer.jsx'
@@ -68,11 +68,14 @@ function App() {
     setTerrierOvl(ovl)
     // Set up the layers we know about and enable the first one
     let newLayers = [new TemperatureLayer(ovl, 'Temperature', tempIcon, 'temperature', null, 'K', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY),
-    new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY),
-      new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY)]
+                    new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY),
+                    new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY)]
     setLayers(newLayers)
     setCurLayer(0)
   }
+
+  // Decide if we can actually display a legend
+  const canDisplayLegend = legendVisible && curLayer >= 0 && curLayer < layers.length
 
   return (
     <>
@@ -91,8 +94,8 @@ function App() {
             {/* <MediaControls /> */}
           </>
         }
-        {legendVisible 
-          // && <Legend />
+        {canDisplayLegend 
+          && <Legend colorMap={layers[curLayer].getColorMap()} units={layers[curLayer].getUnits()} />
         }
         <Map ref={map} readyFunc={terrierReady}/>
     </>

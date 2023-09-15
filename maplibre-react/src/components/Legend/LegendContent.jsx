@@ -1,23 +1,15 @@
 import './legend.css'
 
 //
-//  Takes in the shaderMap and units passed form Legend.jsx, then generates the legend based on that information.
+//  Takes in the colorMap and units passed form Legend.jsx, then generates the legend based on that information.
 //
 
-function LegendContent(props) {
-    return (
-        <>
-            { generateLegend(props.shaderMap, props.units) }
-        </>
-    )
-}
+function LegendContent({colorMap,units}) {
+    var legend = []
 
-function generateLegend(shaderMap, units) {
-    var legend
-
-    for (var i = 0; i < shaderMap.colors.length; i++) {
-        var color = shaderMap.colors[i].str;
-        var value = shaderMap.values[i];
+    for (var i = 0; i < colorMap.colors.length; i++) {
+        var color = colorMap.colors[i].str;
+        var value = colorMap.values[i];
 
         // May want to consider moving this logic into TemperatureLayer.
         switch (units) {
@@ -30,11 +22,12 @@ function generateLegend(shaderMap, units) {
         }
 
         var newLegendBox = (
-            <div className='legend-background'>
-                <p className='legend-box' style={{ backgroundColor: color }}> {value.toFixed(2)} {units}</p>
+            <div className='legend-background' key={'legend-background-'+i} >
+                <p className='legend-box' key={'legend-box-'+i} 
+                    style={{ backgroundColor: color }}> {value.toFixed(2)} {units}</p>
             </div>
         )
-        var legend = [legend, newLegendBox]
+        legend = [legend, newLegendBox]
     }
 
     return (

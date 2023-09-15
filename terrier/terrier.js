@@ -253,7 +253,7 @@ class TerrierOverlay {
     isTimePlaying() {
         if (globalThis.Module === undefined) { return false }
 
-        return Module.tracker.isPlaying
+        return globalThis.Module.tracker.isPlaying
     }
 
     // Stop animating over time
@@ -442,12 +442,12 @@ class TerrierModule {
         // Wire ourselves into the canvas layer delegate
         canvasLayer.delegate({
             onLayerDidMount() {
-                setupModule(() => {
+                Terrier.setupModule(() => {
                     _initMap("webglcanvas", canvasLayer._canvas)
                 }, readyFunc)
-                Module.canvas = canvasLayer._canvas,
+                globalThis.Module.canvas = canvasLayer._canvas,
 
-                this.loadLibrary()
+                Terrier.loadLibrary()
             },
         
             onDrawLayer(info) {

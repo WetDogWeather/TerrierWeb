@@ -7,6 +7,7 @@
   top: 120px;
   right: 20px;
   transition: width 2s;
+  z-index: 9999;
 }
 
 .dropdown-nav {

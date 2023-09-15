@@ -10,6 +10,10 @@ import './legend.css'
 function Legend() {
     const [globalState, setGlobalState] = useContext(GlobalStateContext)
 
+    if (globalState.layers.length == 0) {
+        return
+    }
+
     var currentShaderMap = globalState.layers[globalState.mapState].getColorMap()
     var units = globalState.layers[globalState.mapState].getUnits()
 

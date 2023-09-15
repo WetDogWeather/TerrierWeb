@@ -19,7 +19,7 @@ export default class Layer {
         this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.renderSampleType = 1;    // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
-        this.minImportance = 10;      // 5 - 100.
+        this.minImportance = 1;      // 5 - 100.
 
         this.layer = null
     }
@@ -35,9 +35,7 @@ export default class Layer {
                 this.layer = null
             }
         }
-        this.module[this.enableName] = bool;
-        this.module.updateOverlay();
-        if (bool) {
+        if (onOff) {
             this.colorUpdate(this.colored);
             this.dataSampleUpdate(this.dataSampleType);
             this.renderSampleUpdate(this.renderSampleType);
@@ -55,7 +53,7 @@ export default class Layer {
             newShaderColorMap = this.colorsGrey;
         }
 
-        if (control) {
+        if (this.layer != null) {
             this.layer.setColorMap(newShaderColorMap)
         }
 
@@ -87,14 +85,18 @@ export default class Layer {
         this.opacity = n;
 
         // TODO: Make this from 0 to 1
-        this.layer.setOpacity(n / 255)
+        if (this.layer != null) {
+            this.layer.setOpacity(n / 255)
+        }
     }
 
     minImportanceUpdate(n) {
         this.minImportance = n;
 
-        this.layer.setImportanceScale(n)
+        if (this.layer != null) {
+            this.layer.setImportanceScale(n)
             // control.minImportanceFactor = Math.min(10, Math.max(0.5, n));
+        }
     }
 
     getDisplayName() {

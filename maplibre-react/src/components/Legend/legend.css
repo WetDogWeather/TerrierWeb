@@ -2,6 +2,8 @@
   padding: 10px;
   width: 104px;
   justify-content: center;
+  z-index: 9999;
+  position: relative;
 }
 
 .legend-box {

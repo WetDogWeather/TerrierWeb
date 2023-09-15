@@ -60,6 +60,11 @@ class TerrierLayer {
         this.state.controller.opacity = opacity
     }
 
+    // Return the current color map
+    getColorMap() {
+        return this.state.controller.colorMap
+    }
+
     // Change the color map being used for display
     setColorMap(colorMap) {
         this.state.controller.colorMap = colorMap
@@ -99,6 +104,9 @@ class TerrierOverlay {
     startLayer(layerName,params) {
         var foundState = null
         var level = null
+        if (params === undefined) {
+            params = {}
+        }
         if ('level' in params) {
             level = params['level']
         }

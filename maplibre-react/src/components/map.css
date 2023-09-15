@@ -1,5 +1,7 @@
 .map-wrap {
-    position: relative;
+    position: absolute;
+    top: 74px;
+    left: 0;
     width: 100%;
     height: calc(100vh - 77px); /* calculate height of the screen minus the heading */
 }

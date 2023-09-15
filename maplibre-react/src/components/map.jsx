@@ -1,12 +1,19 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useContext, useState } from 'react';
+import { GlobalStateContext } from '../App'
 import maplibregl from 'maplibre-gl';
 import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-var terrierInit = false
+import Layer from '../Layers/Layer.jsx'
+import TemperatureLayer from '../Layers/TemperatureLayer.jsx'
+
+import tempIcon from '../assets/thermometer.png'
+import windIcon from '../assets/wind.png'
+import radarIcon from '../assets/radar.png'
 
 export default function Map() {
+  const [globalState, setGlobalState] = useContext(GlobalStateContext)
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [lng] = useState(-100);
@@ -25,52 +32,19 @@ export default function Map() {
     });
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-    if (terrierInit) {
-        return
-      }
-      terrierInit = true
-  
-      // Tell Terrier to hook itself into MapLibre
-      Terrier.startMapLibre('dev', map.current, (ovl) => {
+    // Tell Terrier to hook itself into MapLibre
+    Terrier.startMapLibre('dev', map.current, (ovl) => {
+        globalState.layers = 
+        [new TemperatureLayer(ovl, 'Temperature', tempIcon, 'temperature', null, 'K', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY),
+            new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY),
+            new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY)]
+        globalState.layers[0].enable(true)
+
         // Tell us what's in the stack
-        ovl.fetchStackContents((contents) => {
-          console.log("Stack contains:\n" + contents)
-        });
-  
-        // Toss in country/state outlines
-        ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
-          fetch("geojson/" + c + ".geojson").then(result =>
-              result.text().then(t => {
-                  console.debug("Adding " + c + ".geojson")
-                  ovl.addGeoJSON(t)
-              })))
-  
-        // Turn on a layer
-        let tempLayer = ovl.startLayer('temperature', {
-            // colorMap: {}
-            // level: 80
-            interpMode: 'linear',
-            opacity: 0.5,
-            importFactor: 1.0,
-        })
-  
-        // let windLayer = ovl.startLayer('windUV', {
-        //     // colorMap: {}
-        //     // level: 80
-        //     interpMode: 'nearest',
-        //     // interpMode: 'linear',
-        //     opacity: 0.75,
-        //     importFactor: 1.0,
-        // })
-  
-        // To set the time to now + 1hr
-        // let d = new Date();
-        // let now = d.getTime() / 1000
-        // ovl.setCurrentTime(now+1*60*60)
-  
-        // To animate over the available time
-        ovl.timePlay({period: 10.0})
-      })
+        // ovl.fetchStackContents((contents) => {
+        //   console.log("Stack contains:\n" + contents)
+        // });
+    })
       
   }, [API_KEY, lng, lat, zoom]);
 

@@ -10,13 +10,6 @@ import Map from './components/map.jsx';
 import burgerIcon from './assets/menu-burger.png'
 import hideIcon from './assets/hide.png'
 
-import tempIcon from './assets/thermometer.png'
-import windIcon from './assets/wind.png'
-import radarIcon from './assets/radar.png'
-
-import Layer from './Layers/Layer.jsx'
-import TemperatureLayer from './Layers/TemperatureLayer.jsx'
-
 var init = false;
 
 export const GlobalStateContext = createContext()
@@ -30,9 +23,7 @@ function App() {
     legendVisible: true,
     defaultTime: -1,            // Place to store string of date from curTime. This is set in MediaControls.jsx
 
-    // layers: [new TemperatureLayer('Temperature', tempIcon, 'temperature', 'K', TEMP_COLORS_GREY, TEMP_COLORS_NOT_GREY),
-    // new Layer('Wind', windIcon, 'windUV', 'm/s', WIND_COLORS_GREY, WIND_COLORS_NOT_GREY),
-    // new Layer('Radar', radarIcon, 'radar', 'dBz', RADAR_COLORS_GREY, RADAR_COLORS_NOT_GREY)],
+    layers: [],
   }
 
   const [globalState, setGlobalState] = useState(initGlobalState) // Object containing keys / values in initialGlobalState is shared across many components at the same time.
@@ -66,7 +57,7 @@ function App() {
           </>
         }
         {globalState.legendVisible 
-          // && <Legend />
+          && <Legend />
         }
         <Map/>
       </GlobalStateContext.Provider>

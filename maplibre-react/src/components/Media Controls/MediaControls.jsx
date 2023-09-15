@@ -20,7 +20,7 @@ function MediaControls({curTime,setCurTime,timeRange,isPlaying,setIsPlaying,anim
     // }, []);
       
     // Date we're showing
-    const displayDate = moment(Number(curTime)).format('dddd, MMMM Do, h:mm a')
+    const displayDate = moment(Number(new Date(curTime*1000))).format('dddd, MMMM Do, h:mm a')
 
     // Setting the scrubber value when this component re-renders.
     // Making sure the icon is correct.
@@ -28,15 +28,9 @@ function MediaControls({curTime,setCurTime,timeRange,isPlaying,setIsPlaying,anim
     const range = (Number(timeRange[0]) - Number(timeRange[1]))
     const scrubberValue = ((Number(curTime) - Number(timeRange[0])) / range) * 10000
 
+    // Calculate new time
     const handleChange = (e) => {
-            // TODO: Fix this
-            // Module.setTimeFrac(e.target.value / 10000)
-            // setCurrDate(moment(Number(Terrier.ovl.getCurrentTime())).format('dddd, MMMM Do, h:mm a'))
-            // if (togglePlayButton == pauseIcon) { // If play mode is currently on
-            //     setTogglePlayButton(playIcon)
-            //     clearInterval(intervalId)
-            // }
-        // }
+        setCurTime(e.target.value / 10000 * (timeRange[1]-timeRange[0]) + timeRange[0])
     }
 
     function onPlay() {

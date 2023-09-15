@@ -225,7 +225,10 @@ class TerrierOverlay {
         if (globalThis.Module === undefined) { return }
         // TODO: Cache this if there's no Module yet
 
-        globalThis.Module.curTime = epoch
+        if (globalThis.Module.tracker.curTime != epoch) {
+            globalThis.Module.tracker.curTime = epoch * 1000.0
+            globalThis.Module.repaint()
+        }
     }
 
     // Return the min/max time range available from loaded data

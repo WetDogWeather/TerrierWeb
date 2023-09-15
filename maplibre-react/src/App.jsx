@@ -39,10 +39,10 @@ function App() {
       const layer = layers[curLayer]
       layer.enable(true)
 
-      const now = Date.now()
+      const now = Date.now() / 1000
 
       // Update the time range
-      setTimeRange(layer.timeRange)
+      setTimeRange([now+layer.timeRange[0],now+layer.timeRange[1]])
       if (curTime < layer.timeRange[0]) {
         setCurTime(layer.timeRange[0]+now)
       } else if (curTime >= layer.timeRange[1]) {
@@ -54,6 +54,13 @@ function App() {
       setTimeRange([0.0,0.0])
     }
   },[curLayer])
+
+  // React to curTime changes
+  useEffect(() => {
+    if (curTime == Number.NEGATIVE_INFINITY) { return }
+    if (terrierOvl == undefined) { return }
+    terrierOvl.setCurrentTime(curTime)
+  },[curTime])
 
   // Change the layer's color
   const setLayerColor = (layerId, colorMode) => {
@@ -85,13 +92,13 @@ function App() {
     // Set up the layers we know about and enable the first one
     let newLayers = [new TemperatureLayer(ovl, 'Temperature', tempIcon, 'temperature', null, 'K', 
                          Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
-                         [-2*24*60*60,2*24*60*60]),
+                         [-1*24*60*60,1*24*60*60]),
                     new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', 
                          Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
-                         [-2*24*60*60,2*24*60*60]),
+                         [-1*24*60*60,1*24*60*60]),
                     new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', 
                          Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                         [-6*60*60,0])]
+                         [-1*60*60,0])]
     setLayers(newLayers)
     setCurLayer(0)
   }

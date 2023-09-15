@@ -1,8 +1,10 @@
 import React from 'react'
 
+// Wrapper around a Terrier layer
 export default class Layer {
 
-    constructor(terrierOvl, displayName, icon, layerName, level, units, colorsGrey, colorsNotGrey) {
+    constructor(terrierOvl, displayName, icon, layerName, level, units, 
+                colorsGrey, colorsNotGrey, timeRange) {
 
         // Parameters
         this.terrierOvl = terrierOvl
@@ -20,6 +22,8 @@ export default class Layer {
         this.renderSampleType = 1;    // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
         this.minImportance = 1;      // 5 - 100.
+
+        this.timeRange = timeRange;
 
         this.layer = null
     }
@@ -117,5 +121,10 @@ export default class Layer {
 
     getUnits() {
         return this.units;
+    }
+
+    // Return available time range
+    getTimeRange() {
+        return this.timeRange
     }
 }

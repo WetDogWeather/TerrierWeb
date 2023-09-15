@@ -5,7 +5,7 @@ import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
 import Legend from './components/Legend/Legend'
-// import MediaControls from './components/Media Controls/MediaControls'
+import MediaControls from './components/Media Controls/MediaControls'
 import Map from './components/map.jsx';
 import Layer from './Layers/Layer.jsx'
 import TemperatureLayer from './Layers/TemperatureLayer.jsx'
@@ -21,11 +21,11 @@ export const AppContext = createContext()
 function App() {
   const [controlsVisible, setControlsVisible] = useState(true)
   const [legendVisible, setLegendVisible] = useState(true)
-  const [mapState, setMapState] = useState(0)
   const [curLayer, setCurLayer] = useState(-1)
   const [layers, setLayers] = useState([])
   const [animSpeed, setAnimSpeed] = useState(0.0)
-  const [curTime, setCurTime] = useState(-1)
+  const [timeRange,setTimeRange] = useState([0.0,0.0])
+  const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
 
   // Turn on the layer when someone messes with curLayer
@@ -35,8 +35,24 @@ function App() {
         layers[layerId].enable(false)
       }
     }
-    if (curLayer >= 0 && curLayer < layers.length)
-      layers[curLayer].enable(true)
+    if (curLayer >= 0 && curLayer < layers.length) {
+      const layer = layers[curLayer]
+      layer.enable(true)
+
+      const now = Date.now()
+
+      // Update the time range
+      setTimeRange(layer.timeRange)
+      if (curTime < layer.timeRange[0]) {
+        setCurTime(layer.timeRange[0]+now)
+      } else if (curTime >= layer.timeRange[1]) {
+        setCurTime(layer.timeRange[1]+now)
+      }
+    } else {
+      // Reset to empty
+      setCurTime(Number.NEGATIVE_INFINITY)
+      setTimeRange([0.0,0.0])
+    }
   },[curLayer])
 
   // Change the layer's color
@@ -67,15 +83,22 @@ function App() {
   let terrierReady = (ovl) => {
     setTerrierOvl(ovl)
     // Set up the layers we know about and enable the first one
-    let newLayers = [new TemperatureLayer(ovl, 'Temperature', tempIcon, 'temperature', null, 'K', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY),
-                    new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY),
-                    new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY)]
+    let newLayers = [new TemperatureLayer(ovl, 'Temperature', tempIcon, 'temperature', null, 'K', 
+                         Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
+                         [-2*24*60*60,2*24*60*60]),
+                    new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', 
+                         Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
+                         [-2*24*60*60,2*24*60*60]),
+                    new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', 
+                         Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
+                         [-6*60*60,0])]
     setLayers(newLayers)
     setCurLayer(0)
   }
 
-  // Decide if we can actually display a legend
+  // Decide if we can actually display a legend or the media controls
   const canDisplayLegend = legendVisible && curLayer >= 0 && curLayer < layers.length
+  const canDisplayMediaControls = curTime != Number.NEGATIVE_INFINITY && layers.length > 0 && curLayer >= 0 && curLayer < layers.length
 
   return (
     <>
@@ -91,7 +114,11 @@ function App() {
               </Burger>
             </Header>
 
-            {/* <MediaControls /> */}
+            {canDisplayMediaControls &&  
+              <MediaControls curTime={curTime} setCurTime={setCurTime} timeRange={timeRange} 
+                             isPlaying={() => terrierOvl.isTimePlaying()} 
+                             setIsPlaying={(enable) => enable ? terrierOvl.timePlay() : terrierOvl.timePlay() }
+                             animSpeed={animSpeed} /> }
           </>
         }
         {canDisplayLegend 

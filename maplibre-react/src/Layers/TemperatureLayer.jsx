@@ -2,9 +2,9 @@ import Layer from './Layer.jsx'
 
 class TemperatureLayer extends Layer {
 
-    constructor(ovl,displayName, icon, layerName, level, units, colorsGrey, colorsNotGrey) {
+    constructor(ovl,displayName, icon, layerName, level, units, colorsGrey, colorsNotGrey, timeRange) {
 
-        super(ovl, displayName, icon, layerName, level, units, colorsGrey, colorsNotGrey)
+        super(ovl, displayName, icon, layerName, level, units, colorsGrey, colorsNotGrey, timeRange)
 
         // Problems with getting these elements to set their default state on render.
         // For some reason, this.getUnits() returns the original units (which is K), and not the current units

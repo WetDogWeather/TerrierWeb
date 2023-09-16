@@ -18,6 +18,7 @@ function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legen
     const numLayers = layers.length
 
     // We can select the available layers, but also a couple of other buttons (settings, attribution)
+    // TODO: throttle or debounce this so we don't let the user constantly change layers
     const setCurSelection = (newId) => {
         _setCurSelection(newId)
         if (newId < layers.length) {

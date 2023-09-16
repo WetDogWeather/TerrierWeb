@@ -44,9 +44,9 @@ function App() {
 
       // Update the time range
       setTimeRange([now+layer.timeRange[0],now+layer.timeRange[1]])
-      if (curTime < layer.timeRange[0]) {
+      if (curTime < layer.timeRange[0]+now) {
         setCurTime(layer.timeRange[0]+now)
-      } else if (curTime >= layer.timeRange[1]) {
+      } else if (curTime >= layer.timeRange[1]+now) {
         setCurTime(layer.timeRange[1]+now)
       }
     } else {

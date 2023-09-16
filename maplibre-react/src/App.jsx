@@ -23,6 +23,7 @@ function App() {
   const [legendVisible, setLegendVisible] = useState(true)
   const [curLayer, setCurLayer] = useState(-1)
   const [layers, setLayers] = useState([])
+  const [isPlaying, setIsPlaying] = useState(false)
   const [animSpeed, setAnimSpeed] = useState(0.0)
   const [timeRange,setTimeRange] = useState([0.0,0.0])
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
@@ -61,6 +62,36 @@ function App() {
     if (terrierOvl == undefined) { return }
     terrierOvl.setCurrentTime(curTime)
   },[curTime])
+
+  // React to isPlaying changes
+  useEffect(() => {
+    if (terrierOvl == undefined) { return }
+    if (isPlaying) {
+      terrierOvl.timePlay()
+    } else {
+      terrierOvl.timePause()
+      // We were animating, so update our curTime from Terrier
+      setCurTime(terrierOvl.getCurrentTime())
+    }
+  },[isPlaying])
+
+  // Add an interval callback to update the curTime periodically when isPlaying is on
+  // TODO: Turn this off when we don't need it
+  const updatePlayTime = () => {
+    if (terrierOvl == undefined) { return }
+    if (!isPlaying) { return }
+    const newTime = terrierOvl.getCurrentTime()
+    if (curTime != newTime) {
+      // TODO: Check that we're not creating a slow recursion here
+      setCurTime(newTime)
+    }
+  }
+  useEffect(() => {
+      const interval = setInterval(() => updatePlayTime(), 100);
+      return () => {
+        clearInterval(interval);
+      };
+  }, [terrierOvl,isPlaying,curTime]);
 
   // Change the layer's color
   const setLayerColor = (layerId, colorMode) => {
@@ -123,8 +154,8 @@ function App() {
 
             {canDisplayMediaControls &&  
               <MediaControls curTime={curTime} setCurTime={setCurTime} timeRange={timeRange} 
-                             isPlaying={() => terrierOvl.isTimePlaying()} 
-                             setIsPlaying={(enable) => enable ? terrierOvl.timePlay() : terrierOvl.timePlay() }
+                             isPlaying={isPlaying} 
+                             setIsPlaying={setIsPlaying}
                              animSpeed={animSpeed} /> }
           </>
         }

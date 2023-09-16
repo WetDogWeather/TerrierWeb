@@ -217,7 +217,7 @@ class TerrierOverlay {
     getCurrentTime() {
         if (globalThis.Module === undefined) { return 0.0 }
 
-        return globalThis.Module.curTime
+        return globalThis.Module.tracker.curTime / 1000.0
     }
 
     // Set the current time in seconds from the epoch (1970)

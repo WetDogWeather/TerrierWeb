@@ -1,7 +1,5 @@
 import './dropdown.css'
 
-import throttle from 'lodash.throttle'
-
 //
 // Renders <DropdownContent> inside <Dropdown> if this button is pressed.
 //

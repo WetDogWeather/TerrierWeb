@@ -63,17 +63,20 @@ class TerrierLayer {
             //     this.ctl.varInterp = Module.TexInterpType.Nearest
             //     break;
         }
+        globalThis.Module.repaint()
     }
 
     // Change how the data is loaded based on screen real estate
     // A value greater than 1.0 means it's more important than default, less than 1.0 means less so
     setImportanceScale(importFactor) {
         this.state.controller.minImportanceFactor = importFactor
+        globalThis.Module.repaint()
     }
 
     // Set the transparency/opacity of the layer itself.  1.0 is completely opaque
     setOpacity(opacity) {
         this.state.controller.opacity = opacity
+        globalThis.Module.repaint()
     }
 
     // Return the current color map
@@ -84,6 +87,7 @@ class TerrierLayer {
     // Change the color map being used for display
     setColorMap(colorMap) {
         this.state.controller.colorMap = colorMap
+        globalThis.Module.repaint()
     }
 }
 

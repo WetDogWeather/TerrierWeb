@@ -10650,7 +10650,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         state.varInterp = state.varInterp || Module.TexInterpType.Linear;
         state.visInterp = state.visInterp || Module.TexInterpType.Linear;
         state.minImportanceFactor = state.minImportanceFactor || 1.0;
-        state.connections = state.connections || 20;
+        state.connections = state.connections || 10;
         state.loadAllFrames = !!state.loadAllFrames;
         state.snapToFrame = !!state.snapToFrame;
         state.drawPriority = state.drawPriority || baseDrawPriority;
@@ -10813,7 +10813,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.tempCtl.varInterp = Module.TexInterpType.Linear;
       Module.tempCtl.visInterp = Module.TexInterpType.Linear;
       Module.tempCtl.minImportanceFactor = 1.0;
-      Module.tempCtl.connections = 30;
+      Module.tempCtl.connections = 10;
       Module.tempCtl.loadAllFrames = false;
       Module.tempCtl.snapToFrame = false;
       if (Module.selectedLevel) {
@@ -11049,7 +11049,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.radarCtl.varInterp = Module.TexInterpType.Linear;
       Module.radarCtl.visInterp = Module.TexInterpType.Linear;
       Module.radarCtl.minImportanceFactor = 5.0;
-      Module.radarCtl.connections = 30;
+      Module.radarCtl.connections = 10;
       Module.radarCtl.loadAllFrames = false;
       Module.radarCtl.snapToFrame = true;
       if (Module.selectedLevel) {
@@ -11090,7 +11090,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.windCtl.varInterp = Module.TexInterpType.Linear;
       Module.windCtl.visInterp = Module.TexInterpType.Linear;
       Module.windCtl.minImportanceFactor = 2.0;
-      Module.windCtl.connections = 30;
+      Module.windCtl.connections = 10;
       Module.windCtl.loadAllFrames = false;
       Module.windCtl.snapToFrame = false;
       if (Module.selectedLevel) {

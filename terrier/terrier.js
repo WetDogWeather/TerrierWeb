@@ -69,7 +69,7 @@ class TerrierLayer {
     // Change how the data is loaded based on screen real estate
     // A value greater than 1.0 means it's more important than default, less than 1.0 means less so
     setImportanceScale(importFactor) {
-        this.state.controller.minImportanceFactor = importFactor
+        this.state.controller.minImportanceFactor = Number(importFactor)
         globalThis.Module.repaint()
     }
 

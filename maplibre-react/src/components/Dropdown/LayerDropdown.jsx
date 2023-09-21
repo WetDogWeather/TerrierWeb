@@ -37,9 +37,9 @@ function LayerDropdown({layer}) {
                 defaultValue={layer.opacity} 
                 onChange={(e) => layer.opacityUpdate(e.target.value)} />
             <p key={'p-import-'+layerName}>Min Importance</p>
-            <input type='range' min='5' max='100' key={'import-'+layerName} 
-                defaultValue={layer.minImportance} 
-                onChange={(e) => layer.minImportanceUpdate(e.target.value)} />
+            <input type='range' min='5' max='50' key={'import-'+layerName} 
+                defaultValue={layer.minImportance*10}
+                onChange={(e) => layer.minImportanceUpdate(e.target.value/10)} />
             <br key={'br-'+layerName} />
                 { layer.uniqueDropdownElements }
         </div>

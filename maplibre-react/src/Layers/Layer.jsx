@@ -81,8 +81,7 @@ export default class Layer {
         this.minImportance = n;
 
         if (this.layer != null) {
-            this.layer.setImportanceScale(n)
-            // control.minImportanceFactor = Math.min(10, Math.max(0.5, n));
+            this.layer.setImportanceScale(Math.min(10, Math.max(0.1, n)))
         }
     }
 

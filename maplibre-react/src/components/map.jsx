@@ -4,7 +4,7 @@ import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-export default function Map({readyFunc}) {
+export default function Map({stackName,readyFunc}) {
   const mapContainer = useRef(null);
   const [map,setMap] = useState(null);
   const [lng] = useState(-100);
@@ -25,7 +25,7 @@ export default function Map({readyFunc}) {
     setMap(newMap)
 
     // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre('dev', newMap, (ovl) => {
+    Terrier.startMapLibre(stackName, newMap, (ovl) => {
         readyFunc(ovl)
 
         // Tell us what's in the stack

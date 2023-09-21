@@ -4,7 +4,7 @@ import React from 'react'
 export default class Layer {
 
     constructor(terrierOvl, displayName, icon, layerName, level, units, 
-                colorsGrey, colorsNotGrey, timeRange) {
+                colorsGrey, colorsNotGrey, timeRange, importanceScale) {
 
         // Parameters
         this.terrierOvl = terrierOvl
@@ -19,9 +19,8 @@ export default class Layer {
         // Default variables
         this.colored = true;
         this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
-        this.renderSampleType = 1;    // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
-        this.minImportance = 1;      // 5 - 100.
+        this.minImportance = importanceScale !== undefined ? importanceScale : 1;      // 5 - 100.
 
         this.timeRange = timeRange;
 
@@ -42,7 +41,6 @@ export default class Layer {
         if (onOff) {
             this.colorUpdate(this.colored);
             this.dataSampleUpdate(this.dataSampleType);
-            this.renderSampleUpdate(this.renderSampleType);
             this.opacityUpdate(this.opacity);
             this.minImportanceUpdate(this.minImportance);
         }
@@ -66,23 +64,8 @@ export default class Layer {
 
     dataSampleUpdate(n) {
         this.dataSampleType = n;
-        // TODO: Put this back
 
-        // const v = Module.TexInterpType.values[n || 0];
-        // if (control && control.varInterp != v) {
-        //     control.varInterp = v;
-        // }
-    }
-
-    renderSampleUpdate(n) {
-        // TODO: Put this back
-
-        this.renderSampleType = n;
-
-        // const v = this.module.TexInterpType.values[n || 0];
-        // if (control && control.visInterp != v) {
-        //     control.visInterp = v;
-        // }
+        this.layer.setInterpMode(['nearest','linear','cubic'][n])
     }
 
     opacityUpdate(n) {

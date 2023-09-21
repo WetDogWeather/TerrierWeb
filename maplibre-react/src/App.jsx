@@ -129,7 +129,7 @@ function App() {
                          [-1*24*60*60,1*24*60*60]),
                     new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', 
                          Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                         [-1*60*60,0])]
+                         [-2*60*60,0], 2)]
     setLayers(newLayers)
     setCurLayer(0)
   }
@@ -162,7 +162,7 @@ function App() {
         {canDisplayLegend 
           && <Legend colorMap={layers[curLayer].getColorMap()} units={layers[curLayer].getUnits()} />
         }
-        <Map ref={map} readyFunc={terrierReady}/>
+        <Map ref={map} stackName='dev' readyFunc={terrierReady}/>
     </>
   )
 }

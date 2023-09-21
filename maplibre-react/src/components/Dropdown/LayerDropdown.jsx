@@ -32,21 +32,6 @@ function LayerDropdown({layer}) {
                     defaultChecked={(layer.dataSampleType == 2)} disabled />
                 <label htmlFor='variable-cubic'>Cubic</label><br />
             </div>
-            <h3 key={'render-sample-'+layerName}>Render Sample Type</h3>
-            <div className='dropdown-input' key={'dropdown-input-3-'+layerName}>
-                <input type='radio' id='render-nearest' key={'render-nearest-'+layerName} name='render' 
-                    onClick={() => layer.renderSampleUpdate(0)} 
-                    defaultChecked={(layer.renderSampleType == 0)} />
-                <label htmlFor='render-nearest'>Nearest</label>
-                <input type='radio' id='render-linear' key={'render-linear-'+layerName} name='render' 
-                    onClick={() => layer.renderSampleUpdate(1)} 
-                    defaultChecked={(layer.renderSampleType == 1)} />
-                <label htmlFor='render-linear'>Linear</label>
-                <input type='radio' id='render-cubic' key={'render-cubic-'+layerName} name='render' 
-                    onClick={() => layer.renderSampleUpdate(2)} 
-                    defaultChecked={(layer.renderSampleType == 2)} disabled />
-                <label htmlFor='render-cubic'>Cubic</label><br />
-            </div>
             <p key={'p-opacity-'+layerName}>Opacity</p>
             <input type='range' min='0' max='255' key={'opacity-'+layerName} 
                 defaultValue={layer.opacity} 

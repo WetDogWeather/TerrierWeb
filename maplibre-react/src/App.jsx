@@ -30,6 +30,19 @@ function App() {
   const [units, _setUnits] = useState('')
   const [stackName, setStackName] = useState('prod')
 
+  // React to stackName changes
+  useEffect(() => {
+    // Turn off our layers
+    setLayers([])
+    setCurLayer(-1)
+
+    Terrier.changeStack(stackName, (ovl) => {
+      terrierReady(ovl)
+    }, () => {
+      console.log("Stack name was invalid.  Terrier won't work.")
+    })
+  }, [stackName])
+
   // Turn on the layer when someone messes with curLayer
   useEffect(() => {
     // Turn everything off
@@ -123,6 +136,12 @@ function App() {
   // Called by the map component when Terrier has been properly set up
   let terrierReady = (ovl) => {
     setTerrierOvl(ovl)
+
+    // Clean up any existing layers
+    layers.forEach( (layer) => {
+      layer.enable(false)
+    })
+
     // Set up the layers we know about and enable the first one
     let newLayers = [new Layer(ovl, 'Temperature', tempIcon, 'temperature', 
                         Terrier.variableLevelsForStack('temperature'), 

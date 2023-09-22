@@ -392,8 +392,8 @@ class TerrierModule {
                 }
             },
             onOverlayInitialized: function() {
+                Terrier.isReady = true
                 if (readyFunc !== undefined) {
-                    this.isReady = true
                     // Let things settle a beat and then let the dev get set up
                     setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
                 }
@@ -478,12 +478,13 @@ class TerrierModule {
     changeStack(stackName, readyFunc, failedFunc) {
         // If they call it too early, just ignore it
         if (!this.isReady) { return }
+        if (this.stackName == stackName) { return }
 
         this.stackName = stackName
         globalThis.Module.service.stackName = Terrier.stackName;
 
         this.fetchStackContents( () => {
-            readyFunc()
+            readyFunc(Terrier.ovl)
         }, 
         () => {
             failedFunc()

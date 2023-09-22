@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import DropdownButton from './DropdownButton'
 import LayerDropdown from "./LayerDropdown"
+import TemperatureDropdown from "./TemperatureDropdown"
 import './dropdown.css'
 
 import settingsIcon from '../../assets/settings.png'
@@ -13,7 +14,7 @@ import attributionIcon from '../../assets/copyright.png'
 // Go to DropdownButton.jsx for that.
 //
 
-function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legendVisible, setLegendVisible}) {
+function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legendVisible, setLegendVisible, setUnits}) {
     const [curSelection,_setCurSelection] = useState(curLayer)
     const numLayers = layers.length
 
@@ -70,9 +71,18 @@ function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legen
 
     // Generate the content for settings of attribution if needed
     if (curSelection >= 0 && curSelection < numLayers) {
-        let layerContent = (
-                <LayerDropdown layer={layers[curSelection]}></LayerDropdown>
-        )
+        let layer = layers[curSelection]
+        var layerContent
+        if (layer.displayName.toLowerCase() == 'temperature') {
+            layerContent = (
+                <TemperatureDropdown layer={layer} setUnits={setUnits} />
+            )
+        } else {
+            layerContent = (
+                <LayerDropdown layer={layer} />
+            )
+        }
+
         dropdown = [dropdown, layerContent]
     } else if (curSelection == numLayers) {
         const settingsContent = (

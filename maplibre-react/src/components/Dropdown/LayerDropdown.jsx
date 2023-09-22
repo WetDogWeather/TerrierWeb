@@ -1,7 +1,7 @@
 import './dropdown.css'
 
 // Render the control for a single layer
-function LayerDropdown({layer}) {
+function LayerDropdown({layer, extraFields}) {
     const layerName = layer.layerName
 
     return (
@@ -42,8 +42,9 @@ function LayerDropdown({layer}) {
                 onChange={(e) => layer.minImportanceUpdate(e.target.value/10)} />
             <br key={'br-'+layerName} />
                 { layer.uniqueDropdownElements }
+            {extraFields === undefined ? <></> : extraFields}
         </div>
-        </>
+       </>
     )
 }
 

@@ -98,23 +98,6 @@ class TerrierOverlay {
     constructor(terrierModule) {
         this.terrierModule = terrierModule
     }
-
-    // Get an overview of what the stack has
-    // {"<src>" : 
-    //   {"<region>":
-    //     {"<products>": [],
-    //      "<levels>": [],
-    //      "temporalType": "observed", "forecast", "both",
-    //      "dataType": "wind_uv", "wind_speed", "wind_speed_gust", "temperature", 
-    //                  "radar", "precip_rate", "precip_type", "cloud_cover", "cloud_ceiling", 
-    //                  "pressure", "visibility"}}}
-    fetchStackContents(fetchFunc) {
-        fetch("./stack_contents.json")
-            .then((response) => response.json())
-            .then((data) => {
-                fetchFunc(data)
-            })
-    }
     
     // Start the display of a given layer by name.
     // The layer names can be found in the stack contents are things like "temperature" or "cloud_cover"
@@ -429,6 +412,84 @@ class TerrierModule {
         document.body.appendChild(s);            
     }
 
+        // Get an overview of what the stack has
+    // {"<src>" : 
+    //   {"<region>":
+    //     {"<products>": [],
+    //      "<levels>": [],
+    //      "temporalType": "observed", "forecast", "both",
+    //      "dataType": "wind_uv", "wind_speed", "wind_speed_gust", "temperature", 
+    //                  "radar", "precip_rate", "precip_type", "cloud_cover", "cloud_ceiling", 
+    //                  "pressure", "visibility"}}}
+    fetchStackContents(fetchFunc, failFunc) {
+        // TODO: We'll move this into the stack at some point
+        fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
+            .then((response) =>  {
+                if (response.ok) {
+                    Terrier.stackContents = response.json()
+                    fetchFunc(Terrier.stackContents)
+                } else {
+                    failFunc()
+                }
+            })
+    }
+
+    // Search through the stack contents to return all the various levels for a variable
+    //  among all the sources
+    variableLevelsForStack(dataType) {
+        var levels = new Set([])
+        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
+            for (const [ regionKey, region ] of Object.entries(model)) {
+                for (const [ typeKey, type ] of Object.entries(region)) {
+                    for (const [ _, variable ] of Object.entries(type)) {
+                        console.log(variable)
+                        if (variable.dataType.toLowerCase() == dataType) {
+                            variable.levels.forEach( (level) => {
+                                levels.add(level)
+                            })
+                        }
+                    }
+                }
+            }
+        }
+
+        return Array.from(levels)
+    }
+
+    // Search through the stack contents for the unique variables
+    // You can use those to start layers
+    variablesForStack() {
+        var variables = new Set([])
+        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
+            for (const [ regionKey, region ] of Object.entries(model)) {
+                for (const [ typeKey, type ] of Object.entries(region)) {
+                    for (const [ _, variable ] of Object.entries(type)) {
+                        variables.add(variable)
+                    }
+                }
+            }
+        }
+
+        return Array.from(variables)
+    }
+
+    // Change display to a new stack
+    // Note: We're assuming the caller is tearing down their layers
+    changeStack(stackName, readyFunc, failedFunc) {
+        // If they call it too early, just ignore it
+        if (!this.isReady) { return }
+
+        this.stackName = stackName
+        globalThis.Module.service.stackName = Terrier.stackName;
+
+        this.fetchStackContents( () => {
+            readyFunc()
+        }, 
+        () => {
+            failedFunc()
+        })
+    } 
+
     // Initialize Terrier and get it ready to use a Leaflet Canvas overlay
     startLeaflet(stackName, canvasLayer, readyFunc) {
         this.stackName = stackName
@@ -446,28 +507,33 @@ class TerrierModule {
             return
         }
 
-        // Wire ourselves into the canvas layer delegate
-        canvasLayer.delegate({
-            onLayerDidMount() {
-                Terrier.setupModule(() => {
-                    _initMap("webglcanvas", canvasLayer._canvas)
-                }, readyFunc)
-                globalThis.Module.canvas = canvasLayer._canvas,
+        this.fetchStackContents( () => {
+            // Wire ourselves into the canvas layer delegate
+            canvasLayer.delegate({
+                onLayerDidMount() {
+                    Terrier.setupModule(() => {
+                        _initMap("webglcanvas", canvasLayer._canvas)
+                    }, readyFunc)
+                    globalThis.Module.canvas = canvasLayer._canvas,
 
-                Terrier.loadLibrary()
-            },
-        
-            onDrawLayer(info) {
-                var px = canvasLayer._map.getPixelBounds()
-                let far = 10.0
-                let near = -10.0
-                var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
-                                0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
-                                0.0, 0.0, -2.0/(far-near), 0.0,
-                                -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
-                var geoCenter = canvasLayer._map.getCenter()
-                Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
-            }
+                    Terrier.loadLibrary()
+                },
+            
+                onDrawLayer(info) {
+                    var px = canvasLayer._map.getPixelBounds()
+                    let far = 10.0
+                    let near = -10.0
+                    var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
+                                    0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
+                                    0.0, 0.0, -2.0/(far-near), 0.0,
+                                    -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
+                    var geoCenter = canvasLayer._map.getCenter()
+                    Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
+                }
+            })
+        }, 
+        () => {
+            console.log("Failed to fetch stack contents.  Terrier will not start.")
         })
     }
 
@@ -488,10 +554,15 @@ class TerrierModule {
             return
         }
 
-        this.setupModule(() => {
-            _initMapLibre(maplibreMap)
-        }, readyFunc)
-        this.loadLibrary()
+        this.fetchStackContents( () => {
+            this.setupModule(() => {
+                _initMapLibre(maplibreMap)
+            }, readyFunc)
+            this.loadLibrary()
+        },
+        () => {
+            console.log("Failed to fetch stack contents.  Terrier will not start.")
+        })
     }
 
 };

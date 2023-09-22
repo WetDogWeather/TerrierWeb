@@ -12,6 +12,17 @@ export default function Map({stackName,readyFunc}) {
   const [zoom] = useState(3);
   const [API_KEY] = useState('shArXuSxvZazDjMsjkIm');
 
+  // Called when the stackName changes
+  useEffect(() => {
+    if (stackName == Terrier.stackName) { return  }
+    Terrier.changeStack(stackName, (ovl) => {
+        readyFunc(ovl)
+    }, () => {
+        console.log("Unable to use stack named: " + stackName)
+    })
+  });
+
+  // Called when the mapContainer gets updated
   useEffect(() => {
     if (map) return; // stops map from initializing more than once
 
@@ -34,7 +45,7 @@ export default function Map({stackName,readyFunc}) {
         // });
 
     return () => {
-        console.log("Asked to shut map down, which we don't do.")
+        console.log("Asked to shut map down, which we don't know how to do.")
     }
     },[mapContainer])
       

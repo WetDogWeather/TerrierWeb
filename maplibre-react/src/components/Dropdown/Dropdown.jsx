@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import DropdownButton from './DropdownButton'
 import LayerDropdown from "./LayerDropdown"
 import TemperatureDropdown from "./TemperatureDropdown"
+import SettingsDropdown from "./SettingsDropdown"
 import './dropdown.css'
 
 import settingsIcon from '../../assets/settings.png'
@@ -14,7 +15,12 @@ import attributionIcon from '../../assets/copyright.png'
 // Go to DropdownButton.jsx for that.
 //
 
-function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legendVisible, setLegendVisible, setUnits}) {
+function Dropdown({layers, 
+                    curLayer, setCurLayer, 
+                    legendVisible, setLegendVisible,
+                    animSpeed, setAnimSpeed, 
+                    stackName, setStackName,
+                    units, setUnits}) {
     const [curSelection,_setCurSelection] = useState(curLayer)
     const numLayers = layers.length
 
@@ -25,13 +31,6 @@ function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legen
         if (newId < layers.length) {
             setCurLayer(newId)
         }
-    }
-
-    const updateAnimSpeed = (e) => {
-        var newSpeed = e.target.value / 10 // Animation speed range goes from 1-99, but the real values that interact with the code should be 0.1-9.9
-        // TODO: Put this back
-        // Module.setPlayInterval(99 - e.target.value | 0 + 1) // 99 is the max value of the animation speed range
-        setAnimSpeed(newSpeed)
     }
 
     // Generating dropdown menu based on layers
@@ -86,22 +85,10 @@ function Dropdown({layers, curLayer, setCurLayer, animSpeed, setAnimSpeed, legen
         dropdown = [dropdown, layerContent]
     } else if (curSelection == numLayers) {
         const settingsContent = (
-            <>
-                <div className='dropdown-content' key={'settings-content'}>
-                    <h1>Settings</h1>
-                    <br />
-
-                    <label>
-                        <input type="checkbox" checked={!legendVisible} onChange={() => setLegendVisible(!legendVisible)}/>
-                    Hide Legend
-                    </label>
-
-                    <p>Animation Speed</p>
-                    <input type='range' id='animation-speed' min='0' max='99'
-                        value={animSpeed * 10} onChange={(e) => updateAnimSpeed(e)} />
-                    <br /><br />
-                </div>
-            </>
+            <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+                              animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
+                              stackName={stackName} setStackName={setStackName}
+             />
         )    
         dropdown = [dropdown, settingsContent]
     } else if (curSelection == numLayers+1) {

@@ -27,15 +27,19 @@ function App() {
   const [timeRange,setTimeRange] = useState([0.0,0.0])
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
-  const [displayedUnits, setDisplayedUnits] = useState('C')
+  const [units, _setUnits] = useState('')
+  const [stackName, setStackName] = useState('prod')
 
   // Turn on the layer when someone messes with curLayer
   useEffect(() => {
+    // Turn everything off
     for (var layerId=0;layerId<layers.length;layerId++) {
       if (layerId != curLayer) {
         layers[layerId].enable(false)
       }
     }
+
+    // Then turn ours on
     if (curLayer >= 0 && curLayer < layers.length) {
       const layer = layers[curLayer]
       layer.enable(true)
@@ -49,10 +53,14 @@ function App() {
       } else if (curTime >= layer.timeRange[1]+now) {
         setCurTime(layer.timeRange[1]+now)
       }
+
+      // And update the units of whatever is being displayed
+      _setUnits(layer.units)
     } else {
       // Reset to empty
       setCurTime(Number.NEGATIVE_INFINITY)
       setTimeRange([0.0,0.0])
+      _setUnits('')
     }
   },[curLayer])
 
@@ -93,11 +101,6 @@ function App() {
       };
   }, [terrierOvl,isPlaying,curTime]);
 
-  // Change the layer's color
-  const setLayerColor = (layerId, colorMode) => {
-    layers[layerId].colorUpdate(colored)
-  }
-
   const map = createRef();
 
   function hidePage() {
@@ -121,24 +124,27 @@ function App() {
   let terrierReady = (ovl) => {
     setTerrierOvl(ovl)
     // Set up the layers we know about and enable the first one
-    let newLayers = [new Layer(ovl, 'Temperature', tempIcon, 'temperature', null, 'C', 
-                         Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
-                         [-1*24*60*60,1*24*60*60]),
-                    new Layer(ovl, 'Wind', windIcon, 'windUV', null, 'm/s', 
-                         Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
-                         [-1*24*60*60,1*24*60*60]),
-                    new Layer(ovl, 'Radar', radarIcon, 'radar', null, 'dBz', 
-                         Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                         [-2*60*60,0], 2)]
+    let newLayers = [new Layer(ovl, 'Temperature', tempIcon, 'temperature', 
+                        Terrier.variableLevelsForStack('temperature'), 
+                        'C', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
+                        [-1*24*60*60,1*24*60*60]),
+                    new Layer(ovl, 'Wind', windIcon, 'windUV', 
+                    Terrier.variableLevelsForStack('wind_uv'), 
+                        'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
+                          [-1*24*60*60,1*24*60*60]),
+                    new Layer(ovl, 'Radar', radarIcon, 'radar', 
+                    Terrier.variableLevelsForStack('radar'), 
+                        'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
+                          [-2*60*60,0], 2)]
     setLayers(newLayers)
     setCurLayer(0)
-    setDisplayedUnits(newLayers[0].units)
+    _setUnits(newLayers[0].units)  
   }
 
   // Change the units on the currently displayed layer
   let setUnits = (layer, newUnits) => {
     layer.units = newUnits
-    setDisplayedUnits(layer.units)
+    _setUnits(layer.units)
   }
 
   // Decide if we can actually display a legend or the media controls
@@ -152,11 +158,12 @@ function App() {
             <Header>
               <a href='#' draggable='false' onClick={() => hidePage()}><img draggable='false' src={hideIcon} height='30px' /></a>
               <Burger icon={burgerIcon}>
-                <Dropdown layers={layers} curLayer={curLayer} setCurLayer={setCurLayer} 
-                          animSpeed={animSpeed} setAnimSpeed={setAnimSpeed} 
+                <Dropdown layers={layers} 
+                          curLayer={curLayer} setCurLayer={setCurLayer} 
                           legendVisible={legendVisible} setLegendVisible={setLegendVisible}
-                          setLayerColor={setLayerColor}
-                          setUnits={setUnits} />
+                          animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
+                          stackName={stackName} setStackName={setStackName}
+                          units={units} setUnits={setUnits} />
               </Burger>
             </Header>
 
@@ -168,9 +175,9 @@ function App() {
           </>
         }
         {canDisplayLegend 
-          && <Legend colorMap={layers[curLayer].getColorMap()} units={displayedUnits} />
+          && <Legend colorMap={layers[curLayer].getColorMap()} units={units} />
         }
-        <Map ref={map} stackName='dev' readyFunc={terrierReady}/>
+        <Map ref={map} stackName={stackName} readyFunc={terrierReady}/>
     </>
   )
 }

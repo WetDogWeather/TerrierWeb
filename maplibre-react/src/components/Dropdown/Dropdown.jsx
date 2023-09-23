@@ -17,6 +17,7 @@ import attributionIcon from '../../assets/copyright.png'
 
 function Dropdown({layers, 
                     curLayer, setCurLayer, 
+                    level, setLevel,
                     legendVisible, setLegendVisible,
                     animSpeed, setAnimSpeed, 
                     stackName, setStackName,
@@ -74,11 +75,11 @@ function Dropdown({layers,
         var layerContent
         if (layer.displayName.toLowerCase() == 'temperature') {
             layerContent = (
-                <TemperatureDropdown layer={layer} setUnits={setUnits} />
+                <TemperatureDropdown layer={layer} level={level} setLevel={setLevel} setUnits={setUnits} />
             )
         } else {
             layerContent = (
-                <LayerDropdown layer={layer} />
+                <LayerDropdown layer={layer} level={level} setLevel={setLevel} />
             )
         }
 

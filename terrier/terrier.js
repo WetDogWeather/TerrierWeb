@@ -23,6 +23,14 @@ class TerrierLayer {
         }
     }
 
+    // Change the level displayed
+    setLevel(newLevel) {
+        if (globalThis.Module.selectedLevel != newLevel) {
+            globalThis.Module.selectedLevel = newLevel
+            globalThis.Module.updateOverlay()
+        }
+    }
+
     // Stop and clean up layer
     stop() {
         switch (this.name) {
@@ -426,11 +434,14 @@ class TerrierModule {
         fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
             .then((response) =>  {
                 if (response.ok) {
-                    Terrier.stackContents = response.json()
-                    fetchFunc(Terrier.stackContents)
+                    return response.json()
                 } else {
                     failFunc()
                 }
+            })
+            .then((data) => {
+                Terrier.stackContents = data
+                fetchFunc(Terrier.stackContents)
             })
     }
 
@@ -442,7 +453,6 @@ class TerrierModule {
             for (const [ regionKey, region ] of Object.entries(model)) {
                 for (const [ typeKey, type ] of Object.entries(region)) {
                     for (const [ _, variable ] of Object.entries(type)) {
-                        console.log(variable)
                         if (variable.dataType.toLowerCase() == dataType) {
                             variable.levels.forEach( (level) => {
                                 levels.add(level)

@@ -1,13 +1,29 @@
 import './dropdown.css'
 
 // Render the control for a single layer
-function LayerDropdown({layer, extraFields}) {
+function LayerDropdown({layer, level, setLevel, extraFields}) {
     const layerName = layer.layerName
+
+    var levelsContent = ""
+    if (layer.levels.length > 0) {
+        levelsContent = (
+            <>
+                <h3 key={'levels-'+layerName}>Levels</h3>
+                <select name="dropdown-level-select" key="dropdown-level-select" 
+                        selected={level} onChange={(e) => setLevel(e.target.value)}>
+                    {layer.levels.map( (level) => {
+                        return (<option value={level}>{level}</option>)
+                    })}
+                </select>
+            </>
+        )
+    }
 
     return (
         <>
             <div className='dropdown-content' key={'content-'+layerName}>
             <h1 key={'header-'+layerName}> {layer.getDisplayName()} </h1>
+            {levelsContent}
             <h3 key={'colors-'+layerName}>Colors</h3>
             <div className='dropdown-input' key={'dropdown-input-'+layerName}>
                 <input type='radio' id='grey' key={'gray-'+layerName} name='color' onClick={() => layer.colorUpdate(false)} 

@@ -3,7 +3,7 @@ import React from 'react'
 // Wrapper around a Terrier layer
 export default class Layer {
 
-    constructor(terrierOvl, displayName, icon, layerName, level, units, 
+    constructor(terrierOvl, displayName, icon, layerName, levels, units, 
                 colorsGrey, colorsNotGrey, timeRange, importanceScale) {
 
         // Parameters
@@ -11,7 +11,8 @@ export default class Layer {
         this.displayName = displayName;
         this.icon = icon;
         this.layerName = layerName; // 'temperature', 'windUV', or 'radar'
-        this.level = level
+        this.levels = levels
+        this.level = levels.length == 0 ? null : levels[0]
         this.colorsGrey = colorsGrey;
         this.colorsNotGrey = colorsNotGrey;
         this.units = units; // temp = 'K' / 'F' / 'C'    wind = 'm/s'    radar = 'dBz'
@@ -30,6 +31,10 @@ export default class Layer {
     enable(onOff) {
         if (onOff) {
             if (this.layer == null) {
+                const params = {}
+                if (this.level !== undefined) {
+                    params['level'] = this.level
+                }
                 this.layer = this.terrierOvl.startLayer(this.layerName)
             }
         } else {
@@ -83,6 +88,14 @@ export default class Layer {
         if (this.layer != null) {
             this.layer.setImportanceScale(Math.min(10, Math.max(0.1, n)))
         }
+    }
+
+    // Change the level being displayed
+    setLevel(newLevel) {
+        if (this.layer != null) {
+            this.layer.setLevel(newLevel)
+        }
+        this.level = newLevel
     }
 
     getDisplayName() {

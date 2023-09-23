@@ -2,7 +2,7 @@ import './dropdown.css'
 import LayerDropdown from "./LayerDropdown"
 
 // Render the control for a single layer
-function TemperatureDropdown({layer,setUnits}) {
+function TemperatureDropdown({layer,setUnits,level,setLevel}) {
     const extraFields = (
         <>
         <h3>Units</h3>
@@ -17,7 +17,7 @@ function TemperatureDropdown({layer,setUnits}) {
 
     return (
         <>
-            <LayerDropdown layer={layer} extraFields={extraFields} />
+            <LayerDropdown layer={layer} level={level} setLevel={setLevel} extraFields={extraFields} />
         </>
     )
 }

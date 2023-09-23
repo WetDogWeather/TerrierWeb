@@ -22,6 +22,7 @@ function App() {
   const [legendVisible, setLegendVisible] = useState(true)
   const [curLayer, setCurLayer] = useState(-1)
   const [layers, setLayers] = useState([])
+  const [level, setLevel] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [animSpeed, setAnimSpeed] = useState(0.0)
   const [timeRange,setTimeRange] = useState([0.0,0.0])
@@ -69,13 +70,22 @@ function App() {
 
       // And update the units of whatever is being displayed
       _setUnits(layer.units)
+      setLevel(null)
     } else {
       // Reset to empty
       setCurTime(Number.NEGATIVE_INFINITY)
       setTimeRange([0.0,0.0])
       _setUnits('')
+      setLevel(null)
     }
   },[curLayer])
+
+  // React to level changes
+  useEffect(() => {
+    if (curLayer >= 0 && curLayer < layers.length) {
+      layers[curLayer].setLevel(level)
+    }
+  },[level])
 
   // React to curTime changes
   useEffect(() => {
@@ -179,6 +189,7 @@ function App() {
               <Burger icon={burgerIcon}>
                 <Dropdown layers={layers} 
                           curLayer={curLayer} setCurLayer={setCurLayer} 
+                          level={level} setLevel={setLevel}
                           legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
                           stackName={stackName} setStackName={setStackName}

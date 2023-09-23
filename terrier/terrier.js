@@ -265,6 +265,7 @@ class TerrierOverlay {
     // Don't call this unless you know you should, as
     //  it's pretty different between toolkits
     updateTransform(lon, lat, zoom, transMat) {
+        if (globalThis.Module == undefined) { return }
         globalThis.Module.transform = {
             centerLng: lon,
             centerLat: lat,
@@ -518,33 +519,33 @@ class TerrierModule {
             return
         }
 
-        this.fetchStackContents( () => {
-            // Wire ourselves into the canvas layer delegate
-            canvasLayer.delegate({
-                onLayerDidMount() {
+        // Wire ourselves into the canvas layer delegate
+        canvasLayer.delegate({
+            onLayerDidMount() {
+                Terrier.fetchStackContents( () => {
                     Terrier.setupModule(() => {
                         _initMap("webglcanvas", canvasLayer._canvas)
                     }, readyFunc)
                     globalThis.Module.canvas = canvasLayer._canvas,
 
                     Terrier.loadLibrary()
-                },
-            
-                onDrawLayer(info) {
-                    var px = canvasLayer._map.getPixelBounds()
-                    let far = 10.0
-                    let near = -10.0
-                    var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
-                                    0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
-                                    0.0, 0.0, -2.0/(far-near), 0.0,
-                                    -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
-                    var geoCenter = canvasLayer._map.getCenter()
-                    Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
-                }
-            })
-        }, 
-        () => {
-            console.log("Failed to fetch stack contents.  Terrier will not start.")
+                }, 
+                () => {
+                    console.log("Failed to fetch stack contents.  Terrier will not start.")
+                })        
+            },
+        
+            onDrawLayer(info) {
+                var px = canvasLayer._map.getPixelBounds()
+                let far = 10.0
+                let near = -10.0
+                var transform = [2.0/(px.max.x-px.min.x), 0.0, 0.0, 0.0,  
+                                0.0, -2.0/(px.max.y-px.min.y), 0.0, 0.0,  
+                                0.0, 0.0, -2.0/(far-near), 0.0,
+                                -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
+                var geoCenter = canvasLayer._map.getCenter()
+                Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
+            }
         })
     }
 

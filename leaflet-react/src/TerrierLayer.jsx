@@ -24,11 +24,6 @@ function TerrierLayer() {
     // Tell Terrier to hook itself into the canvas and start loading itself
     // This calls the Leaflet variant
     Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
-      // Tell us what's in the stack
-      ovl.fetchStackContents((contents) => {
-        console.log("Stack contains:\n" + contents)
-      });
-
       // Toss in country/state outlines
       ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
         fetch("geojson/" + c + ".geojson").then(result =>

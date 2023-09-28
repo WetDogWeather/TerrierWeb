@@ -14,7 +14,7 @@ function startMap() {
 	}).addTo(map);
 
     var canvasLayer = L.realtimeCanvasLayer()
-    Terrier.startLeaflet('dev', canvasLayer, (ovl) => {
+    Terrier.startLeaflet('prod', canvasLayer, (ovl) => {
         // Toss in country/state outlines
         // ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
         //     fetch("geojson/" + c + ".geojson").then(result =>
@@ -24,13 +24,13 @@ function startMap() {
         //         })))                
 
         // Turn on temperature as a layer
-        // let tempLayer = ovl.startLayer('temperature', {
-        //     // colorMap: {}
-        //     // level: 80
-        //     interpMode: 'nearest',
-        //     opacity: 0.5,
-        //     importFactor: 1.0,
-        // })
+        let tempLayer = ovl.startLayer('temperature', {
+            // colorMap: {}
+            // level: 80
+            interpMode: 'linear',
+            opacity: 0.5,
+            importFactor: 4.0,
+        })
         // let windLayer = ovl.startLayer('windUV', {
         //     // colorMap: {}
         //     // level: 80
@@ -38,13 +38,13 @@ function startMap() {
         //     opacity: 0.5,
         //     importFactor: 1.0,
         // })
-        let radarLayer = ovl.startLayer('radar', {
-            // colorMap: {}
-            // level: 80
-            interpMode: 'linear',
-            opacity: 0.75,
-            importFactor: 5.0
-        })
+        // let radarLayer = ovl.startLayer('radar', {
+        //     // colorMap: {}
+        //     // level: 80
+        //     interpMode: 'linear',
+        //     opacity: 0.75,
+        //     importFactor: 5.0
+        // })
 
         // let cloudCeiling = ovl.startLayer('cloud_ceiling')
 

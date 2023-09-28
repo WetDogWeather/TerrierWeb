@@ -4,8 +4,8 @@
   border-radius: 20px;
   background-color: rgb(138, 141, 193);
   position: absolute;
-  top: 120px;
-  right: 20px;
+  top: 74px;
+  right: 0px;
   transition: width 2s;
   z-index: 9999;
 }

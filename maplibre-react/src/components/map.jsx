@@ -4,13 +4,14 @@ import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-export default function Map({stackName,readyFunc}) {
+export default function Map({stackName,readyFunc,fullScreen}) {
   const mapContainer = useRef(null);
   const [map,setMap] = useState(null);
   const [lng] = useState(-100);
   const [lat] = useState(35.6844);
   const [zoom] = useState(3);
   const [API_KEY] = useState('shArXuSxvZazDjMsjkIm');
+  const [navControl,setNavControl] = useState(null)
 
   // Called when the stackName changes
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function Map({stackName,readyFunc}) {
       center: [lng, lat],
       zoom: zoom
     });
-    newMap.addControl(new maplibregl.NavigationControl(), 'top-right');
+    setNavControl(new maplibregl.NavigationControl())
     setMap(newMap)
 
     // Tell Terrier to hook itself into MapLibre
@@ -51,8 +52,20 @@ export default function Map({stackName,readyFunc}) {
       
   }, [API_KEY, lng, lat, zoom]);
 
+  // Add or remove little zoom control in the upper right
+  useEffect(() => {
+    if (navControl == null || map == null) { return }
+    if (fullScreen) {
+        if (map.hasControl(navControl)) {
+            map.removeControl(navControl)
+        }
+    } else {    
+        map.addControl(navControl, 'top-right');
+    }
+  }, [map,navControl,fullScreen])
+
   return (
-    <div className="map-wrap">
+    <div className={fullScreen ? "map-wrap-full" : "map-wrap"}>
       <div ref={mapContainer} className="map" />
     </div>
   );

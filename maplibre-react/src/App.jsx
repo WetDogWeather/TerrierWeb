@@ -24,7 +24,7 @@ function App() {
   const [layers, setLayers] = useState([])
   const [level, setLevel] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [animSpeed, setAnimSpeed] = useState(0.0)
+  const [animSpeed, setAnimSpeed] = useState(1.0)
   const [timeRange,setTimeRange] = useState([0.0,0.0])
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
@@ -53,12 +53,12 @@ function App() {
       }
     }
 
+    const now = Date.now() / 1000
+
     // Then turn ours on
     if (curLayer >= 0 && curLayer < layers.length) {
       const layer = layers[curLayer]
       layer.enable(true)
-
-      const now = Date.now() / 1000
 
       // Update the time range
       setTimeRange([now+layer.timeRange[0],now+layer.timeRange[1]])
@@ -73,7 +73,7 @@ function App() {
       setLevel(null)
     } else {
       // Reset to empty
-      setCurTime(Number.NEGATIVE_INFINITY)
+      setCurTime(now)
       setTimeRange([0.0,0.0])
       _setUnits('')
       setLevel(null)
@@ -98,13 +98,13 @@ function App() {
   useEffect(() => {
     if (terrierOvl == undefined) { return }
     if (isPlaying) {
-      terrierOvl.timePlay()
+      terrierOvl.timePlay({'period': 30.0 / animSpeed})
     } else {
       terrierOvl.timePause()
       // We were animating, so update our curTime from Terrier
       setCurTime(terrierOvl.getCurrentTime())
     }
-  },[isPlaying])
+  },[isPlaying,animSpeed])
 
   // Add an interval callback to update the curTime periodically when isPlaying is on
   // TODO: Turn this off when we don't need it
@@ -168,6 +168,8 @@ function App() {
     setLayers(newLayers)
     setCurLayer(0)
     _setUnits(newLayers[0].units)  
+    const now = Date.now() / 1000
+    setCurTime(now)
   }
 
   // Change the units on the currently displayed layer
@@ -207,7 +209,7 @@ function App() {
         {canDisplayLegend 
           && <Legend colorMap={layers[curLayer].getColorMap()} units={units} />
         }
-        <Map ref={map} stackName={stackName} readyFunc={terrierReady}/>
+        <Map ref={map} stackName={stackName} readyFunc={terrierReady} fullScreen={!controlsVisible}/>
     </>
   )
 }

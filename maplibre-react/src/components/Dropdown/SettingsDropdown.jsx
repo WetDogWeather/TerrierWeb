@@ -28,7 +28,7 @@ function SettingsDropdown({legendVisible, setLegendVisible,
             </label>
 
             <p>Animation Speed</p>
-            <input type='range' id='animation-speed' min='0' max='99'
+            <input type='range' id='animation-speed' min='1' max='100'
                 value={animSpeed * 10} onChange={(e) => updateAnimSpeed(e)} />
 
             <p>Stack Name</p>

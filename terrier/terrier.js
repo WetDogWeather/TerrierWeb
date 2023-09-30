@@ -3,11 +3,95 @@ var Module
 // Represents a single layer, like temperature or wind.
 // Don't create these yourself
 class TerrierLayer {
-    constructor(layerName,state,params,ovl) {
+    constructor(layerName,params,ovl) {
         this.name = layerName
-        this.state = state
         this.ovl = ovl
-        this.updateParams(params)
+
+        if (params == null || params == undefined) {
+            params = {}
+        }
+
+        this.level = null
+        this.colorMap = null
+
+        this.setup(params)
+    }
+
+    setup(params) {
+        if (params === undefined) {
+            params = {}
+        }
+        if ('level' in params) {
+            this.level = params['level']
+        }
+        if ('colorMap' in params) {
+            this.colorMap = params['colorMap']
+        }
+
+        // Look for a matching controller state below
+        let findControllerState = (name) => {
+            for (var key in globalThis.Module.controllerState) {
+                if (key.toLowerCase() == name.toLowerCase()) {
+                    return globalThis.Module.controllerState[key]
+                }
+            }
+        }
+
+        var foundState = null
+        switch (this.name) {
+            // Three of these are special
+            case "wind_uv":
+            case "windUV":
+                this.name = "windUV"
+                globalThis.Module.enableWind = true
+                globalThis.Module.windColorMap = this.colorMap ? this.colorMap : Terrier.WIND_COLORS_NOT_GREY;
+                if (this.level !== null && this.level !== undefined) {
+                    globalThis.Module.selectedLevel = this.level
+                }
+                foundState = findControllerState("winduv")
+                break;
+            case "temperature":
+                globalThis.Module.enableTemp = true
+                globalThis.Module.tempColorMap = this.colorMap ? this.colorMap : Terrier.TEMP_COLORS_NOT_GREY;
+                if (this.level !== null && this.level !== undefined) {
+                    globalThis.Module.selectedLevel = this.level
+                }
+                foundState = findControllerState("temperature")
+                break;
+            case "radar":
+                globalThis.Module.enableRadar = true
+                globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
+                if (this.level !== null && this.level !== undefined) {
+                    globalThis.Module.selectedLevel = this.level
+                }
+                foundState = findControllerState("radar")
+                globalThis.Module.radarCadence = [-2*3600, 0, 30]
+                break;
+            // And the rest more generic
+            // TODO: Pass in the colormap
+            default:
+                // Look for the controller state 
+                for (state in globalThis.Module.controllerState) {
+                    if (state.name == this.name) {
+                        foundState = state
+                        break
+                    }
+                }
+                if (!foundState) {
+                    console.log("Failed to find layer named " + this.name)
+                    return null
+                }
+                foundState.enabled = true
+
+                break;
+        }
+
+        this.state = foundState
+
+        // This creates the controls if they're not there already
+        globalThis.Module.updateOverlay()
+
+        this.updateParams(params)        
     }
 
     // Update settings based on parameters you're allowed to pass in
@@ -27,8 +111,15 @@ class TerrierLayer {
     setLevel(newLevel) {
         if (globalThis.Module.selectedLevel != newLevel) {
             globalThis.Module.selectedLevel = newLevel
-            globalThis.Module.updateOverlay()
+            this.refresh()
         }
+    }
+
+    // Force the layer to unload, then reload
+    refresh() {
+        this.stop()
+        globalThis.Module.updateOverlay()
+        this.setup({})
     }
 
     // Stop and clean up layer
@@ -113,84 +204,8 @@ class TerrierOverlay {
     //  in the stack contents.
     // Returns an identifier for the layer
     startLayer(layerName,params) {
-        var foundState = null
-        var level = null
-        if (params === undefined) {
-            params = {}
-        }
-        if ('level' in params) {
-            level = params['level']
-        }
-        var colorMap = null
-        if ('colorMap' in params) {
-            colorMap = params['colorMap']
-        }
-        if (params == null || params == undefined) {
-            params = {}
-        }
-
-        // Look for a matching controller state below
-        let findControllerState = (name) => {
-            for (var key in globalThis.Module.controllerState) {
-                if (key.toLowerCase() == name.toLowerCase()) {
-                    return globalThis.Module.controllerState[key]
-                }
-            }
-        }
-
-        switch (layerName) {
-            // Three of these are special
-            case "wind_uv":
-            case "windUV":
-                layerName = "windUV"
-                globalThis.Module.enableWind = true
-                globalThis.Module.windColorMap = colorMap ? colorMap : this.terrierModule.WIND_COLORS_NOT_GREY;
-                if (level !== null && level !== undefined) {
-                    globalThis.Module.selectedLevel = level
-                }
-                foundState = findControllerState("winduv")
-                break;
-            case "temperature":
-                globalThis.Module.enableTemp = true
-                globalThis.Module.tempColorMap = colorMap ? colorMap : this.terrierModule.TEMP_COLORS_NOT_GREY;
-                if (level !== null && level !== undefined) {
-                    globalThis.Module.selectedLevel = level
-                }
-                foundState = findControllerState("temperature")
-                break;
-            case "radar":
-                globalThis.Module.enableRadar = true
-                globalThis.Module.radarColorMap = colorMap ? colorMap : this.terrierModule.RADAR_COLORS_NOT_GREY;
-                if (level !== null && level !== undefined) {
-                    globalThis.Module.selectedLevel = level
-                }
-                foundState = findControllerState("radar")
-                globalThis.Module.radarCadence = [-2*3600, 0, 30]
-                break;
-            // And the rest more generic
-            // TODO: Pass in the colormap
-            default:
-                // Look for the controller state 
-                for (state in globalThis.Module.controllerState) {
-                    if (state.name == layerName) {
-                        foundState = state
-                        break
-                    }
-                }
-                if (!foundState) {
-                    console.log("Failed to find layer named " + layerName)
-                    return null
-                }
-                foundState.enabled = true
-
-                break;
-        }
-
-        // This creates the controls if they're not there already
-        globalThis.Module.updateOverlay()
-
         // Wrap the layer around the newly updates state
-        var layer = new TerrierLayer(layerName,foundState,params,this)
+        var layer = new TerrierLayer(layerName,params,this)
 
         return layer
     }

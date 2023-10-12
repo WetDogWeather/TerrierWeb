@@ -4,26 +4,24 @@ import Terrier from "./terrier.js"
 import './L.RealtimeCanvasLayer.js'
 import './terrierLayer.css'
 
-var terrierInit = false
-
 function TerrierLayer() {
-  const [count, setCount] = useState(0)
+  const [canvasLayer, setCanvasLayer] = useState(L.realtimeCanvasLayer())
   
   const map = useMap()
   console.log('map center:', map.getCenter())
 
-  var canvasLayer = L.realtimeCanvasLayer()
-
   const canvasRef = useRef(null)
   useEffect(() => {
-    if (terrierInit) {
-      return
+    // How to shut down the layer, if not Terrier
+    const shutdownFunc = () => {
+      if (canvasLayer != null && map != null) {
+          Terrier.stop()
+          map.removeLayer(canvasLayer)
+      }
     }
-    terrierInit = true
 
-    // Tell Terrier to hook itself into the canvas and start loading itself
-    // This calls the Leaflet variant
-    Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
+    // Called after Terrier has started, or immediately if it's already there
+    const startupFunc = (ovl) => {
       // Toss in country/state outlines
       ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
         fetch("geojson/" + c + ".geojson").then(result =>
@@ -41,14 +39,23 @@ function TerrierLayer() {
       //     importFactor: 1.0,
       // })
 
-      let windLayer = ovl.startLayer('windUV', {
-          // colorMap: {}
-          // level: 80
-          interpMode: 'nearest',
-          // interpMode: 'linear',
-          opacity: 0.75,
-          importFactor: 1.0,
-      })
+      // let windLayer = ovl.startLayer('windUV', {
+      //     // colorMap: {}
+      //     // level: 80
+      //     interpMode: 'nearest',
+      //     // interpMode: 'linear',
+      //     opacity: 0.75,
+      //     importFactor: 1.0,
+      // })
+
+      let windLayer = ovl.startLayer('radar', {
+        // colorMap: {}
+        // level: 80
+        interpMode: 'nearest',
+        // interpMode: 'linear',
+        opacity: 0.75,
+        importFactor: 1.0,
+    })
 
       // To set the time to now + 1hr
       // let d = new Date();
@@ -57,9 +64,17 @@ function TerrierLayer() {
 
       // To animate over the available time
       ovl.timePlay({period: 10.0})
+    }
+
+    // Tell Terrier to hook itself into the canvas and start loading itself
+    // This calls the Leaflet variant
+    Terrier.startLeaflet('truwx-dev',canvasLayer, (ovl) => {
+      startupFunc(ovl)
     })
 
     canvasLayer.addTo(map)
+
+    return shutdownFunc
 }, [])
 
   return (

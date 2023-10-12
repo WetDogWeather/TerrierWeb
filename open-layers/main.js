@@ -37,20 +37,20 @@ if (service == 'WMS') {
 } else {
   // Create a layer from WMTS data
   let data = new WMTSData(capURL);
-  let dataLayer = await data.getLayer('gfs-global-atmos-temperature-2m-16-projected')
+  let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected')
   
   const dataTileLayer =  new TileLayer({opacity: 0.5, source: dataLayer});
 
   // Iterate through the list of times available
-  // setInterval(()=> {
-  //   let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
-  //   console.log("Switching time to " + newDim)
-  //   dataLayer.updateDimensions({'time': newDim});
-  //   dataLayer.curTimeDim = dataLayer.curTimeDim + 1
-  //   if (dataLayer.curTimeDim >= dataLayer.timeDim.Value.length) {
-  //     dataLayer.curTimeDim = 0
-  //   }
-  // }, 2000)
+  setInterval(()=> {
+    let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
+    console.log("Switching time to " + newDim)
+    dataLayer.updateDimensions({'time': newDim});
+    dataLayer.curTimeDim = dataLayer.curTimeDim + 1
+    if (dataLayer.curTimeDim >= dataLayer.timeDim.Value.length) {
+      dataLayer.curTimeDim = 0
+    }
+  }, 2000)
 
   layers.push(dataTileLayer);
 }

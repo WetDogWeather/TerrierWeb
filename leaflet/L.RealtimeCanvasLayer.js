@@ -212,7 +212,8 @@ L.RealtimeCanvasLayer = (L.Layer ? L.Layer : L.Class).extend({
                 //     }
                 // }
                 // if (keepDrawing) {
-                    this._registerFrameUpdate()
+                    if (this._canvas)
+                        this._registerFrameUpdate()
                 // }
             }, this);
         }

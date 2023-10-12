@@ -11390,6 +11390,27 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
     });
   }
   
+  function _shutdownWebglCanvas() {
+      // Shut down the existing layers
+      Module.enableTemp = false
+      Module.enableRadar = false
+      Module.enableWind = false
+      Module.controllers.forEach(x => x.enable = false)
+      Module.updateOverlay();
+
+      // And the tracker
+      // Note: Put this in a proper shutdown call
+      if (Module.tracker) {
+        Module.tracker.delete()
+        Module.tracker = null
+      }
+
+      if (Module.overlay) {
+        Module.overlay.teardown()
+        Module.overlay.delete()
+        Module.overlay = null
+      }
+  }
   
   function _initWebglCanvas(canvas) {
     if (!Module.emInitialized) {
@@ -11401,36 +11422,51 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
     Module.canvas = canvas
   
     console.log("Initializing WebGL Canvas Overlay");
-  
-    _initUI();
+
     const gl = canvas.getContext("webgl2");
-  
-    _glfwInit();
-  
-    const handle = GL.registerContext(gl, gl.getContextAttributes());
-    if (handle) {
-      Module.ctx = GL.getContext(handle).GLctx;
-      GL.makeContextCurrent(handle);
-      Module.useWebGL = true;
-      Browser.init();
-  
-      // todo: delete old overlay?
-      if (!Module.overlay) {
+
+    // Already initialized once, so just hook up what we need
+    if (Module.ctx != null) {
+      const handle = GL.registerContext(gl, gl.getContextAttributes());
+      if (handle) {
+        Module.ctx = GL.getContext(handle).GLctx;
+        GL.makeContextCurrent(handle);
+
         Module.overlay = new Module.MapOverlay();
         Module.overlay.setup();
       }
-  
-      //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
-  
-      if (!Module.service) {
-        Module.service = new Module.TrrService();
-        Module.service.stackName = "dev";
-      }
-  
+
       Module.updateOverlay();
-  
-      if (Module.onOverlayInitialized) {
-        Module.onOverlayInitialized(Module.overlay);
+    } else {
+      _initUI();
+    
+      _glfwInit();
+    
+      const handle = GL.registerContext(gl, gl.getContextAttributes());
+      if (handle) {
+        Module.ctx = GL.getContext(handle).GLctx;
+        GL.makeContextCurrent(handle);
+        Module.useWebGL = true;
+        Browser.init();
+    
+        // todo: delete old overlay?
+        if (!Module.overlay) {
+          Module.overlay = new Module.MapOverlay();
+          Module.overlay.setup();
+        }
+    
+        //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
+    
+        if (!Module.service) {
+          Module.service = new Module.TrrService();
+          Module.service.stackName = "dev";
+        }
+    
+        Module.updateOverlay();
+    
+        if (Module.onOverlayInitialized) {
+          Module.onOverlayInitialized(Module.overlay);
+        }
       }
     }
   

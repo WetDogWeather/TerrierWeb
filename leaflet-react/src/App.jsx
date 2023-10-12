@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapContainer, TileLayer } from "react-leaflet";
 import TerrierLayer from "./TerrierLayer.jsx";
 import './App.css'
@@ -6,6 +6,19 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
   const position = [51.505, -0.09];
+  const [layerEnable, setLayerEnable] = useState(true)
+
+  // Turn the terrier layer off after some time
+  // This is here to test shutting down the layer and firing it back up again
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setLayerEnable(false)
+
+  //     setTimeout(() => {
+  //       setLayerEnable(true)
+  //     }, 10000)
+  //   }, 10000)
+  // }, [])
 
   return (
     <MapContainer
@@ -20,7 +33,9 @@ function App() {
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <TerrierLayer></TerrierLayer>
+      { layerEnable &&
+        <TerrierLayer></TerrierLayer>
+      }
     </MapContainer>
   );
 }

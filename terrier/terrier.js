@@ -355,6 +355,19 @@ class TerrierModule {
 
     // Internal setup logic
     setupModule(initFunc, readyFunc) {
+        // Already initialized the module, so just call them back
+        if ('Module' in globalThis) {
+            if (initFunc !== undefined) {
+                initFunc()
+            }
+            if (readyFunc !== undefined) {
+                // Let things settle a beat and then let the dev get set up
+                setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
+            }
+
+            return
+        }
+
         // Emscripten is expecting this global Module to be defined
         //  and it will merge these contents with its own
         globalThis.Module = {
@@ -421,19 +434,25 @@ class TerrierModule {
                     // Let things settle a beat and then let the dev get set up
                     setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
                 }
+                globalThis.Module.onOverlayInitialized = null
             }
         };        
     }
 
+    libraryLoaded = false
+
     // Internal setup logic
     loadLibrary() {
-        // Have the main WhirlyGlobe web module load itself
-        //  this also kicks off Emscriten
-        var s = document.createElement('script');
-        s.type = 'text/javascript';
-        s.src = 'WhirlyGlobeWeb.js';
-        s.defer = 'defer';
-        document.body.appendChild(s);            
+        if (!this.libraryLoaded) {
+            // Have the main WhirlyGlobe web module load itself
+            //  this also kicks off Emscriten
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.src = 'WhirlyGlobeWeb.js';
+            s.defer = 'defer';
+            document.body.appendChild(s);            
+            this.libraryLoaded = true
+        }
     }
 
         // Get an overview of what the stack has
@@ -517,6 +536,8 @@ class TerrierModule {
         })
     } 
 
+    webglCanvasMode = false
+
     // Initialize Terrier and get it ready to use a Leaflet Canvas overlay
     startLeaflet(stackName, canvasLayer, readyFunc) {
         this.stackName = stackName
@@ -525,14 +546,7 @@ class TerrierModule {
             console.log('Need to pass the mapCanvas into TerrierInit.  Not starting.')
             return
         }
-
-        // Already started, so just call them back
-        if (this.isReady) {
-            if (readyFunc !== undefined) {
-                readyFunc(this.ovl)
-            }
-            return
-        }
+        this.webglCanvasMode = true
 
         // Wire ourselves into the canvas layer delegate
         canvasLayer.delegate({
@@ -561,7 +575,7 @@ class TerrierModule {
                 var geoCenter = canvasLayer._map.getCenter()
                 Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
             }
-        })
+        })        
     }
 
     // Initialize Terrier and get it ready to use a MapLibre Map
@@ -590,6 +604,13 @@ class TerrierModule {
         () => {
             console.log("Failed to fetch stack contents.  Terrier will not start.")
         })
+    }
+
+    // Unwire ourselves from whatever library we're wired into
+    stop() {
+        if (this.webglCanvasMode) {
+            _shutdownWebglCanvas()
+        }
     }
 
 };

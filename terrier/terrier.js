@@ -304,6 +304,7 @@ class TerrierModule {
         // Developers interface to Terrier through the 'overlay'
         this.ovl = new TerrierOverlay(this)
         this.isReady = false
+        this.numConnections = 8
     }
 
     // Interpolation type for layers
@@ -385,6 +386,7 @@ class TerrierModule {
             debugTemp: false,
             debugWind: false,
             debugRadar: false,
+            numConnections: Terrier.numConnections,
 
             print: (function () {
                 return function (text) {

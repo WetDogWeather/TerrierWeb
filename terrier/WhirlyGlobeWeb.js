@@ -1639,8 +1639,8 @@ function unexportedRuntimeSymbol(sym) {
 // === Body ===
 
 var ASM_CONSTS = {
-  218868: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 219070: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  220004: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 220206: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(async () => { return Emval.toHandle(await (await fetch(UTF8ToString(url_ptr))).json()); }); }
 
@@ -10650,7 +10650,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         state.varInterp = state.varInterp || Module.TexInterpType.Linear;
         state.visInterp = state.visInterp || Module.TexInterpType.Linear;
         state.minImportanceFactor = state.minImportanceFactor || 1.0;
-        state.connections = state.connections || 10;
+        state.connections = state.connections || Module.numConnections;
         state.loadAllFrames = !!state.loadAllFrames;
         state.snapToFrame = !!state.snapToFrame;
         state.drawPriority = state.drawPriority || baseDrawPriority;
@@ -10813,7 +10813,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.tempCtl.varInterp = Module.TexInterpType.Linear;
       Module.tempCtl.visInterp = Module.TexInterpType.Linear;
       Module.tempCtl.minImportanceFactor = 1.0;
-      Module.tempCtl.connections = 10;
+      Module.tempCtl.connections = Module.numConnections;
       Module.tempCtl.loadAllFrames = false;
       Module.tempCtl.snapToFrame = false;
       if (Module.selectedLevel) {
@@ -11049,7 +11049,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.radarCtl.varInterp = Module.TexInterpType.Linear;
       Module.radarCtl.visInterp = Module.TexInterpType.Linear;
       Module.radarCtl.minImportanceFactor = 5.0;
-      Module.radarCtl.connections = 10;
+      Module.radarCtl.connections = Module.numConnections;
       Module.radarCtl.loadAllFrames = false;
       Module.radarCtl.snapToFrame = true;
       if (Module.selectedLevel) {
@@ -11090,7 +11090,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       Module.windCtl.varInterp = Module.TexInterpType.Linear;
       Module.windCtl.visInterp = Module.TexInterpType.Linear;
       Module.windCtl.minImportanceFactor = 2.0;
-      Module.windCtl.connections = 10;
+      Module.windCtl.connections = Module.numConnections;
       Module.windCtl.loadAllFrames = false;
       Module.windCtl.snapToFrame = false;
       if (Module.selectedLevel) {
@@ -12447,8 +12447,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits");
-var ___start_em_js = Module['___start_em_js'] = 219116;
-var ___stop_em_js = Module['___stop_em_js'] = 219265;
+var ___start_em_js = Module['___start_em_js'] = 220252;
+var ___stop_em_js = Module['___stop_em_js'] = 220401;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {

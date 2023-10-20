@@ -51,8 +51,8 @@ function TerrierLayer() {
       let windLayer = ovl.startLayer('radar', {
         // colorMap: {}
         // level: 80
-        interpMode: 'nearest',
-        // interpMode: 'linear',
+        // interpMode: 'nearest',
+        interpMode: 'linear',
         opacity: 0.75,
         importFactor: 1.0,
     })

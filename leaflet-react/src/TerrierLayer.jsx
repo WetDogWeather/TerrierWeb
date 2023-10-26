@@ -31,17 +31,16 @@ function TerrierLayer() {
             })))                
 
       // Turn on a layer
-      // let tempLayer = ovl.startLayer('temperature', {
-      //     // colorMap: {}
-      //     // level: 80
-      //     interpMode: 'nearest',
-      //     opacity: 0.5,
-      //     importFactor: 1.0,
-      // })
+      let tempLayer = ovl.startLayer('temperature', {
+          // colorMap: {}
+          level: "80m",
+          interpMode: 'nearest',
+          opacity: 0.5,
+          importFactor: 1.0,
+      })
 
       // let windLayer = ovl.startLayer('windUV', {
       //     // colorMap: {}
-      //     // level: 80
       //     interpMode: 'nearest',
       //     // interpMode: 'linear',
       //     opacity: 0.75,
@@ -50,21 +49,19 @@ function TerrierLayer() {
 
       // let windLayer = ovl.startLayer('radar', {
       //   // colorMap: {}
-      //   // level: 80
       //   // interpMode: 'nearest',
       //   interpMode: 'linear',
       //   opacity: 0.75,
       //   importFactor: 1.0,
       // })
 
-      let cloudLayer = ovl.startLayer('CloudCover', {
-        // colorMap: {}
-        // level: 80
-        // interpMode: 'nearest',
-        interpMode: 'linear',
-        opacity: 0.75,
-        importFactor: 1.0,
-      })
+      // let cloudLayer = ovl.startLayer('CloudCover', {
+      //   // colorMap: {}
+      //   // interpMode: 'nearest',
+      //   interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
 
       // To set the time to now + 1hr
       // let d = new Date();

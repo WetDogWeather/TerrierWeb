@@ -71,11 +71,8 @@ class TerrierLayer {
             // TODO: Pass in the colormap
             default:
                 // Look for the controller state 
-                for (state in globalThis.Module.controllerState) {
-                    if (state.name == this.name) {
-                        foundState = state
-                        break
-                    }
+                if (this.name in globalThis.Module.controllerState) {
+                    foundState = globalThis.Module.controllerState[this.name]
                 }
                 if (!foundState) {
                     console.log("Failed to find layer named " + this.name)

@@ -418,7 +418,7 @@ class TerrierModule {
 
                 globalThis.Module.service = new globalThis.Module.TrrService();
                 globalThis.Module.service.stackName = Terrier.stackName;
-                globalThis.Module.service.apiVersion = 1;
+                globalThis.Module.service.apiVersion = 2;
                 globalThis.Module.tempCadence = [-24 * 3600, 24 * 3600, 40];
                 globalThis.Module.windCadence = [-25 * 3600, 24 * 3600, 40];
                 globalThis.Module.radarCadence = [-2 * 3600, 0 * 3600, 40];

@@ -48,14 +48,23 @@ function TerrierLayer() {
       //     importFactor: 1.0,
       // })
 
-      let windLayer = ovl.startLayer('radar', {
+      // let windLayer = ovl.startLayer('radar', {
+      //   // colorMap: {}
+      //   // level: 80
+      //   // interpMode: 'nearest',
+      //   interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
+
+      let cloudLayer = ovl.startLayer('CloudCover', {
         // colorMap: {}
         // level: 80
         // interpMode: 'nearest',
         interpMode: 'linear',
         opacity: 0.75,
         importFactor: 1.0,
-    })
+      })
 
       // To set the time to now + 1hr
       // let d = new Date();
@@ -68,7 +77,7 @@ function TerrierLayer() {
 
     // Tell Terrier to hook itself into the canvas and start loading itself
     // This calls the Leaflet variant
-    Terrier.startLeaflet('truwx-dev',canvasLayer, (ovl) => {
+    Terrier.startLeaflet('truwx',canvasLayer, (ovl) => {
       startupFunc(ovl)
     })
 

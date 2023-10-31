@@ -541,6 +541,15 @@ class TerrierModule {
     startLeaflet(stackName, canvasLayer, readyFunc) {
         this.stackName = stackName
         let terrierModule = this
+
+        // Already started, so just call them back
+        if (this.isReady) {
+            if (readyFunc !== undefined) {
+                readyFunc(this.ovl)
+            }
+            return
+        }
+
         if (canvasLayer == undefined) {
             console.log('Need to pass the mapCanvas into TerrierInit.  Not starting.')
             return
@@ -610,9 +619,13 @@ class TerrierModule {
         if (this.webglCanvasMode) {
             _shutdownWebglCanvas()
         }
+        this.isReady = false
     }
 
 };
 
-var Terrier = new TerrierModule()
+if (!('Terrier' in globalThis)) {
+    var Terrier = new TerrierModule()
+}
+
 export default Terrier;

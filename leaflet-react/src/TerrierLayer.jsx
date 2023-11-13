@@ -30,24 +30,7 @@ function TerrierLayer() {
                 ovl.addGeoJSON(t)
             })))                
 
-      // Turn on a layer
-      let tempLayer = ovl.startLayer('temperature', {
-          // colorMap: {}
-          level: "80m",
-          interpMode: 'nearest',
-          opacity: 0.5,
-          importFactor: 1.0,
-      })
-
-      // let windLayer = ovl.startLayer('windUV', {
-      //     // colorMap: {}
-      //     interpMode: 'nearest',
-      //     // interpMode: 'linear',
-      //     opacity: 0.75,
-      //     importFactor: 1.0,
-      // })
-
-      // let windLayer = ovl.startLayer('radar', {
+      // let cloudLayer = ovl.startLayer('CloudCeiling', {
       //   // colorMap: {}
       //   // interpMode: 'nearest',
       //   interpMode: 'linear',
@@ -59,6 +42,65 @@ function TerrierLayer() {
       //   // colorMap: {}
       //   // interpMode: 'nearest',
       //   interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
+
+      // let pressureLayer = ovl.startLayer('Pressure', {
+      //   // colorMap: {}
+      //   interpMode: 'nearest',
+      //   // interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
+
+      // let precipRateLayer = ovl.startLayer('PrecipRate', {
+      //   // colorMap: {}
+      //   interpMode: 'nearest',
+      //   // interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
+
+      // let windLayer = ovl.startLayer('radar', {
+      //   // colorMap: {}
+      //   // interpMode: 'nearest',
+      //   interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
+
+      // Turn on a layer
+      let tempLayer = ovl.startLayer('temperature', {
+          // colorMap: {}
+          level: "152m",
+          interpMode: 'nearest',
+          opacity: 0.5,
+          importFactor: 1.0,
+      })
+
+      // let windLayer = ovl.startLayer('WindGust', {
+      //     // colorMap: {}
+      //     level: "50m",
+      //     interpMode: 'nearest',
+      //     // interpMode: 'linear',
+      //     opacity: 0.75,
+      //     importFactor: 1.0,
+      // })
+
+      // let windLayer = ovl.startLayer('windUV', {
+      //     // colorMap: {}
+      //     level: "152m",
+      //     interpMode: 'nearest',
+      //     // interpMode: 'linear',
+      //     opacity: 0.75,
+      //     importFactor: 1.0,
+      // })
+
+      // let visLayer = ovl.startLayer('Visibility', {
+      //   // colorMap: {}
+      //   interpMode: 'nearest',
+      //   // interpMode: 'linear',
       //   opacity: 0.75,
       //   importFactor: 1.0,
       // })

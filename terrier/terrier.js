@@ -78,6 +78,9 @@ class TerrierLayer {
                     console.log("Failed to find layer named " + this.name)
                     return null
                 }
+                if (this.level !== null && this.level !== undefined) {
+                    foundState.level = this.level
+                }
                 foundState.enabled = true
 
                 break;

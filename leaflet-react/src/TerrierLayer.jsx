@@ -71,13 +71,13 @@ function TerrierLayer() {
       // })
 
       // Turn on a layer
-      let tempLayer = ovl.startLayer('temperature', {
-          // colorMap: {}
-          level: "152m",
-          interpMode: 'nearest',
-          opacity: 0.5,
-          importFactor: 1.0,
-      })
+      // let tempLayer = ovl.startLayer('temperature', {
+      //     // colorMap: {}
+      //     // level: "152m",
+      //     interpMode: 'nearest',
+      //     opacity: 0.5,
+      //     importFactor: 1.0,
+      // })
 
       // let windLayer = ovl.startLayer('WindGust', {
       //     // colorMap: {}
@@ -97,13 +97,13 @@ function TerrierLayer() {
       //     importFactor: 1.0,
       // })
 
-      // let visLayer = ovl.startLayer('Visibility', {
-      //   // colorMap: {}
-      //   interpMode: 'nearest',
-      //   // interpMode: 'linear',
-      //   opacity: 0.75,
-      //   importFactor: 1.0,
-      // })
+      let visLayer = ovl.startLayer('Visibility', {
+        // colorMap: {}
+        interpMode: 'nearest',
+        // interpMode: 'linear',
+        opacity: 0.75,
+        importFactor: 1.0,
+      })
 
       // To set the time to now + 1hr
       // let d = new Date();
@@ -116,7 +116,7 @@ function TerrierLayer() {
 
     // Tell Terrier to hook itself into the canvas and start loading itself
     // This calls the Leaflet variant
-    Terrier.startLeaflet('truwx',canvasLayer, (ovl) => {
+    Terrier.startLeaflet('truwx-dev',canvasLayer, (ovl) => {
       startupFunc(ovl)
     })
 

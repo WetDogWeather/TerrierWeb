@@ -196,6 +196,7 @@ class TerrierLayer {
 class TerrierOverlay {
     constructor(terrierModule) {
         this.terrierModule = terrierModule
+        this.activeLayers = new Set()
     }
     
     // Start the display of a given layer by name.
@@ -207,6 +208,10 @@ class TerrierOverlay {
         // Wrap the layer around the newly updates state
         var layer = new TerrierLayer(layerName,params,this)
 
+        this.activeLayers.add(layer)
+
+        this.checkCanvas()
+
         return layer
     }
 
@@ -214,7 +219,25 @@ class TerrierOverlay {
     stopLayer(layer) {
         layer.stop()
 
+        this.activeLayers.delete(layer)
+
         globalThis.Module.updateOverlay()
+
+        this.checkCanvas()
+    }
+
+    // If we're attached to a canvas, hide it if there are no layers
+    checkCanvas() {
+        if (!Terrier.webglCanvasMode) {
+            return
+        }
+        if (globalThis.Module.canvas != null) {
+            if (this.activeLayers.size == 0) {
+                globalThis.Module.canvas.style.visibility = "hidden"
+            } else {
+                globalThis.Module.canvas.style.visibility = "visible"
+            }
+        }
     }
 
     // Add the given raw GeoJSON data
@@ -305,6 +328,7 @@ class TerrierModule {
         this.ovl = new TerrierOverlay(this)
         this.isReady = false
         this.numConnections = 8
+        this.webglCanvasMode = false
     }
 
     // Interpolation type for layers
@@ -537,8 +561,6 @@ class TerrierModule {
             failedFunc()
         })
     } 
-
-    webglCanvasMode = false
 
     // Initialize Terrier and get it ready to use a Leaflet Canvas overlay
     startLeaflet(stackName, canvasLayer, readyFunc) {

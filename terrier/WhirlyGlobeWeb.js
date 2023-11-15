@@ -10847,7 +10847,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (Module.debugLayers) {
         console.log("Start " + state.name);
       }
-      const colorMap = new Module.TrrShaderColorMap(0, false, [0, 40000], [0xFF000000, 0xFFFFFFFF]);
+      var colorMap = null
+      if (state.colorMap) {
+        colorMap = state.colorMap
+      } else {
+        colorMap = new Module.TrrShaderColorMap(0, false, [0, 40000], [0xFF000000, 0xFFFFFFFF]);
+      }
       const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,

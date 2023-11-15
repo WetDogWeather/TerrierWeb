@@ -81,6 +81,9 @@ class TerrierLayer {
                 if (this.level !== null && this.level !== undefined) {
                     foundState.level = this.level
                 }
+                if (this.colorMap !== null && this.colorMap !== undefined) {
+                    foundState.colorMap = this.colorMap
+                }
                 foundState.enabled = true
 
                 break;
@@ -376,6 +379,15 @@ class TerrierModule {
             0xFF9A52C8,
             0xFFFCFBFA,
         ]);
+    }
+
+    // Create a color map with value and colormap arrays
+    createColorMap(values, colors) {
+        if (values.length != colors.length) {
+            console.log("createColorMap: Values and colors array must be same length.")
+            return
+        }
+        return new globalThis.Module.TrrShaderColorMap(0, false, values, colors)
     }
 
     // Internal setup logic

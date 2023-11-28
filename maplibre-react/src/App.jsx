@@ -29,7 +29,7 @@ function App() {
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('prod')
+  const [stackName, setStackName] = useState('dev')
 
   // React to stackName changes
   useEffect(() => {

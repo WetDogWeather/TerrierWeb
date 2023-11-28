@@ -522,6 +522,9 @@ class TerrierModule {
     //  among all the sources
     variableLevelsForStack(dataType) {
         var levels = new Set([])
+        if (!this.stackContents) {
+            return levels
+        }
         for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
             for (const [ regionKey, region ] of Object.entries(model)) {
                 for (const [ typeKey, type ] of Object.entries(region)) {

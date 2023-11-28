@@ -30,16 +30,19 @@ function TerrierLayer() {
                 ovl.addGeoJSON(t)
             })))                
 
+      // let feetToMeters = 3.28084
+      // let cloudColorMap = Terrier.createColorMap(
+      //   [0.0*feetToMeters,500.0*feetToMeters,900.0*feetToMeters,1000.0*feetToMeters,300.0*feetToMeters,4000.0*feetToMeters,5000.0*feetToMeters],
+      //   [0xff800000,0xffff0000,0xffffff00,0xffff6600,0xff000080,0xff003300,0xff006400])
       // let cloudLayer = ovl.startLayer('CloudCeiling', {
-      //   // colorMap: {}
       //   // interpMode: 'nearest',
+      //   colorMap: cloudColorMap,
       //   interpMode: 'linear',
       //   opacity: 0.75,
       //   importFactor: 1.0,
       // })
 
       // let cloudLayer = ovl.startLayer('CloudCover', {
-      //   // colorMap: {}
       //   // interpMode: 'nearest',
       //   interpMode: 'linear',
       //   opacity: 0.75,
@@ -47,7 +50,6 @@ function TerrierLayer() {
       // })
 
       // let pressureLayer = ovl.startLayer('Pressure', {
-      //   // colorMap: {}
       //   interpMode: 'nearest',
       //   // interpMode: 'linear',
       //   opacity: 0.75,
@@ -55,7 +57,6 @@ function TerrierLayer() {
       // })
 
       // let precipRateLayer = ovl.startLayer('PrecipRate', {
-      //   // colorMap: {}
       //   interpMode: 'nearest',
       //   // interpMode: 'linear',
       //   opacity: 0.75,
@@ -63,7 +64,6 @@ function TerrierLayer() {
       // })
 
       // let windLayer = ovl.startLayer('radar', {
-      //   // colorMap: {}
       //   // interpMode: 'nearest',
       //   interpMode: 'linear',
       //   opacity: 0.75,
@@ -71,16 +71,14 @@ function TerrierLayer() {
       // })
 
       // Turn on a layer
-      // let tempLayer = ovl.startLayer('temperature', {
-      //     // colorMap: {}
-      //     // level: "152m",
-      //     interpMode: 'nearest',
-      //     opacity: 0.5,
-      //     importFactor: 1.0,
-      // })
+      let tempLayer = ovl.startLayer('temperature', {
+          level: "2m",
+          interpMode: 'nearest',
+          opacity: 0.5,
+          importFactor: 1.0,
+      })
 
       // let windLayer = ovl.startLayer('WindGust', {
-      //     // colorMap: {}
       //     level: "50m",
       //     interpMode: 'nearest',
       //     // interpMode: 'linear',
@@ -89,21 +87,36 @@ function TerrierLayer() {
       // })
 
       // let windLayer = ovl.startLayer('windUV', {
-      //     // colorMap: {}
-      //     level: "152m",
+      //     level: "30m",
       //     interpMode: 'nearest',
       //     // interpMode: 'linear',
       //     opacity: 0.75,
       //     importFactor: 1.0,
       // })
 
-      let visLayer = ovl.startLayer('Visibility', {
-        // colorMap: {}
-        interpMode: 'nearest',
-        // interpMode: 'linear',
-        opacity: 0.75,
-        importFactor: 1.0,
-      })
+      // let milesToM = 1609.34
+      // let visColorMap = Terrier.createColorMap(
+      //   [0.0*milesToM,1.0*milesToM,3.0*milesToM,5.0*milesToM,7.0*milesToM,8.0*milesToM,100.0*milesToM],
+      //   [0xFF800000,0xFFda0000,0xFFffff00,0xFF00ff00,0xFF008000,0xFF003300,0x00003300])
+      // let visLayer = ovl.startLayer('Visibility', {
+      //   colorMap: visColorMap,
+      //   interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 1.0,
+      // })
+
+      // setTimeout(() => {
+      //   ovl.stopLayer(visLayer)
+
+      //   setTimeout(() => {
+      //     let visLayer = ovl.startLayer('Visibility', {
+      //       interpMode: 'nearest',
+      //       // interpMode: 'linear',
+      //       opacity: 0.75,
+      //       importFactor: 1.0,
+      //     })    
+      //   },10000)
+      // },10000)
 
       // To set the time to now + 1hr
       // let d = new Date();
@@ -111,12 +124,12 @@ function TerrierLayer() {
       // ovl.setCurrentTime(now+1*60*60)
 
       // To animate over the available time
-      ovl.timePlay({period: 10.0})
+      ovl.timePlay({period: 4.0})
     }
 
     // Tell Terrier to hook itself into the canvas and start loading itself
     // This calls the Leaflet variant
-    Terrier.startLeaflet('truwx-dev',canvasLayer, (ovl) => {
+    Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
       startupFunc(ovl)
     })
 

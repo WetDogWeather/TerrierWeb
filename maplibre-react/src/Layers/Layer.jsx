@@ -122,4 +122,13 @@ export default class Layer {
     getTimeRange() {
         return this.timeRange
     }
+    
+    // Query the given location on the screen for a data value
+    queryValue(x,y) {
+        if (this.layer == null) {
+            return null
+        }
+
+        return this.layer.queryValue(x,y)
+    }
 }

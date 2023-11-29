@@ -191,6 +191,19 @@ class TerrierLayer {
         this.state.controller.colorMap = colorMap
         globalThis.Module.repaint()
     }
+
+    // Query a value at a given location
+    queryValue(x,y) {
+        var ret = this.state.controller.queryValue(x, y)
+        if (!Array.isArray(ret)) {
+            ret = [ret]
+        }
+        return {
+            // Can return one or more values
+            "value": ret,
+            // Will add lat/lon later
+        }
+    }
 }
 
 // Represents an overlay into another map toolkit or

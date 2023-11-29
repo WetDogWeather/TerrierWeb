@@ -4,7 +4,7 @@ import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-export default function Map({stackName,readyFunc,fullScreen}) {
+export default function Map({stackName,readyFunc,fullScreen,onClick}) {
   const mapContainer = useRef(null);
   const [map,setMap] = useState(null);
   const [lng] = useState(-100);
@@ -66,7 +66,7 @@ export default function Map({stackName,readyFunc,fullScreen}) {
 
   return (
     <div className={fullScreen ? "map-wrap-full" : "map-wrap"}>
-      <div ref={mapContainer} className="map" />
+      <div ref={mapContainer} className="map" onClick={(e) => {onClick(e)}} />
     </div>
   );
 }

@@ -29,7 +29,7 @@ function App() {
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('dev')
+  const [stackName, setStackName] = useState('truwx-tile-service-carpetshark')
 
   // React to stackName changes
   useEffect(() => {
@@ -172,6 +172,17 @@ function App() {
     setCurTime(now)
   }
 
+  // Called when the user clicks on the map
+  const onMapClick = (e) => {
+    if (curLayer < 0) {
+      return
+    }
+    const layer = layers[curLayer]
+    const ret = layer.queryValue(e.clientX, e.clientY)
+    console.log("Map clicked %d, %d: " + ret['value'].toString(), e.clientX, 
+                                          e.clientY)
+  }
+
   // Change the units on the currently displayed layer
   let setUnits = (layer, newUnits) => {
     layer.units = newUnits
@@ -209,7 +220,11 @@ function App() {
         {canDisplayLegend 
           && <Legend colorMap={layers[curLayer].getColorMap()} units={units} />
         }
-        <Map ref={map} stackName={stackName} readyFunc={terrierReady} fullScreen={!controlsVisible}/>
+        <Map ref={map} 
+             stackName={stackName} 
+             readyFunc={terrierReady} 
+             fullScreen={!controlsVisible}
+             onClick={onMapClick} />
     </>
   )
 }

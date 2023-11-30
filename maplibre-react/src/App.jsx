@@ -178,7 +178,7 @@ function App() {
       return
     }
     const layer = layers[curLayer]
-    const ret = layer.queryValue(e.clientX, e.clientY)
+    const ret = layer.queryValue(e.clientX * window.devicePixelRatio, e.clientY * window.devicePixelRatio)
     console.log("Map clicked %d, %d: " + ret['value'].toString(), e.clientX, 
                                           e.clientY)
   }

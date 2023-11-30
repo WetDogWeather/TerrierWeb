@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { useMap } from "react-leaflet";
+import { useMap, useMapEvents } from "react-leaflet";
 import Terrier from "./terrier.js"
 import './L.RealtimeCanvasLayer.js'
 import './terrierLayer.css'
 
 function TerrierLayer() {
-  const [canvasLayer, setCanvasLayer] = useState(L.realtimeCanvasLayer())
+  const [canvasLayer] = useState(L.realtimeCanvasLayer())
   
   const map = useMap()
   console.log('map center:', map.getCenter())
@@ -63,20 +63,20 @@ function TerrierLayer() {
       //   importFactor: 1.0,
       // })
 
-      // let windLayer = ovl.startLayer('radar', {
-      //   // interpMode: 'nearest',
-      //   interpMode: 'linear',
-      //   opacity: 0.75,
-      //   importFactor: 1.0,
-      // })
-
-      // Turn on a layer
-      let tempLayer = ovl.startLayer('temperature', {
-          level: "2m",
-          interpMode: 'nearest',
-          opacity: 0.5,
-          importFactor: 1.0,
+      let windLayer = ovl.startLayer('radar', {
+        // interpMode: 'nearest',
+        interpMode: 'linear',
+        opacity: 0.75,
+        importFactor: 1.0,
       })
+
+      // // Turn on a layer
+      // let tempLayer = ovl.startLayer('temperature', {
+      //     level: "2m",
+      //     interpMode: 'nearest',
+      //     opacity: 0.5,
+      //     importFactor: 1.0,
+      // })
 
       // let windLayer = ovl.startLayer('WindGust', {
       //     level: "50m",
@@ -129,14 +129,29 @@ function TerrierLayer() {
 
     // Tell Terrier to hook itself into the canvas and start loading itself
     // This calls the Leaflet variant
-    Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
+    Terrier.startLeaflet('truwx-tile-service-carpetshark',canvasLayer, (ovl) => {
       startupFunc(ovl)
     })
 
     canvasLayer.addTo(map)
 
     return shutdownFunc
-}, [])
+  }, [])
+
+  // Wire in a click event
+  const mapEvents = useMapEvents({
+    click: (e) => {
+      // Grab the first layer.  Probably only one.
+      const layers = Terrier.ovl.getLayers()
+      if (layers.length > 0) {
+        const layer = layers[0]
+        const x = e.originalEvent.layerX
+        const y = e.originalEvent.layerY
+        const ret = layer.queryValue(x,y)
+        console.log("Click event: %d %d: ",x,y,ret['value'].toString())
+      }
+    },
+  })  
 
   return (
     // <div id="terrierLayer">

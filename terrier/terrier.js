@@ -242,6 +242,15 @@ class TerrierOverlay {
         this.checkCanvas()
     }
 
+    // Return the list of currently active layers
+    getLayers() {
+        if (!this.activeLayers) {
+            return []
+        }
+
+        return [...this.activeLayers];
+    }
+
     // If we're attached to a canvas, hide it if there are no layers
     checkCanvas() {
         if (!Terrier.webglCanvasMode) {
@@ -593,7 +602,6 @@ class TerrierModule {
     // Initialize Terrier and get it ready to use a Leaflet Canvas overlay
     startLeaflet(stackName, canvasLayer, readyFunc) {
         this.stackName = stackName
-        let terrierModule = this
 
         // Already started, so just call them back
         if (this.isReady) {
@@ -642,7 +650,6 @@ class TerrierModule {
     // Initialize Terrier and get it ready to use a MapLibre Map
     startMapLibre(stackName, maplibreMap, readyFunc) {
         this.stackName = stackName
-        let terrierModule = this
         if (maplibreMap == undefined) {
             console.log('Need to pass the MapLibre map into TerrierInit.  Not starting.')
             return

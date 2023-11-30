@@ -79,7 +79,8 @@ class TerrierLayer {
                     return null
                 }
                 if (this.level !== null && this.level !== undefined) {
-                    foundState.level = this.level
+                    globalThis.Module.selectedLevel = this.level
+                    // foundState.level = this.level
                 }
                 if (this.colorMap !== null && this.colorMap !== undefined) {
                     foundState.colorMap = this.colorMap

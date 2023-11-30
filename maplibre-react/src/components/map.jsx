@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useContext, useState, createRef, forwardRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -36,6 +36,11 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
     setNavControl(new maplibregl.NavigationControl())
     setMap(newMap)
 
+    // Capture clicks
+    newMap.on('click', (e) => {
+      onClick(e)
+    })
+
     // Tell Terrier to hook itself into MapLibre
     Terrier.startMapLibre(stackName, newMap, (ovl) => {
         readyFunc(ovl)
@@ -66,7 +71,7 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
 
   return (
     <div className={fullScreen ? "map-wrap-full" : "map-wrap"}>
-      <div ref={mapContainer} className="map" onClick={(e) => {onClick(e)}} />
+      <div ref={mapContainer} className="map" />
     </div>
   );
 }

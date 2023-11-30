@@ -174,13 +174,14 @@ function App() {
 
   // Called when the user clicks on the map
   const onMapClick = (e) => {
-    if (curLayer < 0) {
-      return
-    }
-    const layer = layers[curLayer]
-    const ret = layer.queryValue(e.clientX * window.devicePixelRatio, e.clientY * window.devicePixelRatio)
-    console.log("Map clicked %d, %d: " + ret['value'].toString(), e.clientX, 
-                                          e.clientY)
+    const layers = Terrier.ovl.getLayers()
+    if (layers.length > 0) {
+      const layer = layers[0]
+      const x = window.devicePixelRatio * e.point.x
+      const y = window.devicePixelRatio * e.point.y
+      const ret = layer.queryValue(x, y)
+      console.log("Map clicked %d, %d: " + ret['value'].toString(), x, y)
+}
   }
 
   // Change the units on the currently displayed layer

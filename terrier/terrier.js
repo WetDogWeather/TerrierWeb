@@ -13,6 +13,7 @@ class TerrierLayer {
 
         this.level = null
         this.colorMap = null
+        this.renderScale = 0.25
 
         this.setup(params)
     }
@@ -26,6 +27,9 @@ class TerrierLayer {
         }
         if ('colorMap' in params) {
             this.colorMap = params['colorMap']
+        }
+        if ('renderScale' in params) {
+            this.renderScale = params['renderScale']
         }
 
         // Look for a matching controller state below
@@ -45,6 +49,7 @@ class TerrierLayer {
                 this.name = "windUV"
                 globalThis.Module.enableWind = true
                 globalThis.Module.windColorMap = this.colorMap ? this.colorMap : Terrier.WIND_COLORS_NOT_GREY;
+                globalThis.Module.windScale = this.renderScale
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 }
@@ -53,6 +58,7 @@ class TerrierLayer {
             case "temperature":
                 globalThis.Module.enableTemp = true
                 globalThis.Module.tempColorMap = this.colorMap ? this.colorMap : Terrier.TEMP_COLORS_NOT_GREY;
+                globalThis.Module.tempScale = this.renderScale
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 }
@@ -64,6 +70,7 @@ class TerrierLayer {
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 }
+                globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
                 globalThis.Module.radarCadence = [-2*3600, 0, 30]
                 break;
@@ -85,6 +92,7 @@ class TerrierLayer {
                 if (this.colorMap !== null && this.colorMap !== undefined) {
                     foundState.colorMap = this.colorMap
                 }
+                foundState.renderScale = this.renderScale
                 foundState.enabled = true
 
                 break;

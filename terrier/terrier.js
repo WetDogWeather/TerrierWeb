@@ -13,7 +13,7 @@ class TerrierLayer {
 
         this.level = null
         this.colorMap = null
-        this.renderScale = 0.25
+        this.renderScale = 0.5
 
         this.setup(params)
     }

@@ -30,17 +30,17 @@ function TerrierLayer() {
                 ovl.addGeoJSON(t)
             })))                
 
-      // let feetToMeters = 3.28084
-      // let cloudColorMap = Terrier.createColorMap(
-      //   [0.0*feetToMeters,500.0*feetToMeters,900.0*feetToMeters,1000.0*feetToMeters,300.0*feetToMeters,4000.0*feetToMeters,5000.0*feetToMeters],
-      //   [0xff800000,0xffff0000,0xffffff00,0xffff6600,0xff000080,0xff003300,0xff006400])
-      // let cloudLayer = ovl.startLayer('CloudCeiling', {
-      //   // interpMode: 'nearest',
-      //   colorMap: cloudColorMap,
-      //   interpMode: 'linear',
-      //   opacity: 0.75,
-      //   importFactor: 1.0,
-      // })
+      let feetToMeters = 3.28084
+      let cloudColorMap = Terrier.createColorMap(
+        [0.0*feetToMeters,500.0*feetToMeters,900.0*feetToMeters,1000.0*feetToMeters,300.0*feetToMeters,4000.0*feetToMeters,5000.0*feetToMeters],
+        [0xff800000,0xffff0000,0xffffff00,0xffff6600,0xff000080,0xff003300,0xff006400])
+      let cloudLayer = ovl.startLayer('CloudCeiling', {
+        // interpMode: 'nearest',
+        colorMap: cloudColorMap,
+        interpMode: 'linear',
+        opacity: 0.75,
+        importFactor: 1.0,
+      })
 
       // let cloudLayer = ovl.startLayer('CloudCover', {
       //   // interpMode: 'nearest',
@@ -63,12 +63,12 @@ function TerrierLayer() {
       //   importFactor: 1.0,
       // })
 
-      let radarLayer = ovl.startLayer('radar', {
-        // interpMode: 'nearest',
-        interpMode: 'linear',
-        opacity: 0.75,
-        importFactor: 16.0,
-      })
+      // let radarLayer = ovl.startLayer('radar', {
+      //   // interpMode: 'nearest',
+      //   interpMode: 'linear',
+      //   opacity: 0.75,
+      //   importFactor: 16.0,
+      // })
 
       // Turn on a layer
       // let tempLayer = ovl.startLayer('temperature', {

@@ -22,7 +22,7 @@ export default class Layer {
         this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
         this.minImportance = importanceScale !== undefined ? importanceScale : 1;      // 5 - 100.
-
+        this.renderScale = 0.5;
         this.timeRange = timeRange;
 
         this.layer = null
@@ -35,7 +35,9 @@ export default class Layer {
                 if (this.level !== undefined) {
                     params['level'] = this.level
                 }
-                this.layer = this.terrierOvl.startLayer(this.layerName)
+                params['renderScale'] = this.renderScale
+                params['cadence'] = this.timeRange
+                this.layer = this.terrierOvl.startLayer(this.layerName, params)
             }
         } else {
             if (this.layer != null) {

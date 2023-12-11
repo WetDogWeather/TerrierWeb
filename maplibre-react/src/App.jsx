@@ -29,7 +29,7 @@ function App() {
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('truwx-tile-service-carpetshark')
+  const [stackName, setStackName] = useState('truwx-dev')
 
   // React to stackName changes
   useEffect(() => {
@@ -152,19 +152,32 @@ function App() {
       layer.enable(false)
     })
 
+    let feetToMeters = 3.28084
+    let cloudColorMap = Terrier.createColorMap(
+      [0.0*feetToMeters,500.0*feetToMeters,900.0*feetToMeters,1000.0*feetToMeters,300.0*feetToMeters,4000.0*feetToMeters,5000.0*feetToMeters],
+      [0xff800000,0xffff0000,0xffffff00,0xffff6600,0xff000080,0xff003300,0xff006400])
+
     // Set up the layers we know about and enable the first one
     let newLayers = [new Layer(ovl, 'Temperature', tempIcon, 'temperature', 
                         Terrier.variableLevelsForStack('temperature'), 
                         'C', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
-                        [-1*24*60*60,1*24*60*60]),
+                        [-1*24*60*60,1*24*60*60,64]),
                     new Layer(ovl, 'Wind', windIcon, 'windUV', 
                     Terrier.variableLevelsForStack('wind_uv'), 
                         'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
-                          [-1*24*60*60,1*24*60*60]),
+                          [-1*24*60*60,1*24*60*60,64]),
                     new Layer(ovl, 'Radar', radarIcon, 'radar', 
                     Terrier.variableLevelsForStack('radar'), 
                         'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                          [-2*60*60,0], 2)]
+                          [-2*60*60,0,64], 2),
+                    new Layer(ovl, 'Cloud Ceiling', windIcon, 'CloudCeiling', 
+                    Terrier.variableLevelsForStack('CloudCeiling'), 
+                    'm', cloudColorMap, cloudColorMap,
+                    [-1*24*60*60,1*24*60*60,64]),
+                    new Layer(ovl, 'Visibility', windIcon, 'Visibility', 
+                    Terrier.variableLevelsForStack('Visibility'), 
+                    'm', cloudColorMap, cloudColorMap,
+                    [-1*24*60*60,1*24*60*60,64])]
     setLayers(newLayers)
     setCurLayer(0)
     _setUnits(newLayers[0].units)  

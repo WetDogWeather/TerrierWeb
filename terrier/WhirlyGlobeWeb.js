@@ -1639,8 +1639,8 @@ function unexportedRuntimeSymbol(sym) {
 // === Body ===
 
 var ASM_CONSTS = {
-  220148: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 220350: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  220132: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 220334: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(async () => { return Emval.toHandle(await (await fetch(UTF8ToString(url_ptr))).json()); }); }
 
@@ -10853,7 +10853,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       } else {
         colorMap = new Module.TrrShaderColorMap(0, false, [0, 40000], [0xFF000000, 0xFFFFFFFF]);
       }
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,
                                                        cadence, rc, Module.tracker);
@@ -10881,8 +10886,13 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         console.log("Start " + state.name);
       }
       const colorMap = new Module.TrrShaderColorMap(0, false, [102000, 102500], [0xFF000000, 0xFFFFFFFF]);
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
-      try {
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
+    try {
         const ctl = new Module.TrrOneChannelController(Type.Pressure, 16, Module.service,
                                                        cadence, rc, Module.tracker);
         applyCtlState(ctl, state, colorMap);
@@ -10909,7 +10919,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         console.log("Start " + state.name);
       }
       const colorMap = new Module.TrrShaderColorMap(0, false, [0, 20], [0xFF000000, 0xFFFFFFFF]);
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
       try {
         const ctl = new Module.TrrOneChannelController(Type.WindGust, 16, Module.service,
                                                        cadence, rc, Module.tracker);
@@ -10937,7 +10952,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         console.log("Start " + state.name);
       }
       const colorMap = new Module.TrrShaderColorMap(0, false, [0, 20], [0xFF000000, 0xFFFFFFFF]);
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
       try {
         const ctl = new Module.TrrOneChannelController(Type.PrecipRate, 16, Module.service,
                                                        cadence, rc, Module.tracker);
@@ -10965,7 +10985,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         console.log("Start " + state.name);
       }
       const colorMap = new Module.TrrShaderColorMap(0, false, [0, 20], [0xFF000000, 0xFFFFFFFF]);
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
       try {
         const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker);
         applyCtlState(ctl, state, colorMap);
@@ -10992,7 +11017,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
         console.log("Start " + state.name);
       }
       const colorMap = new Module.TrrShaderColorMap(0, false, [-20, 120], [0xFF000000, 0xFFFFFFFF]);
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCover, 16, Module.service,
                                                        cadence, rc, Module.tracker);
@@ -11025,7 +11055,12 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       } else {
         colorMap = new Module.TrrShaderColorMap(0, false, [0, 10000], [0xFF000000, 0xFFFFFFFF]);
       }
-      const cadence = new Module.TrrSourceCadence(0, 24*3600, 24);
+      var cadence = null;
+      if (state.cadence) {
+        cadence = new Module.TrrSourceCadence(...state.cadence)
+      } else {
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+      }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCeiling, 16, Module.service,
                                                        cadence, rc, Module.tracker);
@@ -12457,8 +12492,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits");
-var ___start_em_js = Module['___start_em_js'] = 220396;
-var ___stop_em_js = Module['___stop_em_js'] = 220545;
+var ___start_em_js = Module['___start_em_js'] = 220380;
+var ___stop_em_js = Module['___stop_em_js'] = 220529;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {

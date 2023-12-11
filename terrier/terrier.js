@@ -31,6 +31,9 @@ class TerrierLayer {
         if ('renderScale' in params) {
             this.renderScale = params['renderScale']
         }
+        if ('cadence' in params) {
+            this.cadence = params['cadence']
+        }
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -50,6 +53,7 @@ class TerrierLayer {
                 globalThis.Module.enableWind = true
                 globalThis.Module.windColorMap = this.colorMap ? this.colorMap : Terrier.WIND_COLORS_NOT_GREY;
                 globalThis.Module.windScale = this.renderScale
+                globalThis.Module.windCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 }
@@ -59,6 +63,7 @@ class TerrierLayer {
                 globalThis.Module.enableTemp = true
                 globalThis.Module.tempColorMap = this.colorMap ? this.colorMap : Terrier.TEMP_COLORS_NOT_GREY;
                 globalThis.Module.tempScale = this.renderScale
+                globalThis.Module.tempCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 }
@@ -67,6 +72,7 @@ class TerrierLayer {
             case "radar":
                 globalThis.Module.enableRadar = true
                 globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
+                globalThis.Module.radarCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 }
@@ -88,10 +94,13 @@ class TerrierLayer {
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                     // foundState.level = this.level
+                } else {
+                    globalThis.Module.selectedLevel = null                    
                 }
                 if (this.colorMap !== null && this.colorMap !== undefined) {
                     foundState.colorMap = this.colorMap
                 }
+                foundState.cadence = this.cadence
                 foundState.renderScale = this.renderScale
                 foundState.enabled = true
 

@@ -14,6 +14,7 @@ class TerrierLayer {
         this.level = null
         this.colorMap = null
         this.renderScale = 0.5
+        this.importScale = 8.0
 
         this.setup(params)
     }
@@ -33,6 +34,9 @@ class TerrierLayer {
         }
         if ('cadence' in params) {
             this.cadence = params['cadence']
+        }
+        if ('importFactor' in params) {
+            this.importScale = params['importFactor']
         }
 
         // Look for a matching controller state below
@@ -112,6 +116,7 @@ class TerrierLayer {
         // This creates the controls if they're not there already
         globalThis.Module.updateOverlay()
 
+        this.setImportanceScale(this.importScale)
         this.updateParams(params)        
     }
 
@@ -124,7 +129,8 @@ class TerrierLayer {
             this.setOpacity(params['opacity'])
         }
         if ('importFactor' in params) {
-            this.setImportanceScale(params['importFactor'])
+            this.importScale = params['importFactor']
+            this.setImportanceScale(this.importScale)
         }
     }
 
@@ -189,6 +195,9 @@ class TerrierLayer {
     // Change how the data is loaded based on screen real estate
     // A value greater than 1.0 means it's more important than default, less than 1.0 means less so
     setImportanceScale(importFactor) {
+        if (this.state.controller.minImportanceFactor !== undefined && this.state.controller.minImportanceFactor == importFactor) {
+            return
+        }
         this.state.controller.minImportanceFactor = Number(importFactor)
         globalThis.Module.repaint()
     }

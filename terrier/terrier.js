@@ -60,6 +60,8 @@ class TerrierLayer {
                 globalThis.Module.windCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
+                } else {
+                    globalThis.Module.selectedLevel = null
                 }
                 foundState = findControllerState("winduv")
                 break;
@@ -70,6 +72,8 @@ class TerrierLayer {
                 globalThis.Module.tempCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
+                } else {
+                    globalThis.Module.selectedLevel = null
                 }
                 foundState = findControllerState("temperature")
                 break;
@@ -79,6 +83,8 @@ class TerrierLayer {
                 globalThis.Module.radarCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
+                } else {
+                    globalThis.Module.selectedLevel = null
                 }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")

@@ -74,9 +74,9 @@ function TerrierLayer() {
       // })
 
       // let windLayer = ovl.startLayer('WindGust', {
-      //     // level: "152m",
-      //     interpMode: 'nearest',
-      //     // interpMode: 'linear',
+      //     level: "sfc",
+      //     // interpMode: 'nearest',
+      //     interpMode: 'linear',
       //     opacity: 0.75,
       // })
 
@@ -95,6 +95,15 @@ function TerrierLayer() {
       //   colorMap: visColorMap,
       //   interpMode: 'linear',
       //   opacity: 0.75,
+      // })
+
+      // let myRadarLayer = ovl.startLayer('visual', {
+      //   opacity: 0.75,
+      //   source: {
+      //     model: 'myradar',
+      //     region: 'global',
+      //     variable: 'reflectivity'
+      //   }
       // })
 
       // setTimeout(() => {

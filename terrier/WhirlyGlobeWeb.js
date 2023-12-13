@@ -1461,10 +1461,9 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  233652: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 233854: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  233396: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 233598: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
-function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(async () => { return Emval.toHandle(await (await fetch(UTF8ToString(url_ptr))).json()); }); }
 
 
 // end include: preamble.js
@@ -11305,6 +11304,56 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       }
   };
   
+      // Visual (non-variable)
+      if (!Module.enableVisual && Module.visualCtl) {
+        if (Module.debugLayers) {
+          console.log("Stop Visual");
+        }
+        Module.visualCtl.removeOnFrameChange(Module.visualCtlFrameChange|0);
+        Module.visualCtl.stop(null);
+        Module.visualCtl.delete();
+        Module.visualCtl = null;
+        change = true;
+      } else if (Module.enableVisual && !Module.visualCtl) {
+        if (Module.debugLayers) {
+          console.log("Start Visual");
+        }
+        var cadence = null;
+        if (state.cadence) {
+          cadence = new Module.TrrSourceCadence(...Module.visualCadence)
+        } else {
+          cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        }
+        try {
+          Module.visualCtl = new Module.TrrVisualController(Module.service, rc, cadence, Module.tracker);
+          Module.visualCtl.debugMode = !!Module.debugVisual;
+          Module.visualCtl.opacity = 0.75;
+          Module.visualCtl.minImportanceFactor = 1.0;
+          Module.visualCtl.connections = Module.numConnections;
+          Module.visualCtl.loadAllFrames = false;
+          Module.visualCtl.snapToFrame = false;
+          let model = Module.visualSource['model']
+          if (!model) { model = "none" }
+          let region = Module.visualSource['region']
+          if (!region) { region = "none" }
+          let type = Module.visualSource['type']
+          if (!type) { type = "none" }
+          let variable = Module.visualSource['variable']
+          let level = Module.visualSource['level']
+          if (!level) { level = "none" }
+          const url = model + '/' + region + '/' + type + '/' + variable + '/' + level + '/16'
+          Module.visualCtl.addSource(model,url,30.0,...Module.visualCadence)
+          if (Module.updateFrameInfo) {
+            Module.visualCtlFrameChange = Module.visualCtl.addOnFrameChange(Module.updateFrameInfo);
+          }
+          Module.visualCtl.start(null);
+          change = true;  
+        } finally {
+          cadence.delete();
+        }
+      }
+      Module.controllerState['Visual'].controller = Module.visualCtl  
+      
     // Temperature
     if (!Module.enableTemp && Module.tempCtl) {
       if (Module.debugLayers) {
@@ -11370,7 +11419,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,
@@ -11403,7 +11452,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
     try {
         const ctl = new Module.TrrOneChannelController(Type.Pressure, 16, Module.service,
@@ -11436,7 +11485,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.WindGust, 16, Module.service,
@@ -11469,7 +11518,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.PrecipRate, 16, Module.service,
@@ -11502,7 +11551,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
       try {
         const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker);
@@ -11534,7 +11583,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCover, 16, Module.service,
@@ -11572,7 +11621,7 @@ function __asyncjs__fetch_json_from_url(url_ptr) { return Asyncify.handleAsync(a
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCeiling, 16, Module.service,
@@ -13108,8 +13157,7 @@ var ___get_exception_message = Module['___get_exception_message'] = createExport
 var ___cxa_can_catch = createExportWrapper('__cxa_can_catch');
 var ___cxa_is_pointer_type = createExportWrapper('__cxa_is_pointer_type');
 var ___set_stack_limits = Module['___set_stack_limits'] = createExportWrapper('__set_stack_limits');
-var ___start_em_js = Module['___start_em_js'] = 233900;
-var ___stop_em_js = Module['___stop_em_js'] = 234049;
+
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {

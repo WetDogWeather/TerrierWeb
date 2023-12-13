@@ -38,6 +38,15 @@ class TerrierLayer {
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
         }
+        if ('source' in params) {
+            // model, region, type, variable, level
+            this.source = params['source']
+            if (!this.source['model'] || 
+                !this.source['variable']) {
+                    console.log("Missing parameters in source description.")
+                    return
+                }
+        }
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -89,6 +98,12 @@ class TerrierLayer {
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
                 globalThis.Module.radarCadence = [-2*3600, 0, 30]
+                break;
+            case "visual":
+                globalThis.Module.enableVisual = true
+                globalThis.Module.visualSource = this.source
+                foundState = findControllerState("visual")
+                globalThis.Module.visualCadence = this.cadence
                 break;
             // And the rest more generic
             // TODO: Pass in the colormap
@@ -170,6 +185,9 @@ class TerrierLayer {
                 globalThis.Module.enableRadar = false
                 break;
             // And the rest more generic
+            case "visual":
+                globalThis.Module.enableVisual = false
+                break;
             default:
                 if (this.state !== null) {
                     this.state.enabled = false

@@ -181,7 +181,18 @@ function App() {
                     new Layer(ovl, 'Visibility', windIcon, 'Visibility', 
                     Terrier.variableLevelsForStack('Visibility'), 
                     'm', cloudColorMap, cloudColorMap,
-                    [-1*24*60*60,1*24*60*60,64])]
+                    [-1*24*60*60,1*24*60*60,64]),
+                    new Layer(ovl, 'visual', radarIcon, 'visual', 
+                    null, 
+                    'dBz', null, null,
+                    [0.0,30*60,6],
+                    8.0,
+                    {
+                      model: 'myradar',
+                      region: 'global',
+                      variable: 'reflectivity'
+                    }
+                    )]
     setLayers(newLayers)
     setCurLayer(0)
     _setUnits(newLayers[0].units)  

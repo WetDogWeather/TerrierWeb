@@ -4,15 +4,15 @@ import React from 'react'
 export default class Layer {
 
     constructor(terrierOvl, displayName, icon, layerName, levels, units, 
-                colorsGrey, colorsNotGrey, timeRange, importanceScale) {
+                colorsGrey, colorsNotGrey, timeRange, importanceScale, source) {
 
         // Parameters
         this.terrierOvl = terrierOvl
         this.displayName = displayName;
         this.icon = icon;
         this.layerName = layerName; // 'temperature', 'windUV', or 'radar'
-        this.levels = levels
-        this.level = levels.length == 0 ? null : levels[0]
+        this.levels = levels ? levels : []
+        this.level = !levels || levels.length == 0 ? null : levels[0]
         this.colorsGrey = colorsGrey;
         this.colorsNotGrey = colorsNotGrey;
         this.units = units; // temp = 'K' / 'F' / 'C'    wind = 'm/s'    radar = 'dBz'
@@ -26,6 +26,11 @@ export default class Layer {
         this.timeRange = timeRange;
 
         this.layer = null
+        if (source) {
+            this.source = source
+        } else {
+            this.source = null
+        }
     }
 
     enable(onOff) {
@@ -37,7 +42,12 @@ export default class Layer {
                 }
                 params['renderScale'] = this.renderScale
                 params['cadence'] = this.timeRange
-                this.layer = this.terrierOvl.startLayer(this.layerName, params)
+                if (this.source) {
+                    params['source'] = this.source
+                    this.layer = this.terrierOvl.startLayer('visual', params)
+                } else {
+                    this.layer = this.terrierOvl.startLayer(this.layerName, params)
+                }
             }
         } else {
             if (this.layer != null) {

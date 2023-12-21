@@ -104,7 +104,7 @@ class TerrierLayer {
                 globalThis.Module.visualSource = this.source
                 foundState = findControllerState("visual")
                 // Note: Debugging
-                globalThis.Module.visualCadence = [-5*60,30*60,6]
+                globalThis.Module.visualCadence = [0,30*60,6]
                 break;
             // And the rest more generic
             // TODO: Pass in the colormap
@@ -240,6 +240,9 @@ class TerrierLayer {
 
     // Change the color map being used for display
     setColorMap(colorMap) {
+        if (!colorMap) {
+            return
+        }
         this.state.controller.colorMap = colorMap
         globalThis.Module.repaint()
     }

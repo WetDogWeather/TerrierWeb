@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  233396: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 233598: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  233668: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 233870: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -8234,6 +8234,30 @@ var ASM_CONSTS = {
   var _emscripten_date_now = () => Date.now();
 
 
+  
+  
+  
+  var _emscripten_get_preloaded_image_data = (path, w, h) => {
+      if ((path | 0) === path) path = UTF8ToString(path);
+  
+      path = PATH_FS.resolve(path);
+  
+      var canvas = /** @type {HTMLCanvasElement} */(preloadedImages[path]);
+      if (canvas) {
+        var ctx = canvas.getContext("2d");
+        var image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var buf = _malloc(canvas.width * canvas.height * 4);
+  
+        HEAPU8.set(image.data, buf);
+  
+        HEAP32[((w)>>2)] = canvas.width;checkInt32(canvas.width);
+        HEAP32[((h)>>2)] = canvas.height;checkInt32(canvas.height);
+        return buf;
+      }
+  
+      return 0;
+    };
+
   var reallyNegative = (x) => x < 0 || (x === 0 && (1/x) === -Infinity);
   
   var convertI32PairToI53 = (lo, hi) => {
@@ -8905,6 +8929,35 @@ var ASM_CONSTS = {
       }
       err(`Failed to grow the heap from ${oldSize} bytes to ${newSize} bytes, not enough memory!`);
       return false;
+    };
+
+  
+  
+  
+  
+  
+  var _emscripten_run_preload_plugins_data = (data, size, suffix, arg, onload, onerror) => {
+      runtimeKeepalivePush();
+  
+      var _suffix = UTF8ToString(suffix);
+      if (!Browser.asyncPrepareDataCounter) Browser.asyncPrepareDataCounter = 0;
+      var name = 'prepare_data_' + (Browser.asyncPrepareDataCounter++) + '.' + _suffix;
+      var cname = stringToNewUTF8(name);
+      FS.createPreloadedFile(
+        '/',
+        name,
+        HEAPU8.subarray((data), (data + size)),
+        true, true,
+        () => {
+          runtimeKeepalivePop();
+          if (onload) getWasmTableEntry(onload)(arg, cname);
+        },
+        () => {
+          runtimeKeepalivePop();
+          if (onerror) getWasmTableEntry(onerror)(arg);
+        },
+        true // don'tCreateFile - it's already there
+      );
     };
 
   var ENV = {
@@ -10504,9 +10557,9 @@ var ASM_CONSTS = {
         // This logic comes directly from the sdl implementation. We cannot
         // call preventDefault on all keydown events otherwise onKeyPress will
         // not get called
-        if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
-          event.preventDefault();
-        }
+        // if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
+        //   event.preventDefault();
+        // }
       },
   onKeyup:(event) => {
         GLFW.onKeyChanged(event.keyCode, 0); // GLFW_RELEASE
@@ -11318,14 +11371,13 @@ var ASM_CONSTS = {
         if (Module.debugLayers) {
           console.log("Start Visual");
         }
-        var cadence = null;
-        if (state.cadence) {
-          cadence = new Module.TrrSourceCadence(...Module.visualCadence)
-        } else {
-          cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
+        var cadenceArray = [0, 1*3600, 24];
+        if (Module.visualCadence) {
+          cadenceArray = Module.visualCadence
         }
-        try {
-          Module.visualCtl = new Module.TrrVisualController(Module.service, rc, cadence, Module.tracker);
+      const cadence = new Module.TrrSourceCadence(...cadenceArray)
+      try {
+          Module.visualCtl = new Module.TrrVisualController(Module.service, cadence, rc, Module.tracker);
           Module.visualCtl.debugMode = !!Module.debugVisual;
           Module.visualCtl.opacity = 0.75;
           Module.visualCtl.minImportanceFactor = 1.0;
@@ -11342,7 +11394,7 @@ var ASM_CONSTS = {
           let level = Module.visualSource['level']
           if (!level) { level = "none" }
           const url = model + '/' + region + '/' + type + '/' + variable + '/' + level + '/16'
-          Module.visualCtl.addSource(model,url,30.0,...Module.visualCadence)
+          Module.visualCtl.addSource(model,url,30.0,...cadenceArray)
           if (Module.updateFrameInfo) {
             Module.visualCtlFrameChange = Module.visualCtl.addOnFrameChange(Module.updateFrameInfo);
           }
@@ -11353,7 +11405,7 @@ var ASM_CONSTS = {
         }
       }
       Module.controllerState['Visual'].controller = Module.visualCtl  
-      
+  
     // Temperature
     if (!Module.enableTemp && Module.tempCtl) {
       if (Module.debugLayers) {
@@ -11419,7 +11471,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,
@@ -11452,7 +11504,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
     try {
         const ctl = new Module.TrrOneChannelController(Type.Pressure, 16, Module.service,
@@ -11485,7 +11537,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.WindGust, 16, Module.service,
@@ -11518,7 +11570,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.PrecipRate, 16, Module.service,
@@ -11551,7 +11603,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
         const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker);
@@ -11583,7 +11635,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCover, 16, Module.service,
@@ -11621,7 +11673,7 @@ var ASM_CONSTS = {
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
       } else {
-        cadence = new Module.TrrSourceCadence(-24*3600, 24*3600, 48)
+        cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCeiling, 16, Module.service,
@@ -12901,11 +12953,15 @@ var wasmImports = {
   /** @export */
   emscripten_get_now: _emscripten_get_now,
   /** @export */
+  emscripten_get_preloaded_image_data: _emscripten_get_preloaded_image_data,
+  /** @export */
   emscripten_log: _emscripten_log,
   /** @export */
   emscripten_memcpy_js: _emscripten_memcpy_js,
   /** @export */
   emscripten_resize_heap: _emscripten_resize_heap,
+  /** @export */
+  emscripten_run_preload_plugins_data: _emscripten_run_preload_plugins_data,
   /** @export */
   environ_get: _environ_get,
   /** @export */

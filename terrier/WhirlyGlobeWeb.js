@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  233668: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 233870: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  234548: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 234750: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -11379,11 +11379,12 @@ var ASM_CONSTS = {
       try {
           Module.visualCtl = new Module.TrrVisualController(Module.service, cadence, rc, Module.tracker);
           Module.visualCtl.debugMode = !!Module.debugVisual;
-          Module.visualCtl.opacity = 0.75;
+          Module.visualCtl.opacity = 1.0;
           Module.visualCtl.minImportanceFactor = 1.0;
           Module.visualCtl.connections = Module.numConnections;
           Module.visualCtl.loadAllFrames = false;
-          Module.visualCtl.snapToFrame = false;
+          Module.visualCtl.snapToFrame = true;
+          Module.visualCtl.scale = 1.0;
           let model = Module.visualSource['model']
           if (!model) { model = "none" }
           let region = Module.visualSource['region']

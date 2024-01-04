@@ -185,7 +185,7 @@ function App() {
                     new Layer(ovl, 'visual', radarIcon, 'visual', 
                     null, 
                     'dBz', null, null,
-                    [0.0,30*60,6],
+                    [0.0,60*60,12],
                     8.0,
                     {
                       model: 'myradar',

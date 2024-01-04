@@ -1,8 +1,14 @@
 var Module
 
-// Represents a single layer, like temperature or wind.
-// Don't create these yourself
+/** 
+ * The Terrier Layer represents a single data layer, like temperature or
+ * wind.  Don't create one of these directly, have the TerrierOverlay do it
+ * for you with the startLayer() call.  But once you have a TerrierLayer,
+ * you can modify it with this object.
+ **/
 class TerrierLayer {
+
+    // Internal setup.  Don't call this.
     constructor(layerName,params,ovl) {
         this.name = layerName
         this.ovl = ovl
@@ -19,6 +25,7 @@ class TerrierLayer {
         this.setup(params)
     }
 
+    // Internal param parsing.  Don't call this.
     setup(params) {
         if (params === undefined) {
             params = {}
@@ -142,7 +149,12 @@ class TerrierLayer {
         this.updateParams(params)        
     }
 
-    // Update settings based on parameters you're allowed to pass in
+    /**
+     * If you'd like to change parameters with a dictionary, this is
+     * the way to do it.  You can also make direct calls to setInterpMode()
+     * and other methods.
+     * @param {*} params 
+     */
     updateParams(params) {
         if ('interpMode' in params) {
             this.setInterpMode(params['interpMode'])
@@ -156,7 +168,12 @@ class TerrierLayer {
         }
     }
 
-    // Change the level displayed
+    /**
+     * Some layers have levels. This might be 'sfc' or '5m' or
+     * '100m' or something of that sort.  If the layer does have
+     * a level, you can set or change it with this.
+     * @param {*} newLevel 
+     */
     setLevel(newLevel) {
         if (globalThis.Module.selectedLevel != newLevel) {
             globalThis.Module.selectedLevel = newLevel
@@ -164,14 +181,17 @@ class TerrierLayer {
         }
     }
 
-    // Force the layer to unload, then reload
+    /**
+     * Force a reload of the data layer.  You shouldn't need to
+     * call this yourself.
+     */
     refresh() {
         this.stop()
         globalThis.Module.updateOverlay()
         this.setup({})
     }
 
-    // Stop and clean up layer
+    // Don't call this directly.  Use the TerrierOverlay
     stop() {
         switch (this.name) {
             // Three of these are special
@@ -199,6 +219,16 @@ class TerrierLayer {
 
     // Set the display interpolation mode
     // Use Nearest if you want to see the cells
+    /**
+     * Set the interpolation type for data values.  This is how the
+     * data is interpolated between cells as it's being rendered into
+     * screen space.  This is separate from applying the color map.
+     * Set it to nearest if you'd like to see each cell or your have
+     * a data type that can't be interpolated (e.g. precip type).
+     * Set it to linear to see bilinear interpolation.
+     * Set to cubic for bicubic interpolation.
+     * @param {*} type 
+     */
     setInterpMode(type) {
         switch (type) {
             case 'nearest':
@@ -217,28 +247,57 @@ class TerrierLayer {
         globalThis.Module.repaint()
     }
 
-    // Change how the data is loaded based on screen real estate
-    // A value greater than 1.0 means it's more important than default, less than 1.0 means less so
-    setImportanceScale(importFactor) {
-        if (this.state.controller.minImportanceFactor !== undefined && this.state.controller.minImportanceFactor == importFactor) {
+    /**
+     * Terrier is fairly parsimonious with its memory and network bandwidth.  By
+     * default it will load a very low resolution of your data.  This is how to
+     * make it load more based on the screen resolution.
+     * 
+     * Internally there is a number called 'importance' that is used to decide when
+     * a given data tile will be loaded.  We can tweak that number to make things
+     * more important.  Without getting into what it actually means, we use a default
+     * of 8.  If you want to force near pixel accuracy try 16 or 32.
+     * @param {*} importScale 
+     * @returns 
+     */
+    setImportanceScale(importScale) {
+        if (this.state.controller.minImportanceFactor !== undefined && this.state.controller.minImportanceFactor == importScale) {
             return
         }
-        this.state.controller.minImportanceFactor = Number(importFactor)
+        this.state.controller.minImportanceFactor = Number(importScale)
         globalThis.Module.repaint()
     }
 
-    // Set the transparency/opacity of the layer itself.  1.0 is completely opaque
+    /**
+     * Much of the time you're overlaying your data layer on top of a map.  As
+     * such you don't want it to be completely opaque and hide the map.  You can
+     * control that value here.
+     * 
+     * 0 is completely transparent and 1 is completely opaque.
+     * @param {*} opacity 
+     */
     setOpacity(opacity) {
         this.state.controller.opacity = opacity
         globalThis.Module.repaint()
     }
 
-    // Return the current color map
+    /**
+     * Terrier controls its color maps a TrrShaderColorMap object.  You
+     * typically pass in a couple of arrays to do this, one for color
+     * and one for value, but those are turned into a TrrShaderColorMap which
+     * can be queried.
+     * @returns TrrColorMap
+     **/
     getColorMap() {
         return this.state.controller.colorMap
     }
 
-    // Change the color map being used for display
+    /**
+     * If you'd like to set the color map directly, which you're allowed to
+     * do at run time, you can do so here.  The method is expecting a TrrShaderColorMap
+     * object which you'll need to set up yourself.
+     * @param {*} colorMap 
+     * @returns 
+     */
     setColorMap(colorMap) {
         if (!colorMap) {
             return
@@ -247,7 +306,12 @@ class TerrierLayer {
         globalThis.Module.repaint()
     }
 
-    // Query a value at a given location
+    /**
+     * 
+     * @param {*} x 
+     * @param {*} y 
+     * @returns 
+     */
     queryValue(x,y) {
         var ret = this.state.controller.queryValue(x, y)
         if (!Array.isArray(ret)) {

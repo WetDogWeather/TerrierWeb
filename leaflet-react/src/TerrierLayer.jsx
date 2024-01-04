@@ -101,7 +101,7 @@ function TerrierLayer() {
       // })
 
       let myRadarLayer = ovl.startLayer('visual', {
-        importFactor: 8.0,
+        importFactor: 32.0,
         source: {
           model: 'myradar',
           region: 'global',

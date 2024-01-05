@@ -1,4 +1,4 @@
-### README for Leaflet example
+### README for Leaflet Example
 
 This is a pure Javascript example for integrating Terrier info Leaflet.
 

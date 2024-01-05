@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "jsdoc": "^4.0.2"
+  },
+  "devDependencies": {
+    "jsdoc-to-markdown": "^8.0.0"
+  }
+}

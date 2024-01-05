@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: TerrierModule</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: TerrierModule</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>TerrierModule</h2>
+        
+            <div class="class-description"><p>This is the module logic for Terrier and it's where you'll go to
+start the toolkit running.  If you're overlaying on Leaflet, us the
+startLeaflet() method to kick off display.  For MapLibre, use
+startMapLibre().</p>
+<p>You won't create one of these, we do that when the JS file is loaded.
+Then you access the TerrierModule through the Terrier global variable.
+You use the start methods as defined above and call stop() when you
+want Terrier to destroy all of its rendering infrastructure.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line583">line 583</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="changeStack"><span class="type-signature"></span>changeStack<span class="signature">(stackName, readyFunc, failedFunc)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Normally you pass in the stack name on startup and then use just that
+stack.  This will let you point to another stack.  As a developer, you
+probably won't use this, but we do use it in our testing.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>stackName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the stack to use.  This is provided
+to you as a developer.  Your company will typically have one production
+and one development stack.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>readyFunc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Once we've communicated with the stack, Terrier
+calls this function back.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>failedFunc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If the stack can't be reached, for whatever
+reason, we call this function.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line868">line 868</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createColorMap"><span class="type-signature"></span>createColorMap<span class="signature">(values, colors)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>We use a TrrShaderColorMap object to set and query colormaps, but
+you don't have to create those directly.  Instead, use this convenience
+method to do it.  Pass in your array of data values and corresponding
+colors.  Those need to both be the same length.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>values</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.float</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>An array of data values to use in the color map.
+These are actual data values in the proper units.  That may be Kelvin for temperature,
+and so forth.  These map directly to the colors array for a given value.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>colors</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>An array of numbers corresponding to RGBA colors.
+We like to use hex definitions of the form 0xAARRGGBB where A is alpha, R is red,
+G is green and B is blue.  These are standard in CSS and you can find a good
+converter online to map from your favorite color system to hex values.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line656">line 656</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>TrrShaderColorMap</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="fetchStackContents"><span class="type-signature"></span>fetchStackContents<span class="signature">(fetchFunc, failFunc)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Boxer stacks know what is in them and we can ask for that information to figure
+out which layers to display and what levels they may have.  We don't get that
+information by default, but if you ask for it, Terrier will fetch it and
+call you back with the results.</p>
+<p>The return data is JSON and looks like this:
+{&quot;<src>&quot; :<br>
+{&quot;<region>&quot;:<br>
+{&quot;<products>&quot;: [],<br>
+&quot;<levels>&quot;: [],<br>
+&quot;temporalType&quot;: &quot;observed&quot;, &quot;forecast&quot;, &quot;both&quot;,<br>
+&quot;dataType&quot;: &quot;wind_uv&quot;, &quot;wind_speed&quot;, &quot;wind_speed_gust&quot;, &quot;temperature&quot;,<br>
+&quot;radar&quot;, &quot;precip_rate&quot;, &quot;precip_type&quot;, &quot;cloud_cover&quot;, &quot;cloud_ceiling&quot;,<br>
+&quot;pressure&quot;, &quot;visibility&quot;}}}</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fetchFunc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>After the contents have been fetched from Boxer,
+Terrier will call this function back with those JSON results.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>failFunc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If the contents fetch fails for some reason,
+this function will be called back with that information.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line788">line 788</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="startLeaflet"><span class="type-signature"></span>startLeaflet<span class="signature">(stackName, canvasLayer, readyFunc)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>If you're using Leaflet as your base map package, this is the method
+to call to kick off Terrier.  The system does a lot on initialization,
+including load its WebAssembly and start up WebGL.  Call this when
+you're ready to go and have the canvas layer from Leaflet.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>stackName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the Boxer stack you're communicating with.
+You'll typically have one production and one development stack as a corporate
+user.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>canvasLayer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Canvas</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Canvas layer to attach to within Leaflet.
+See the Leaflet example for details on this.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>readyFunc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>When Terrier is properly initialized it will
+call this function back with the TerrierOverlay you can use to start new
+layer displays.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line899">line 899</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="startMapLibre"><span class="type-signature"></span>startMapLibre<span class="signature">(stackName, maplibreMap, readyFunc)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>If you're using MapLibre as your base map package, this is the method
+to call to kick off Terrier.  The system does a lot on initialization,
+including load its WebAssembly.</p>
+<p>MapLibreGL (and MapboxGL) integration tends to be very smooth since
+both the base toolkit and Terrier are using WebGL.  If you have a choice,
+this is the better integration to use.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>stackName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Name of the Boxer stack you're communicating with.
+You'll typically have one production and one development stack as a corporate
+user.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maplibreMap</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">maplibreMap</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The main MapLibre object.  See the MapLibre
+example for details.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>readyFunc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>When Terrier is properly initialized it will
+call this function back with the TerrierOverlay you can use to start new
+layer displays.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line964">line 964</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="stop"><span class="type-signature"></span>stop<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>If you want Terrier completely stopped, this is what you can call.
+If you want to shutdown a layer, just call the corresponding method
+on the TerrierOverlay.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line995">line 995</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="variableLevelsForStack"><span class="type-signature"></span>variableLevelsForStack<span class="signature">(dataType)</span><span class="type-signature"> &rarr; {Array.string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Search through the stack contents and return all the various levels for a given
+variable.  For example you might pass in 'temperature' and get back ['sfc','10m','152m'].
+The actual list depends on your stack and data.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data type to get the levels for.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line813">line 813</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Levels supported for the data type</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="variablesForStack"><span class="type-signature"></span>variablesForStack<span class="signature">()</span><span class="type-signature"> &rarr; {Array.string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The unique variable types for a given stack.  This is essentially all
+the layerNames you might pass in when starting a new layer.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line840">line 840</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>All the valid layer names for a stack.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="TerrierLayer.html">TerrierLayer</a></li><li><a href="TerrierModule.html">TerrierModule</a></li><li><a href="TerrierOverlay.html">TerrierOverlay</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jan 04 2024 13:58:34 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

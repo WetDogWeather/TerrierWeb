@@ -70,11 +70,11 @@ function TerrierLayer() {
       // })
 
       // Turn on a layer
-      let tempLayer = ovl.startLayer('temperature', {
-          level: "2m",
-          interpMode: 'nearest',
-          opacity: 0.5,
-      })
+      // let tempLayer = ovl.startLayer('temperature', {
+      //     level: "2m",
+      //     interpMode: 'nearest',
+      //     opacity: 0.5,
+      // })
 
       // let windLayer = ovl.startLayer('WindGust', {
       //     level: "sfc",
@@ -100,14 +100,14 @@ function TerrierLayer() {
       //   opacity: 0.75,
       // })
 
-      // let myRadarLayer = ovl.startLayer('visual', {
-      //   importFactor: 32.0,
-      //   source: {
-      //     model: 'myradar',
-      //     region: 'global',
-      //     variable: 'reflectivity'
-      //   }
-      // })
+      let myRadarLayer = ovl.startLayer('visual', {
+        importFactor: 32.0,
+        source: {
+          model: 'myradar',
+          region: 'global',
+          variable: 'reflectivity'
+        }
+      })
 
       // setTimeout(() => {
       //   ovl.stopLayer(visLayer)

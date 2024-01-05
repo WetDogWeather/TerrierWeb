@@ -69,6 +69,8 @@ class TerrierLayer {
         }
 
         var foundState = null
+        // TODO: Switch to an a/b/c/d endpoint and set this high
+        globalThis.Module.numConnections = Terrier.numConnections
         switch (this.name) {
             // Three of these are special
             case "wind_uv":
@@ -99,6 +101,7 @@ class TerrierLayer {
                 break;
             case "radar":
                 globalThis.Module.enableRadar = true
+                globalThis.Module.numConnections = 32
                 globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
                 globalThis.Module.radarCadence = this.cadence
                 if (this.level !== null && this.level !== undefined) {

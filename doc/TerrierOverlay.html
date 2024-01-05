@@ -30,9 +30,11 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>TerrierOverlay</h2>
         
-            <div class="class-description"><p>Terrier manages its layers through this one top level structure.
+            <div class="class-description"><p>Terrier manages its layers through this singleton class.
 You won't create one of these, but will be given one in the
 callback for setup from the TerrierModule.</p>
+<p>Think of it as the Terrier Overlay on top of your map, whether
+that's MapLibre or Leaflet or some other.</p>
 <p>You can keep the TerrierOverlay around to add and remove layers
 as needed.</p></div>
         
@@ -87,7 +89,7 @@ as needed.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line350">line 350</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line364">line 364</a>
     </li></ul></dd>
     
 
@@ -152,7 +154,8 @@ as needed.</p></div>
 
 <div class="description">
     <p>You can add a bit of GeoJSON over top of the map.  This is largely here
-for debugging as we can overlay on map toolkits instead.</p>
+for debugging as you probably have a good way to do that with the base
+map toolkit.</p>
 </div>
 
 
@@ -245,7 +248,7 @@ for debugging as we can overlay on map toolkits instead.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line465">line 465</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line480">line 480</a>
     </li></ul></dd>
     
 
@@ -334,7 +337,7 @@ than the current wall clock time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line474">line 474</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line489">line 489</a>
     </li></ul></dd>
     
 
@@ -440,7 +443,7 @@ than the current wall clock time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line433">line 433</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line447">line 447</a>
     </li></ul></dd>
     
 
@@ -539,7 +542,7 @@ Times are in seconds from the 1970 epoch.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line500">line 500</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line515">line 515</a>
     </li></ul></dd>
     
 
@@ -637,7 +640,7 @@ Times are in seconds from the 1970 epoch.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line534">line 534</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line549">line 549</a>
     </li></ul></dd>
     
 
@@ -775,7 +778,7 @@ will use for calculating the display and is separate from wall clock time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line485">line 485</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line500">line 500</a>
     </li></ul></dd>
     
 
@@ -966,7 +969,7 @@ resolution.  By default this value is 8.  If you want more resolution, set a val
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line402">line 402</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -1127,7 +1130,7 @@ This will not shut down Terrier, however.  You need to do that with the Terrier 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line419">line 419</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line433">line 433</a>
     </li></ul></dd>
     
 
@@ -1216,7 +1219,7 @@ already paused.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line544">line 544</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line559">line 559</a>
     </li></ul></dd>
     
 
@@ -1360,7 +1363,7 @@ the time range to the end of it.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line517">line 517</a>
+        <a href="terrier.js.html">terrier.js</a>, <a href="terrier.js.html#line532">line 532</a>
     </li></ul></dd>
     
 
@@ -1412,7 +1415,7 @@ the time range to the end of it.</p></td>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jan 04 2024 13:58:34 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Jan 05 2024 12:09:33 GMT-0800 (Pacific Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

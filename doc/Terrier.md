@@ -7,9 +7,11 @@ wind.  Don't create one of these directly, have the TerrierOverlay do it
 for you with the startLayer() call.  But once you have a TerrierLayer,
 you can modify it with this object.</p></dd>
 <dt><a href="#TerrierOverlay">TerrierOverlay</a></dt>
-<dd><p>Terrier manages its layers through this one top level structure.
+<dd><p>Terrier manages its layers through this singleton class.
 You won't create one of these, but will be given one in the
 callback for setup from the TerrierModule.</p>
+<p>Think of it as the Terrier Overlay on top of your map, whether
+that's MapLibre or Leaflet or some other.</p>
 <p>You can keep the TerrierOverlay around to add and remove layers
 as needed.</p></dd>
 <dt><a href="#TerrierModule">TerrierModule</a></dt>
@@ -18,7 +20,7 @@ start the toolkit running.  If you're overlaying on Leaflet, us the
 startLeaflet() method to kick off display.  For MapLibre, use
 startMapLibre().</p>
 <p>You won't create one of these, we do that when the JS file is loaded.
-Then you access the TerrierModule through the Terrier global variable.
+Then you access the TerrierModule through the 'Terrier' global variable.
 You use the start methods as defined above and call stop() when you
 want Terrier to destroy all of its rendering infrastructure.</p></dd>
 </dl>
@@ -48,7 +50,9 @@ you can modify it with this object.</p>
 ### terrierLayer.updateParams(params)
 <p>If you'd like to change parameters with a dictionary, this is
 the way to do it.  You can also make direct calls to setInterpMode()
-and other methods.</p>
+and other methods directly.</p>
+<p>For a discussion of what the params dictionary contains, look at the
+startLayer() method in the TerrierOverlay.</p>
 
 **Kind**: instance method of [<code>TerrierLayer</code>](#TerrierLayer)  
 
@@ -75,7 +79,7 @@ a level, you can set or change it with this.</p>
 <p>Set the interpolation type for data values.  This is how the
 data is interpolated between cells as it's being rendered into
 screen space.  This is separate from applying the color map.
-Set it to nearest if you'd like to see each cell or your have
+Set it to nearest if you'd like to see each cell or you have
 a data type that can't be interpolated (e.g. precip type).
 Set it to linear to see bilinear interpolation.
 Set to cubic for bicubic interpolation.</p>
@@ -84,7 +88,7 @@ Set to cubic for bicubic interpolation.</p>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| type | <code>string</code> | <p>Set the interpolation mode to be used for the layer. This can be 'nearest' to see the data cells themselves. It can be 'linear' for bilinear interpolation, which is the default. It can also be 'cubic' for bicubic interpolation, which is costly, but looks very good fro data with blobby structures, like radar.</p> |
+| type | <code>string</code> | <p>Set the interpolation mode to be used for the layer. This can be 'nearest' to see the data cells themselves. It can be 'linear' for bilinear interpolation, which is the default. It can also be 'cubic' for bicubic interpolation, which is costly, but looks very good for data with blobby structures, like radar.</p> |
 
 <a name="TerrierLayer+setImportanceScale"></a>
 
@@ -162,9 +166,11 @@ resolution within the OpenGL context.</p>
 <a name="TerrierOverlay"></a>
 
 ## TerrierOverlay
-<p>Terrier manages its layers through this one top level structure.
+<p>Terrier manages its layers through this singleton class.
 You won't create one of these, but will be given one in the
 callback for setup from the TerrierModule.</p>
+<p>Think of it as the Terrier Overlay on top of your map, whether
+that's MapLibre or Leaflet or some other.</p>
 <p>You can keep the TerrierOverlay around to add and remove layers
 as needed.</p>
 
@@ -225,7 +231,8 @@ This will not shut down Terrier, however.  You need to do that with the Terrier 
 
 ### terrierOverlay.addGeoJSON(geojson)
 <p>You can add a bit of GeoJSON over top of the map.  This is largely here
-for debugging as we can overlay on map toolkits instead.</p>
+for debugging as you probably have a good way to do that with the base
+map toolkit.</p>
 
 **Kind**: instance method of [<code>TerrierOverlay</code>](#TerrierOverlay)  
 
@@ -296,7 +303,7 @@ start the toolkit running.  If you're overlaying on Leaflet, us the
 startLeaflet() method to kick off display.  For MapLibre, use
 startMapLibre().</p>
 <p>You won't create one of these, we do that when the JS file is loaded.
-Then you access the TerrierModule through the Terrier global variable.
+Then you access the TerrierModule through the 'Terrier' global variable.
 You use the start methods as defined above and call stop() when you
 want Terrier to destroy all of its rendering infrastructure.</p>
 
@@ -335,15 +342,20 @@ colors.  Those need to both be the same length.</p>
 out which layers to display and what levels they may have.  We don't get that
 information by default, but if you ask for it, Terrier will fetch it and
 call you back with the results.</p>
-<p>The return data is JSON and looks like this:
-{&quot;<src>&quot; :<br>
-{&quot;<region>&quot;:<br>
-{&quot;<products>&quot;: [],<br>
-&quot;<levels>&quot;: [],<br>
-&quot;temporalType&quot;: &quot;observed&quot;, &quot;forecast&quot;, &quot;both&quot;,<br>
-&quot;dataType&quot;: &quot;wind_uv&quot;, &quot;wind_speed&quot;, &quot;wind_speed_gust&quot;, &quot;temperature&quot;,<br>
-&quot;radar&quot;, &quot;precip_rate&quot;, &quot;precip_type&quot;, &quot;cloud_cover&quot;, &quot;cloud_ceiling&quot;,<br>
-&quot;pressure&quot;, &quot;visibility&quot;}}}</p>
+<p>The return data is JSON and looks like this:</p>
+<pre class="prettyprint source"><code>{&quot;&lt;src>&quot; :  
+   {&quot;&lt;region>&quot;:  
+    {&quot;&lt;products>&quot;: [],  
+     &quot;&lt;levels>&quot;: [],  
+     &quot;temporalType&quot;: &quot;observed&quot;, &quot;forecast&quot;, &quot;both&quot;,  
+     &quot;dataType&quot;: &quot;wind_uv&quot;, &quot;wind_speed&quot;, &quot;wind_speed_gust&quot;, &quot;temperature&quot;,  
+                 &quot;radar&quot;, &quot;precip_rate&quot;, &quot;precip_type&quot;, &quot;cloud_cover&quot;, &quot;cloud_ceiling&quot;,  
+                 &quot;pressure&quot;, &quot;visibility&quot;}}}
+</code></pre>
+<p>Using this is by no means required.  It's useful if you have a lot of flexible
+data and obviously we like it for monitoring what's going in a stack.  But
+if you already know your variable names (e.g. temperature) then you can
+just use those.</p>
 
 **Kind**: instance method of [<code>TerrierModule</code>](#TerrierModule)  
 
@@ -357,7 +369,8 @@ call you back with the results.</p>
 ### terrierModule.variableLevelsForStack(dataType) ⇒ <code>Array.string</code>
 <p>Search through the stack contents and return all the various levels for a given
 variable.  For example you might pass in 'temperature' and get back ['sfc','10m','152m'].
-The actual list depends on your stack and data.</p>
+The actual list depends on your stack and data and you need to have already called
+fetchStackContents() at least once.</p>
 
 **Kind**: instance method of [<code>TerrierModule</code>](#TerrierModule)  
 **Returns**: <code>Array.string</code> - <p>Levels supported for the data type</p>  
@@ -386,8 +399,8 @@ probably won't use this, but we do use it in our testing.</p>
 | Param | Type | Description |
 | --- | --- | --- |
 | stackName | <code>string</code> | <p>Name of the stack to use.  This is provided to you as a developer.  Your company will typically have one production and one development stack.</p> |
-| readyFunc | <code>function</code> | <p>Once we've communicated with the stack, Terrier calls this function back.</p> |
-| failedFunc | <code>function</code> | <p>If the stack can't be reached, for whatever reason, we call this function.</p> |
+| readyFunc | <code>function</code> | <p>Once we've communicated with the stack, Terrier calls this function back with the TerrierOverlay object.  You can use that start and stop layers.</p> |
+| failedFunc | <code>function</code> | <p>If the stack can't be reached, for whatever reason, we call this function with no arguments.</p> |
 
 <a name="TerrierModule+startLeaflet"></a>
 
@@ -401,7 +414,7 @@ you're ready to go and have the canvas layer from Leaflet.</p>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| stackName | <code>string</code> | <p>Name of the Boxer stack you're communicating with. You'll typically have one production and one development stack as a corporate user.</p> |
+| stackName | <code>string</code> | <p>Name of the Boxer stack you're communicating with. You'll typically have one production and one development stack as an enterprise user.</p> |
 | canvasLayer | <code>Canvas</code> | <p>The Canvas layer to attach to within Leaflet. See the Leaflet example for details on this.</p> |
 | readyFunc | <code>function</code> | <p>When Terrier is properly initialized it will call this function back with the TerrierOverlay you can use to start new layer displays.</p> |
 
@@ -411,7 +424,7 @@ you're ready to go and have the canvas layer from Leaflet.</p>
 <p>If you're using MapLibre as your base map package, this is the method
 to call to kick off Terrier.  The system does a lot on initialization,
 including load its WebAssembly.</p>
-<p>MapLibreGL (and MapboxGL) integration tends to be very smooth since
+<p>MapLibreGL (and MapboxGL) integration is very smooth since
 both the base toolkit and Terrier are using WebGL.  If you have a choice,
 this is the better integration to use.</p>
 
@@ -419,7 +432,7 @@ this is the better integration to use.</p>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| stackName | <code>string</code> | <p>Name of the Boxer stack you're communicating with. You'll typically have one production and one development stack as a corporate user.</p> |
+| stackName | <code>string</code> | <p>Name of the Boxer stack you're communicating with. You'll typically have one production and one development stack as an enterprise user.</p> |
 | maplibreMap | <code>maplibreMap</code> | <p>The main MapLibre object.  See the MapLibre example for details.</p> |
 | readyFunc | <code>function</code> | <p>When Terrier is properly initialized it will call this function back with the TerrierOverlay you can use to start new layer displays.</p> |
 

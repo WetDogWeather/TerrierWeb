@@ -14,9 +14,20 @@ The terrier directory contains the files Terrier for Web will need to run on a w
 
 Documentation for Terrier can be found in the doc directory.
 
+The rest of this is internal documentation for Wet Dog on keeping the distributions up to date and generating the docs.
+
 #### Generating documentation
 
 Here's how we generate the terrier.js docs in markdown and HTML.
 
     jsdoc2md terrier/terrier.js -c jsdoc_config.json > doc/Terrier.md
     jsdoc terrier/terrier.js -c jsdoc_config.json
+
+#### Uploading the MapLibre React App
+
+Building and uploading the test app works like so.  Obviously you have to have the right credentials set up with the aws CLI.
+
+    cd maplibre-react
+    npm run build
+    cd dist
+    aws s3 sync . s3://wetdogmaplibre

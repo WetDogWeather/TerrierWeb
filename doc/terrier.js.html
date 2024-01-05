@@ -72,8 +72,10 @@ class TerrierLayer {
         if ('cadence' in params) {
             this.cadence = params['cadence']
         }
+        var hasImportScale = false
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
+            hasImportScale = true
         }
         if ('source' in params) {
             // model, region, type, variable, level
@@ -95,6 +97,8 @@ class TerrierLayer {
         }
 
         var foundState = null
+        // TODO: Switch to an a/b/c/d endpoint and set this high
+        globalThis.Module.numConnections = Terrier.numConnections
         switch (this.name) {
             // Three of these are special
             case "wind_uv":
@@ -125,12 +129,16 @@ class TerrierLayer {
                 break;
             case "radar":
                 globalThis.Module.enableRadar = true
+                globalThis.Module.numConnections = 32
                 globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
                 globalThis.Module.radarCadence = this.cadence
                 if (this.level !== null &amp;&amp; this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 } else {
                     globalThis.Module.selectedLevel = null
+                }
+                if (!hasImportScale) {
+                    this.importScale = 16.0
                 }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
@@ -182,7 +190,10 @@ class TerrierLayer {
     /**
      * If you'd like to change parameters with a dictionary, this is
      * the way to do it.  You can also make direct calls to setInterpMode()
-     * and other methods.
+     * and other methods directly.  
+     * 
+     * For a discussion of what the params dictionary contains, look at the
+     * startLayer() method in the TerrierOverlay.
      * @param {Dictionary} params A dictionary of parameters values including 'interpMode', 'opacity' and 'importFactor'.
      */
     updateParams(params) {
@@ -252,7 +263,7 @@ class TerrierLayer {
      * Set the interpolation type for data values.  This is how the
      * data is interpolated between cells as it's being rendered into
      * screen space.  This is separate from applying the color map.
-     * Set it to nearest if you'd like to see each cell or your have
+     * Set it to nearest if you'd like to see each cell or you have
      * a data type that can't be interpolated (e.g. precip type).
      * Set it to linear to see bilinear interpolation.
      * Set to cubic for bicubic interpolation.
@@ -260,7 +271,7 @@ class TerrierLayer {
      * This can be 'nearest' to see the data cells themselves.
      * It can be 'linear' for bilinear interpolation, which is the default.
      * It can also be 'cubic' for bicubic interpolation, which is costly, but looks
-     * very good fro data with blobby structures, like radar.
+     * very good for data with blobby structures, like radar.
      */
     setInterpMode(type) {
         switch (type) {
@@ -367,9 +378,12 @@ class TerrierLayer {
 }
 
 /**
- * Terrier manages its layers through this one top level structure.
+ * Terrier manages its layers through this singleton class.
  * You won't create one of these, but will be given one in the
  * callback for setup from the TerrierModule.
+ * 
+ * Think of it as the Terrier Overlay on top of your map, whether
+ * that's MapLibre or Leaflet or some other.
  * 
  * You can keep the TerrierOverlay around to add and remove layers
  * as needed.
@@ -486,7 +500,8 @@ class TerrierOverlay {
 
     /**
      * You can add a bit of GeoJSON over top of the map.  This is largely here
-     * for debugging as we can overlay on map toolkits instead.
+     * for debugging as you probably have a good way to do that with the base 
+     * map toolkit.
      * 
      * @param {json} geojson The JSON object for GeoJSON.
      */
@@ -604,7 +619,7 @@ class TerrierOverlay {
  * startMapLibre().
  * 
  * You won't create one of these, we do that when the JS file is loaded.
- * Then you access the TerrierModule through the Terrier global variable.
+ * Then you access the TerrierModule through the 'Terrier' global variable.
  * You use the start methods as defined above and call stop() when you
  * want Terrier to destroy all of its rendering infrastructure. 
  */
@@ -799,6 +814,7 @@ class TerrierModule {
      * call you back with the results.  
      * 
      * The return data is JSON and looks like this:
+     * ```
      * {"&lt;src>" :  
      *    {"&lt;region>":  
      *     {"&lt;products>": [],  
@@ -807,7 +823,13 @@ class TerrierModule {
      *      "dataType": "wind_uv", "wind_speed", "wind_speed_gust", "temperature",  
      *                  "radar", "precip_rate", "precip_type", "cloud_cover", "cloud_ceiling",  
      *                  "pressure", "visibility"}}}
+     * ```
      *
+     * Using this is by no means required.  It's useful if you have a lot of flexible
+     * data and obviously we like it for monitoring what's going in a stack.  But
+     * if you already know your variable names (e.g. temperature) then you can
+     * just use those.
+     * 
      * @param {function} fetchFunc After the contents have been fetched from Boxer,
      * Terrier will call this function back with those JSON results.
      * @param {function} failFunc If the contents fetch fails for some reason,
@@ -834,7 +856,8 @@ class TerrierModule {
     /**
      * Search through the stack contents and return all the various levels for a given
      * variable.  For example you might pass in 'temperature' and get back ['sfc','10m','152m'].
-     * The actual list depends on your stack and data.
+     * The actual list depends on your stack and data and you need to have already called
+     * fetchStackContents() at least once.
      * @param {string} dataType Data type to get the levels for.
      * @returns {Array.string} Levels supported for the data type
      */
@@ -889,9 +912,10 @@ class TerrierModule {
      * to you as a developer.  Your company will typically have one production
      * and one development stack.
      * @param {function(TerrierOverlay): void} readyFunc Once we've communicated with the stack, Terrier
-     * calls this function back.
+     * calls this function back with the TerrierOverlay object.  You can use that start
+     * and stop layers.
      * @param {function(): void} failedFunc If the stack can't be reached, for whatever
-     * reason, we call this function.
+     * reason, we call this function with no arguments.
      */
     changeStack(stackName, readyFunc, failedFunc) {
         // If they call it too early, just ignore it
@@ -916,7 +940,7 @@ class TerrierModule {
      * you're ready to go and have the canvas layer from Leaflet.
      * 
      * @param {string} stackName Name of the Boxer stack you're communicating with.
-     * You'll typically have one production and one development stack as a corporate
+     * You'll typically have one production and one development stack as an enterprise
      * user.
      * @param {Canvas} canvasLayer The Canvas layer to attach to within Leaflet.
      * See the Leaflet example for details on this.
@@ -976,12 +1000,12 @@ class TerrierModule {
      * to call to kick off Terrier.  The system does a lot on initialization,
      * including load its WebAssembly.  
      * 
-     * MapLibreGL (and MapboxGL) integration tends to be very smooth since
+     * MapLibreGL (and MapboxGL) integration is very smooth since
      * both the base toolkit and Terrier are using WebGL.  If you have a choice,
      * this is the better integration to use.
      * 
      * @param {string} stackName Name of the Boxer stack you're communicating with.
-     * You'll typically have one production and one development stack as a corporate
+     * You'll typically have one production and one development stack as an enterprise
      * user.
      * @param {maplibreMap} maplibreMap The main MapLibre object.  See the MapLibre
      * example for details.
@@ -1054,7 +1078,7 @@ export default Terrier;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jan 04 2024 13:58:34 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Jan 05 2024 12:09:33 GMT-0800 (Pacific Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

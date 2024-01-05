@@ -6,7 +6,7 @@ This repo contains examples for using Boxer services, sometimes directly and som
 
 We provide a set of tutorials, which you can get to in their respective directories below.  Pick out the one you want and look at the readme file.  There will be a "from scratch" file detailing how to make a basic version of that variant and you can go from there.
 
-For reference documentation, we have the full [Terrier for Web](doc/index.html) library.  These are all the interfaces you can use in Javascript.  Please don't dig below that level as we reserve the right to change the WebAssembly and JS internals at any time.
+For reference documentation, we have the full [Terrier for Web](doc/Terrier.md) library.  There's an [HTML version](doc/index.html) which is much prettier.  These are all the interfaces you can use in Javascript.  Please don't dig below that level as we reserve the right to change the WebAssembly and JS internals at any time.
 
 #### Tutorials for Terrier
 

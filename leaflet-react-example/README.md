@@ -6,4 +6,4 @@ To run this example in the directory.
 
 Then connect to the given address.  It should load everything else.
 
-If you want to integrate Terrier for Web into your Leaflet React app, take a look at the [from scratch](../doc/leaflet-react-from_scratch.md) documentation.
+If you want to integrate Terrier for Web into your Leaflet React app, take a look at the [from scratch](../doc/leaflet-react-from-scratch.md) documentation.

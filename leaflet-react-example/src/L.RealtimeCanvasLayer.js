@@ -1,1 +1,1 @@
-../../leaflet/L.RealtimeCanvasLayer.js
+../../leaflet-example/L.RealtimeCanvasLayer.js

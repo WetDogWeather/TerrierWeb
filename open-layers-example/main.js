@@ -16,7 +16,7 @@ let service='WMTS'
 
 // Construct the base URL for API queries
 // Note: Our dev stack isn't provisioned for performant WMS queries.  Use your own, which is.
-const stackName = "truwx-dev"
+const stackName = "dev"
 const tileServer = "https://" + stackName + ".api.wetdogweather.com/"
 
 // This is the important bit, the getCapabilities call

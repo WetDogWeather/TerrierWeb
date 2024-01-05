@@ -8,7 +8,9 @@ var Module
  **/
 class TerrierLayer {
 
-    // Internal setup.  Don't call this.
+    /**
+     * @hideconstructor
+     */
     constructor(layerName,params,ovl) {
         this.name = layerName
         this.ovl = ovl
@@ -42,8 +44,10 @@ class TerrierLayer {
         if ('cadence' in params) {
             this.cadence = params['cadence']
         }
+        var hasImportScale = false
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
+            hasImportScale = true
         }
         if ('source' in params) {
             // model, region, type, variable, level
@@ -102,6 +106,9 @@ class TerrierLayer {
                 } else {
                     globalThis.Module.selectedLevel = null
                 }
+                if (!hasImportScale) {
+                    this.importScale = 16.0
+                }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
                 globalThis.Module.radarCadence = [-2*3600, 0, 30]
@@ -153,7 +160,7 @@ class TerrierLayer {
      * If you'd like to change parameters with a dictionary, this is
      * the way to do it.  You can also make direct calls to setInterpMode()
      * and other methods.
-     * @param {*} params 
+     * @param {Dictionary} params A dictionary of parameters values including 'interpMode', 'opacity' and 'importFactor'.
      */
     updateParams(params) {
         if ('interpMode' in params) {
@@ -172,7 +179,8 @@ class TerrierLayer {
      * Some layers have levels. This might be 'sfc' or '5m' or
      * '100m' or something of that sort.  If the layer does have
      * a level, you can set or change it with this.
-     * @param {*} newLevel 
+     * @param {string} newLevel The level to select for this layer.  
+     * The data for that level needs to be available from the source.
      */
     setLevel(newLevel) {
         if (globalThis.Module.selectedLevel != newLevel) {
@@ -181,7 +189,7 @@ class TerrierLayer {
         }
     }
 
-    /**
+    /*
      * Force a reload of the data layer.  You shouldn't need to
      * call this yourself.
      */
@@ -217,8 +225,6 @@ class TerrierLayer {
         }        
     }
 
-    // Set the display interpolation mode
-    // Use Nearest if you want to see the cells
     /**
      * Set the interpolation type for data values.  This is how the
      * data is interpolated between cells as it's being rendered into
@@ -227,7 +233,11 @@ class TerrierLayer {
      * a data type that can't be interpolated (e.g. precip type).
      * Set it to linear to see bilinear interpolation.
      * Set to cubic for bicubic interpolation.
-     * @param {*} type 
+     * @param {string} type Set the interpolation mode to be used for the layer.
+     * This can be 'nearest' to see the data cells themselves.
+     * It can be 'linear' for bilinear interpolation, which is the default.
+     * It can also be 'cubic' for bicubic interpolation, which is costly, but looks
+     * very good fro data with blobby structures, like radar.
      */
     setInterpMode(type) {
         switch (type) {
@@ -256,8 +266,8 @@ class TerrierLayer {
      * a given data tile will be loaded.  We can tweak that number to make things
      * more important.  Without getting into what it actually means, we use a default
      * of 8.  If you want to force near pixel accuracy try 16 or 32.
-     * @param {*} importScale 
-     * @returns 
+     * @param {float} importScale The importance scale, or importFactor (sometimes)
+     * to adjust the loading logic.
      */
     setImportanceScale(importScale) {
         if (this.state.controller.minImportanceFactor !== undefined && this.state.controller.minImportanceFactor == importScale) {
@@ -273,7 +283,7 @@ class TerrierLayer {
      * control that value here.
      * 
      * 0 is completely transparent and 1 is completely opaque.
-     * @param {*} opacity 
+     * @param {float} opacity 
      */
     setOpacity(opacity) {
         this.state.controller.opacity = opacity
@@ -285,7 +295,8 @@ class TerrierLayer {
      * typically pass in a couple of arrays to do this, one for color
      * and one for value, but those are turned into a TrrShaderColorMap which
      * can be queried.
-     * @returns TrrColorMap
+     * @returns TrrShaderColorMap The color map currently being used by
+     * this layer.
      **/
     getColorMap() {
         return this.state.controller.colorMap
@@ -295,8 +306,7 @@ class TerrierLayer {
      * If you'd like to set the color map directly, which you're allowed to
      * do at run time, you can do so here.  The method is expecting a TrrShaderColorMap
      * object which you'll need to set up yourself.
-     * @param {*} colorMap 
-     * @returns 
+     * @param {TrrShaderColorMap} colorMap The color map to set for this layer.
      */
     setColorMap(colorMap) {
         if (!colorMap) {
@@ -307,10 +317,18 @@ class TerrierLayer {
     }
 
     /**
+     * Query the data value at a given point.
      * 
-     * @param {*} x 
-     * @param {*} y 
-     * @returns 
+     * Terrier renders data and turns it into colors (or other displays) at the last
+     * stage.  That makes it possible to query the data values at given point and this
+     * is how you do that.
+     * 
+     * Query the data value at a particular screen location.  Coordinates are at full
+     * resolution within the OpenGL context.
+     * 
+     * @param {float} x Horizontal pixel within the OpenGL screen.
+     * @param {float} y Vertical pixel within the OpenGL screen
+     * @returns An array with one or two values, depending on what you queried.  Wind returns two.
      */
     queryValue(x,y) {
         var ret = this.state.controller.queryValue(x, y)
@@ -325,20 +343,67 @@ class TerrierLayer {
     }
 }
 
-// Represents an overlay into another map toolkit or
-//  a Canvas with WebGL.  This is how you control what
-//  Terrier is displaying in our window.
+/**
+ * Terrier manages its layers through this one top level structure.
+ * You won't create one of these, but will be given one in the
+ * callback for setup from the TerrierModule.
+ * 
+ * You can keep the TerrierOverlay around to add and remove layers
+ * as needed.
+ * @hideconstructor
+ */
 class TerrierOverlay {
     constructor(terrierModule) {
         this.terrierModule = terrierModule
         this.activeLayers = new Set()
     }
     
-    // Start the display of a given layer by name.
-    // The layer names can be found in the stack contents are things like "temperature" or "cloud_cover"
-    // Leave level blank if there is no level information.  These can also be found
-    //  in the stack contents.
-    // Returns an identifier for the layer
+    /**
+     * Start displaying a layer of the given name/type.  Assuming Terrier recognizes the 
+     * name, which will be something like 'temperature', it will fetch the corresponding
+     * data manifests and start up the rendering pipeline.
+     * 
+     * The layerName depends on the contents of your stack and will be something like
+     * 'temperature' or 'wind'.  A list of available layer names can be gotten from the
+     * fetchStackContents() in the TerrierModule, but you can also hard code those
+     * based on what you know is in your stack.  
+     * 
+     * @param {string} layerName Name of the layer to display, such as 'temperature'.
+     * @param {Dictionary} params Parameters that control the display and structural
+     * use of the layer.  These include everything you might need to set up the layer
+     * including things which can be modified later.  
+     * 
+     * 'level' selects the level of the data layer, if it has one.  For instance you
+     * might have 'sfc', '10m', and '152m' available for 'temperature'.  It depends on
+     * your data and you can see the full list from the stack contents, or just hard
+     * code it based on what you know is there.  
+     * 
+     * 'colorMap' sets the color map for the display.  This is a TrrShaderColorMap
+     * object which you'll need to create and pass in.  
+     * 
+     * 'renderScale' sets the scale at which the data is rendered.  Terrier is designed
+     * to render data to the screen and then turn that data into colors.  It uses fairly
+     * complex shaders to render the data to the screen and will thus try to do less
+     * work.  The renderScale is a factor we multiply the WebGL screen size by to
+     * downsample the rendering target.  It's 0.25 by default and you can probably leave
+     * it alone.  
+     * 
+     * 'cadence' is an array of 3 values defining the min and max time offsets from now to
+     * load for a layer.  The third argument is the number of time slices.  The defaults
+     * will be picked up from the stack, so you don't really need to set this, but it
+     * can be useful to cut down on loading.  For instance, if you only need the next
+     * half hour of data and you know it comes in 5 minute increments you could do:
+     * [0,30*60,6].  That will load data from 'now' to a half hour from now and restrict
+     * it to at most 6 time slices.
+     * 
+     * 'importFactor' controls how much data we load for a given area.  Since we're fetching
+     * data with a lot of time slices we don't tend to match it pixel for pixel for the screen
+     * resolution.  By default this value is 8.  If you want more resolution, set a value up to
+     * 32.  If you want less, for some reason, it can go down to 1.
+     * 
+     * @returns {TerrierLayer} The layer object you can interact with directly to make
+     * real-time changes.
+     */
     startLayer(layerName,params) {
         // Wrap the layer around the newly updates state
         var layer = new TerrierLayer(layerName,params,this)
@@ -350,7 +415,12 @@ class TerrierOverlay {
         return layer
     }
 
-    // Stop the given layer from displaying
+    /**
+     * Stop displaying the given layer.  This is the TerrierLayer returned by startLayer().
+     * This will not shut down Terrier, however.  You need to do that with the Terrier module.
+     * 
+     * @param {TerrierLayer} layer The layer to stop displaying.
+     */
     stopLayer(layer) {
         layer.stop()
 
@@ -361,7 +431,10 @@ class TerrierOverlay {
         this.checkCanvas()
     }
 
-    // Return the list of currently active layers
+    /**
+     * Get the list of currently active layers.  These are all TerrierLayer objects.
+     * @returns The list of currently active layers.
+     */
     getLayers() {
         if (!this.activeLayers) {
             return []
@@ -370,7 +443,11 @@ class TerrierOverlay {
         return [...this.activeLayers];
     }
 
-    // If we're attached to a canvas, hide it if there are no layers
+    /*
+     * If we're using a Javascript canvas for display, we may want to hide that canvas
+     * if no layers are currently visible.  We use this in package integrations with
+     * things like Leaflet.  You probably don't need to call it directly.
+     */
     checkCanvas() {
         if (!Terrier.webglCanvasMode) {
             return
@@ -384,20 +461,32 @@ class TerrierOverlay {
         }
     }
 
-    // Add the given raw GeoJSON data
-    // Note: Need a way to remove it
+    /**
+     * You can add a bit of GeoJSON over top of the map.  This is largely here
+     * for debugging as we can overlay on map toolkits instead.
+     * 
+     * @param {json} geojson The JSON object for GeoJSON.
+     */
     addGeoJSON(geojson) {
         globalThis.Module.overlay.addGeoJSON(geojson)
     }
 
-    // Return the current time in seconds from the epoch (1970)
+    /**
+     * Returns the current time being displayed (in seconds from the 1970 epoch), rather
+     * than the current wall clock time.
+     * @returns {float}
+     */
     getCurrentTime() {
         if (globalThis.Module === undefined) { return 0.0 }
 
         return globalThis.Module.tracker.curTime / 1000.0
     }
 
-    // Set the current time in seconds from the epoch (1970)
+    /**
+     * Set the displayed time (in seconds from the 1970 epoch).  This is the time Terrier
+     * will use for calculating the display and is separate from wall clock time.
+     * @param {float} epoch Seconds since the 1970 epoch.
+     */
     setCurrentTime(epoch) {
         if (globalThis.Module === undefined) { return }
         // TODO: Cache this if there's no Module yet
@@ -408,13 +497,28 @@ class TerrierOverlay {
         }
     }
 
-    // Return the min/max time range available from loaded data
+    /**
+     * Returns the minimum and maximum times available from the data currently loaded.
+     * Times are in seconds from the 1970 epoch.
+     * @returns An array of 2 floats describing the min and max time.
+     */
     getTimeRange() {
         if (globalThis.Module === undefined) { return [0.0,0.0] }
         return [globalThis.Module.tracker.minTime, globalThis.Module.tracker.maxTime]
     }
 
-    // Play from beginning to end of the current times available
+    /**
+     * Terrier likes to control animation itself, rather than depend on an outside
+     * app to smoothly run through a time range with setCurrentTime().  The way
+     * this works is you call this method and it will start animating.  Then
+     * periodically query the current time with getCurrentTime() and update
+     * your own controls from that.
+     * @param {Dictionary} params This dictionary contains values which control
+     * the animation.  
+     * 
+     * 'period' the number of wall clock seconds to animate from the start of
+     * the time range to the end of it.
+     */
     timePlay(params) {
         if (globalThis.Module === undefined) { return }
 
@@ -429,14 +533,19 @@ class TerrierOverlay {
         globalThis.Module.play()  
     }
 
-    // Check if we're currently animating over time
+    /**
+     * If Terrier is animating the data over time, this returns true.
+     */
     isTimePlaying() {
         if (globalThis.Module === undefined) { return false }
 
         return globalThis.Module.tracker.isPlaying
     }
 
-    // Stop animating over time
+    /**
+     * Pause the time animation if it's running.  This does nothing if Terrier is
+     * already paused.
+     */
     timePause() {
         if (globalThis.Module === undefined) { return }
 
@@ -465,8 +574,21 @@ class TerrierOverlay {
     }
 }
 
-// Putting all the Terrier methods into one class
+/**
+ * This is the module logic for Terrier and it's where you'll go to
+ * start the toolkit running.  If you're overlaying on Leaflet, us the
+ * startLeaflet() method to kick off display.  For MapLibre, use
+ * startMapLibre().
+ * 
+ * You won't create one of these, we do that when the JS file is loaded.
+ * Then you access the TerrierModule through the Terrier global variable.
+ * You use the start methods as defined above and call stop() when you
+ * want Terrier to destroy all of its rendering infrastructure. 
+ */
 class TerrierModule {
+    /**
+     * @hideconstructor
+     */
     constructor() {
         // Developers interface to Terrier through the 'overlay'
         this.ovl = new TerrierOverlay(this)
@@ -522,7 +644,20 @@ class TerrierModule {
         ]);
     }
 
-    // Create a color map with value and colormap arrays
+    /**
+     * We use a TrrShaderColorMap object to set and query colormaps, but
+     * you don't have to create those directly.  Instead, use this convenience
+     * method to do it.  Pass in your array of data values and corresponding
+     * colors.  Those need to both be the same length.
+     * @param {Array.float} values An array of data values to use in the color map.
+     * These are actual data values in the proper units.  That may be Kelvin for temperature,
+     * and so forth.  These map directly to the colors array for a given value.
+     * @param {Array.int} colors An array of numbers corresponding to RGBA colors.
+     * We like to use hex definitions of the form 0xAARRGGBB where A is alpha, R is red,
+     * G is green and B is blue.  These are standard in CSS and you can find a good
+     * converter online to map from your favorite color system to hex values.
+     * @returns TrrShaderColorMap
+     */
     createColorMap(values, colors) {
         if (values.length != colors.length) {
             console.log("createColorMap: Values and colors array must be same length.")
@@ -634,15 +769,27 @@ class TerrierModule {
         }
     }
 
-        // Get an overview of what the stack has
-    // {"<src>" : 
-    //   {"<region>":
-    //     {"<products>": [],
-    //      "<levels>": [],
-    //      "temporalType": "observed", "forecast", "both",
-    //      "dataType": "wind_uv", "wind_speed", "wind_speed_gust", "temperature", 
-    //                  "radar", "precip_rate", "precip_type", "cloud_cover", "cloud_ceiling", 
-    //                  "pressure", "visibility"}}}
+    /**
+     * Boxer stacks know what is in them and we can ask for that information to figure
+     * out which layers to display and what levels they may have.  We don't get that
+     * information by default, but if you ask for it, Terrier will fetch it and
+     * call you back with the results.  
+     * 
+     * The return data is JSON and looks like this:
+     * {"<src>" :  
+     *    {"<region>":  
+     *     {"<products>": [],  
+     *      "<levels>": [],  
+     *      "temporalType": "observed", "forecast", "both",  
+     *      "dataType": "wind_uv", "wind_speed", "wind_speed_gust", "temperature",  
+     *                  "radar", "precip_rate", "precip_type", "cloud_cover", "cloud_ceiling",  
+     *                  "pressure", "visibility"}}}
+     *
+     * @param {function} fetchFunc After the contents have been fetched from Boxer,
+     * Terrier will call this function back with those JSON results.
+     * @param {function} failFunc If the contents fetch fails for some reason,
+     * this function will be called back with that information.
+     */
     fetchStackContents(fetchFunc, failFunc) {
         // TODO: We'll move this into the stack at some point
         fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
@@ -661,6 +808,13 @@ class TerrierModule {
 
     // Search through the stack contents to return all the various levels for a variable
     //  among all the sources
+    /**
+     * Search through the stack contents and return all the various levels for a given
+     * variable.  For example you might pass in 'temperature' and get back ['sfc','10m','152m'].
+     * The actual list depends on your stack and data.
+     * @param {string} dataType Data type to get the levels for.
+     * @returns {Array.string} Levels supported for the data type
+     */
     variableLevelsForStack(dataType) {
         var levels = new Set([])
         if (!this.stackContents) {
@@ -683,8 +837,11 @@ class TerrierModule {
         return Array.from(levels)
     }
 
-    // Search through the stack contents for the unique variables
-    // You can use those to start layers
+    /**
+     * The unique variable types for a given stack.  This is essentially all
+     * the layerNames you might pass in when starting a new layer.
+     * @returns {Array.string} All the valid layer names for a stack.
+     */
     variablesForStack() {
         var variables = new Set([])
         for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
@@ -700,8 +857,19 @@ class TerrierModule {
         return Array.from(variables)
     }
 
-    // Change display to a new stack
-    // Note: We're assuming the caller is tearing down their layers
+    /**
+     * Normally you pass in the stack name on startup and then use just that
+     * stack.  This will let you point to another stack.  As a developer, you
+     * probably won't use this, but we do use it in our testing.
+     * 
+     * @param {string} stackName Name of the stack to use.  This is provided
+     * to you as a developer.  Your company will typically have one production
+     * and one development stack.
+     * @param {function(TerrierOverlay): void} readyFunc Once we've communicated with the stack, Terrier
+     * calls this function back.
+     * @param {function(): void} failedFunc If the stack can't be reached, for whatever
+     * reason, we call this function.
+     */
     changeStack(stackName, readyFunc, failedFunc) {
         // If they call it too early, just ignore it
         if (!this.isReady) { return }
@@ -718,7 +886,21 @@ class TerrierModule {
         })
     } 
 
-    // Initialize Terrier and get it ready to use a Leaflet Canvas overlay
+    /**
+     * If you're using Leaflet as your base map package, this is the method
+     * to call to kick off Terrier.  The system does a lot on initialization,
+     * including load its WebAssembly and start up WebGL.  Call this when
+     * you're ready to go and have the canvas layer from Leaflet.
+     * 
+     * @param {string} stackName Name of the Boxer stack you're communicating with.
+     * You'll typically have one production and one development stack as a corporate
+     * user.
+     * @param {Canvas} canvasLayer The Canvas layer to attach to within Leaflet.
+     * See the Leaflet example for details on this.
+     * @param {function(TerrierOverlay): void} readyFunc When Terrier is properly initialized it will
+     * call this function back with the TerrierOverlay you can use to start new
+     * layer displays.
+     */
     startLeaflet(stackName, canvasLayer, readyFunc) {
         this.stackName = stackName
 
@@ -766,7 +948,24 @@ class TerrierModule {
         })        
     }
 
-    // Initialize Terrier and get it ready to use a MapLibre Map
+    /**
+     * If you're using MapLibre as your base map package, this is the method
+     * to call to kick off Terrier.  The system does a lot on initialization,
+     * including load its WebAssembly.  
+     * 
+     * MapLibreGL (and MapboxGL) integration tends to be very smooth since
+     * both the base toolkit and Terrier are using WebGL.  If you have a choice,
+     * this is the better integration to use.
+     * 
+     * @param {string} stackName Name of the Boxer stack you're communicating with.
+     * You'll typically have one production and one development stack as a corporate
+     * user.
+     * @param {maplibreMap} maplibreMap The main MapLibre object.  See the MapLibre
+     * example for details.
+     * @param {function(TerrierOverlay): void} readyFunc When Terrier is properly initialized it will
+     * call this function back with the TerrierOverlay you can use to start new
+     * layer displays.
+     */
     startMapLibre(stackName, maplibreMap, readyFunc) {
         this.stackName = stackName
         if (maplibreMap == undefined) {
@@ -793,7 +992,11 @@ class TerrierModule {
         })
     }
 
-    // Unwire ourselves from whatever library we're wired into
+    /**
+     * If you want Terrier completely stopped, this is what you can call.
+     * If you want to shutdown a layer, just call the corresponding method
+     * on the TerrierOverlay.
+     */
     stop() {
         if (this.webglCanvasMode) {
             _shutdownWebglCanvas()
@@ -807,4 +1010,8 @@ if (!('Terrier' in globalThis)) {
     var Terrier = new TerrierModule()
 }
 
+/**
+ * This is the main access to the Terrier module.  Once you've loaded the terrier.js
+ * file, just access Terrier through this.
+ */
 export default Terrier;

@@ -21,7 +21,7 @@ export default class Layer {
         this.colored = true;
         this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
-        this.minImportance = importanceScale !== undefined ? importanceScale : 1;      // 5 - 100.
+        this.minImportance = importanceScale !== undefined ? importanceScale : 8;      // 5 - 100.
         this.renderScale = 0.5;
         this.timeRange = timeRange;
 
@@ -98,7 +98,7 @@ export default class Layer {
         this.minImportance = n;
 
         if (this.layer != null) {
-            this.layer.setImportanceScale(Math.min(10, Math.max(0.1, n)))
+            this.layer.setImportanceScale(Math.min(32, Math.max(1, n)))
         }
     }
 

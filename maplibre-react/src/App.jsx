@@ -29,7 +29,7 @@ function App() {
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('truwx-dev')
+  const [stackName, setStackName] = useState('dev')
 
   // React to stackName changes
   useEffect(() => {
@@ -163,36 +163,36 @@ function App() {
                         'C', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
                         [-1*24*60*60,1*24*60*60,64]),
                     new Layer(ovl, 'Wind', windIcon, 'windUV', 
-                    Terrier.variableLevelsForStack('wind_uv'), 
+                        Terrier.variableLevelsForStack('wind_uv'), 
                         'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
                           [-1*24*60*60,1*24*60*60,64]),
-                    new Layer(ovl, 'Wind Gust', windIcon, 'WindGust', 
-                    Terrier.variableLevelsForStack('windgust'), 
-                        'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
-                          [-1*24*60*60,1*24*60*60,64]),
+                    // new Layer(ovl, 'Wind Gust', windIcon, 'WindGust', 
+                    //     Terrier.variableLevelsForStack('windgust'), 
+                    //     'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
+                    //       [-1*24*60*60,1*24*60*60,64]),
                     new Layer(ovl, 'Radar', radarIcon, 'radar', 
-                    Terrier.variableLevelsForStack('radar'), 
+                        Terrier.variableLevelsForStack('radar'), 
                         'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                          [-2*60*60,0,64], 2),
-                    new Layer(ovl, 'Cloud Ceiling', windIcon, 'CloudCeiling', 
-                    Terrier.variableLevelsForStack('CloudCeiling'), 
-                    'm', cloudColorMap, cloudColorMap,
-                    [-1*24*60*60,1*24*60*60,64]),
-                    new Layer(ovl, 'Visibility', windIcon, 'Visibility', 
-                    Terrier.variableLevelsForStack('Visibility'), 
-                    'm', cloudColorMap, cloudColorMap,
-                    [-1*24*60*60,1*24*60*60,64]),
-                    new Layer(ovl, 'visual', radarIcon, 'visual', 
-                    null, 
-                    'dBz', null, null,
-                    [0.0,60*60,12],
-                    8.0,
-                    {
-                      model: 'myradar',
-                      region: 'global',
-                      variable: 'reflectivity'
-                    }
-                    )]
+                          [-2*60*60,0,64], 16),
+                    // new Layer(ovl, 'Cloud Ceiling', windIcon, 'CloudCeiling', 
+                    //     Terrier.variableLevelsForStack('CloudCeiling'), 
+                    //     'm', cloudColorMap, cloudColorMap,
+                    //     [-1*24*60*60,1*24*60*60,64]),
+                    // new Layer(ovl, 'Visibility', windIcon, 'Visibility', 
+                    //     Terrier.variableLevelsForStack('Visibility'), 
+                    //     'm', cloudColorMap, cloudColorMap,
+                    //     [-1*24*60*60,1*24*60*60,64]),
+                    // new Layer(ovl, 'visual', radarIcon, 'visual', 
+                    //     null, 
+                    //     'dBz', null, null,
+                    //     [0.0,60*60,12],
+                    //     8.0,
+                    //     {
+                    //       model: 'myradar',
+                    //       region: 'global',
+                    //       variable: 'reflectivity'
+                    //     })
+                  ]
     setLayers(newLayers)
     setCurLayer(0)
     _setUnits(newLayers[0].units)  

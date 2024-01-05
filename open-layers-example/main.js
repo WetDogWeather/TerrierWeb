@@ -1,8 +1,8 @@
 import './style.css';
 import {Map, View} from 'ol';
-import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
-import { none } from 'ol/centerconstraint';
+import TileLayer from 'ol/layer/Tile.js';
+import OSM from 'ol/source/OSM.js';
+import { none } from 'ol/centerconstraint.js';
 import WMTSData from './WMTSData.js';
 import WMSData from './WMSData.js'
 import {Image as ImageLayer } from 'ol/layer.js'

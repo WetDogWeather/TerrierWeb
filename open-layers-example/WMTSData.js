@@ -1,5 +1,5 @@
-import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
-import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS.js';
+import WMTSCapabilities from 'ol/format/WMTSCapabilities';
+import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS';
 
 // Helper object to tease details out of the capabilities return
 class WMTSData {

@@ -12,17 +12,17 @@ For reference documentation, we have the full [Terrier for Web](doc/index.html) 
 
 We prefer you use Terrier to access data in your Boxer stack.  That's the default and it's going to be much more performant than the alternatives.   It does require using the Terrier toolkit and integrating it with a base map toolkit.  That's what these examples are for.
 
-[Leaflet Example](leaflet/README.md) integrates Terrier for Web directly on top of Leaflet, directly in Javascript.
+[Leaflet Example](leaflet-example/README.md) integrates Terrier for Web directly on top of Leaflet, directly in Javascript.
 
-[React Leaflet Example](leaflet-react/README.md) integrates Terrier for Web into Leaflet for React.
+[React Leaflet Example](leaflet-react-example/README.md) integrates Terrier for Web into Leaflet for React.
 
-[MapLibre Example](maplibre/README.md) integrates Terrier directly into MapLibre, purely with Javascript.
+[MapLibre Example](maplibre-example/README.md) integrates Terrier directly into MapLibre, purely with Javascript.
 
 #### Tutorial for Static Map Tiles
 
 If you've paid for the static tile service add-on for Boxer, then you can access map tiles directly or through WMTS.  What follows is an Open Layers example for doing just that, but your favorite map toolkit will also have a way of doing this.  It just turns out Open Layers is one of the few to handle WMTS explicitly.
 
-[Open Layers example](open-layers/README.md) shows how to directly use WMTS and WMS endpoints through Open Layers.
+[Open Layers example](open-layers-example/README.md) shows how to directly use WMTS and WMS endpoints through Open Layers.
 
 There's also a WMS example in there... but WMS is kind of awful.  Please only use it if you absolutely have to.
 

@@ -1,5 +1,5 @@
-import WMSCapabilities from 'ol/format/WMSCapabilities.js';
-import ImageWMS from 'ol/source/ImageWMS.js';
+import WMSCapabilities from 'ol/format/WMSCapabilities';
+import ImageWMS from 'ol/source/ImageWMS';
 
 class WMSData {
     constructor(capability_file) {

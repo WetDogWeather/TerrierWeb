@@ -8,6 +8,8 @@ We provide a set of tutorials, which you can get to in their respective director
 
 For reference documentation, we have the full [Terrier for Web](doc/Terrier.md) library.  There's an [HTML version](doc/index.html) which is much prettier.  These are all the interfaces you can use in Javascript.  Please don't dig below that level as we reserve the right to change the WebAssembly and JS internals at any time.
 
+<img width="1159" alt="Screenshot 2024-01-05 at 3 54 52 PM" src="https://github.com/WetDogWeather/TerrierWeb/assets/101820560/0fa35058-1bbf-459b-9641-124fd275b64a">
+
 #### Tutorials for Terrier
 
 We prefer you use Terrier to access data in your Boxer stack.  That's the default and it's going to be much more performant than the alternatives.   It does require using the Terrier toolkit and integrating it with a base map toolkit.  That's what these examples are for.

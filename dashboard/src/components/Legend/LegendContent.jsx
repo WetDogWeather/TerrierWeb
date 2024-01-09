@@ -8,13 +8,15 @@ function LegendContent({colorMap,units}) {
     var legend = []
 
     if (colorMap) {
-        for (var i = 0; i < colorMap.colors.length; i++) {
-            // var hide = colorMap.hidden[i];
-            let hide = false
-            var color = colorMap.colors[i].str;
-            var value = colorMap.values[i];
+        let colors = colorMap.colors;
+        let values = colorMap.values;
+        let visibles = colorMap.visibles;
+        for (var i = 0; i < colors.length; i++) {
+            let color = colors[i];
+            let value = values[i];
+            let visible = visibles[i];
 
-            if (!hide) {
+            if (visible) {
                 // May want to consider moving this logic into TemperatureLayer.
                 switch (units) {
                     case 'F':
@@ -28,7 +30,7 @@ function LegendContent({colorMap,units}) {
                 var newLegendBox = (
                     <div className='legend-background' key={'legend-background-'+i} >
                         <p className='legend-box' key={'legend-box-'+i} 
-                            style={{ backgroundColor: color }}> {value.toFixed(2)} {units}</p>
+                            style={{ backgroundColor: color.str }}> {value.toFixed(2)} {units}</p>
                     </div>
                 )
                 legend = [legend, newLegendBox]

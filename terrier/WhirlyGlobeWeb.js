@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  234788: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 234990: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  234980: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 235182: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -11355,6 +11355,9 @@ var ASM_CONSTS = {
       if (colorMap) {
         ctl.colorMap = colorMap;
       }
+      if (state.sources) {
+        state.sources.forEach( (source) => ctl.addSource(source) )
+      }
   };
   
       // Visual (non-variable)
@@ -11399,6 +11402,9 @@ var ASM_CONSTS = {
           if (Module.updateFrameInfo) {
             Module.visualCtlFrameChange = Module.visualCtl.addOnFrameChange(Module.updateFrameInfo);
           }
+          if (Module.visualSources) {
+            Module.visualSources.forEach( (source) => Module.visualCtl.addSource(source) )
+          }
           Module.visualCtl.start(null);
           change = true;  
         } finally {
@@ -11442,6 +11448,9 @@ var ASM_CONSTS = {
       }
       if (Module.updateFrameInfo) {
         Module.tempCtlFrameChange = Module.tempCtl.addOnFrameChange(Module.updateFrameInfo);
+      }
+      if (Module.tempSources) {
+        Module.tempSources.forEach( (source) => Module.tempCtl.addSource(source) )
       }
       Module.tempCtl.start(null);
       change = true;  
@@ -11724,10 +11733,13 @@ var ASM_CONSTS = {
       if (Module.updateFrameInfo) {
         Module.radarCtlFrameChange = Module.radarCtl.addOnFrameChange(Module.updateFrameInfo);
       }
+      if (Module.radarSources) {
+        Module.radarSources.forEach( (source) => Module.radarCtl.addSource(source) )
+      }
       Module.radarCtl.start(null);
       change = true;
     }
-    Module.controllerState['Radar'].controller = Module.radarCtl
+    Module.controllerState['Reflectivity'].controller = Module.radarCtl
   
     // Wind
     if (!Module.enableWind && Module.windCtl) {
@@ -11765,10 +11777,13 @@ var ASM_CONSTS = {
       if (Module.updateFrameInfo) {
         Module.windCtlFrameChange = Module.windCtl.addOnFrameChange(Module.updateFrameInfo);
       }
+      if (Module.windSources) {
+        Module.windSources.forEach( (source) => Module.windCtl.addSource(source) )
+      }
       Module.windCtl.start(null);
       change = true;
     }
-    Module.controllerState['WindUV'].controller = Module.windCtl
+    Module.controllerState['Wind_uv'].controller = Module.windCtl
   
     Module.controllers = [Module.windCtl, Module.tempCtl, Module.radarCtl].
                           concat(Module.controllerState.types.map(x=>Module.controllerState[x].controller)).

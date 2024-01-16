@@ -12,7 +12,13 @@ class TerrierLayer {
      * @hideconstructor
      */
     constructor(layerName,params,ovl) {
-        this.name = layerName
+        this.name = layerName.toLowerCase()
+        if (this.name == "winduv") {
+            this.name = "wind_uv"
+        }
+        if (this.name == "radar") {
+            this.name = "reflectivity"
+        }
         this.ovl = ovl
 
         if (params == null || params == undefined) {
@@ -71,27 +77,31 @@ class TerrierLayer {
         var foundState = null
         // TODO: Switch to an a/b/c/d endpoint and set this high
         globalThis.Module.numConnections = Terrier.numConnections
+
+        // Look up sources by variable type
+        let sources = Terrier.sourcesForStack(this.name)
+
         switch (this.name) {
             // Three of these are special
             case "wind_uv":
-            case "windUV":
-                this.name = "windUV"
                 globalThis.Module.enableWind = true
                 globalThis.Module.windColorMap = this.colorMap ? this.colorMap : Terrier.WIND_COLORS_NOT_GREY;
                 globalThis.Module.windScale = this.renderScale
                 globalThis.Module.windCadence = this.cadence
+                globalThis.Module.windSources = sources
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 } else {
                     globalThis.Module.selectedLevel = null
                 }
-                foundState = findControllerState("winduv")
+                foundState = findControllerState("wind_uv")
                 break;
             case "temperature":
                 globalThis.Module.enableTemp = true
                 globalThis.Module.tempColorMap = this.colorMap ? this.colorMap : Terrier.TEMP_COLORS_NOT_GREY;
                 globalThis.Module.tempScale = this.renderScale
                 globalThis.Module.tempCadence = this.cadence
+                globalThis.Module.tempSources = sources
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 } else {
@@ -99,11 +109,11 @@ class TerrierLayer {
                 }
                 foundState = findControllerState("temperature")
                 break;
-            case "radar":
+            case "reflectivity":
                 globalThis.Module.enableRadar = true
-                globalThis.Module.numConnections = 32
                 globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
                 globalThis.Module.radarCadence = this.cadence
+                globalThis.Module.radarSources = sources
                 if (this.level !== null && this.level !== undefined) {
                     globalThis.Module.selectedLevel = this.level
                 } else {
@@ -113,12 +123,13 @@ class TerrierLayer {
                     this.importScale = 16.0
                 }
                 globalThis.Module.radarScale = this.renderScale
-                foundState = findControllerState("radar")
+                foundState = findControllerState("reflectivity")
                 globalThis.Module.radarCadence = [-2*3600, 0, 30]
                 break;
             case "visual":
                 globalThis.Module.enableVisual = true
                 globalThis.Module.visualSource = this.source
+                globalThis.Module.visualSources = sources
                 foundState = findControllerState("visual")
                 // Note: Debugging
                 globalThis.Module.visualCadence = [0,30*60,6]
@@ -145,6 +156,7 @@ class TerrierLayer {
                 }
                 foundState.cadence = this.cadence
                 foundState.renderScale = this.renderScale
+                foundState.visualSources = sources
                 foundState.enabled = true
 
                 break;
@@ -210,13 +222,12 @@ class TerrierLayer {
         switch (this.name) {
             // Three of these are special
             case "wind_uv":
-            case "windUV":
                 globalThis.Module.enableWind = false
                 break;
             case "temperature":
                 globalThis.Module.enableTemp = false
                 break;
-            case "radar":
+            case "reflectivity":
                 globalThis.Module.enableRadar = false
                 break;
             // And the rest more generic
@@ -603,7 +614,7 @@ class TerrierModule {
         // Developers interface to Terrier through the 'overlay'
         this.ovl = new TerrierOverlay(this)
         this.isReady = false
-        this.numConnections = 8
+        this.numConnections = 32
         this.webglCanvasMode = false
     }
 
@@ -799,8 +810,7 @@ class TerrierModule {
      * this function will be called back with that information.
      */
     fetchStackContents(fetchFunc, failFunc) {
-        // TODO: We'll move this into the stack at some point
-        fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
+        fetch("https://" + this.stackName + ".api.wetdogweather.com/manifest/v2/getvarkeys")
             .then((response) =>  {
                 if (response.ok) {
                     return response.json()
@@ -814,8 +824,6 @@ class TerrierModule {
             })
     }
 
-    // Search through the stack contents to return all the various levels for a variable
-    //  among all the sources
     /**
      * Search through the stack contents and return all the various levels for a given
      * variable.  For example you might pass in 'temperature' and get back ['sfc','10m','152m'].
@@ -844,6 +852,50 @@ class TerrierModule {
         }
 
         return Array.from(levels)
+    }
+
+    /**
+     * Look through the stack contents for sources matching the given data type.
+     * Returns all the source descriptions that match.
+     * @param {string} dataType This is the variable type and will be something
+     * 'temperature' or 'wind_uv'.  For a complete list, query variablesForStack().
+     * @returns A list of source entries for the given type.
+     */
+    sourcesForStack(dataType,level) {
+        var sources = []
+        if (!this.stackContents) {
+            return sources
+        }
+        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
+            for (const [ regionKey, region ] of Object.entries(model)) {
+                for (const [ typeKey, type ] of Object.entries(region)) {
+                    for (const [ _, variable ] of Object.entries(type)) {
+                        if (variable.dataType.toLowerCase() == dataType) {
+                            if (variable.levels) {
+                                // Pick the matching level or the first level if there isn't a level set
+                                variable.levels.some( (thisLevel) => {
+                                    if (!level || thisLevel.toLowerCase() == level) {
+                                        let source = new globalThis.Module.TrrDataSource(modelKey,regionKey,typeKey,thisLevel,variable.temporalType,dataType,parseInt(variable.bits))
+                                        sources.push(source)
+
+                                        return true
+                                    }
+
+                                    return false
+                                })
+                            } else {
+                                if (!level) {
+                                    let source = new globalThis.Module.TrrDataSource(modelKey,regionKey,typeKey,"",variable.temporalType,dataType,parseInt(variable.bits))
+                                    sources.push(source)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+ 
+        return sources
     }
 
     /**
@@ -985,13 +1037,16 @@ class TerrierModule {
 
         // Already started, so just call them back
         if (this.isReady) {
+            console.log("startMapLibre(): Already started.  Calling readyFunc() and returning.")
             if (readyFunc !== undefined) {
                 readyFunc(this.ovl)
             }
             return
         }
 
+        console.log("startMapLibre(): Calling fetchStackContents")
         this.fetchStackContents( () => {
+            console.log("startMapLibre(): fetchStackContents() callback called")
             this.setupModule(() => {
                 _initMapLibre(maplibreMap)
             }, readyFunc)

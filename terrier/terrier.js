@@ -635,13 +635,6 @@ class TerrierModule {
             0x4410E6E7, 0x7710E6E7, 0xBB10E6E7, // Not visible either
             0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
             0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA,
-        ],
-        [
-            false, false, false,
-            false, false, false,
-            true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true
         ]);
     }
 

@@ -10,11 +10,12 @@ function LegendContent({colorMap,units}) {
     if (colorMap) {
         let colors = colorMap.colors;
         let values = colorMap.values;
-        let visibles = colorMap.visibles;
+        // let visibles = colorMap.visibles;
         for (var i = 0; i < colors.length; i++) {
             let color = colors[i];
             let value = values[i];
-            let visible = visibles[i];
+            // let visible = visibles[i];
+            let visible = true
 
             if (visible) {
                 // May want to consider moving this logic into TemperatureLayer.

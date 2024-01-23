@@ -29,7 +29,7 @@ function App() {
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('prod')
+  const [stackName, setStackName] = useState('zeus')
 
   // React to stackName changes
   useEffect(() => {
@@ -161,19 +161,19 @@ function App() {
     let newLayers = [new Layer(ovl, 'Temperature', tempIcon, 'temperature', 
                         Terrier.variableLevelsForStack('temperature'), 
                         'C', Terrier.TEMP_COLORS_GREY, Terrier.TEMP_COLORS_NOT_GREY,
-                        [-1*24*60*60,1*24*60*60,32]),
+                        [0,5.25*60*60,48]),
                     new Layer(ovl, 'Wind', windIcon, 'windUV', 
                         Terrier.variableLevelsForStack('wind_uv'), 
                         'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
-                          [-1*24*60*60,1*24*60*60,32]),
+                        [0,5.25*60*60,48]),
                     // new Layer(ovl, 'Wind Gust', windIcon, 'WindGust', 
                     //     Terrier.variableLevelsForStack('windgust'), 
                     //     'm/s', Terrier.WIND_COLORS_GREY, Terrier.WIND_COLORS_NOT_GREY,
-                    //       [-1*24*60*60,1*24*60*60,64]),
-                    new Layer(ovl, 'Radar', radarIcon, 'radar', 
-                        Terrier.variableLevelsForStack('radar'), 
-                        'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                          [-2*60*60,0,64], 30),
+                    //     [0,6*60*60,24]),
+                    // new Layer(ovl, 'Radar', radarIcon, 'radar', 
+                    //     Terrier.variableLevelsForStack('radar'), 
+                    //     'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
+                    //       [-2*60*60,0,64], 30),
                     // new Layer(ovl, 'Cloud Ceiling', windIcon, 'CloudCeiling', 
                     //     Terrier.variableLevelsForStack('CloudCeiling'), 
                     //     'm', cloudColorMap, cloudColorMap,

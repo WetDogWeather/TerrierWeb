@@ -19,9 +19,21 @@
   margin-left: 15px;
 }
 
+#splash-text2 {
+  margin: auto;
+  margin-top: 10px;
+}
+
 #logo {
   height: 60px;
   margin: auto;
   margin-right: 0px;
   margin-left: 10px;
+}
+
+#logo2 {
+  height: 40px;
+  margin: auto;
+  margin-right: 0px;
+  margin-left: 40px;
 }

@@ -12045,9 +12045,13 @@ var ASM_CONSTS = {
         }
       } // render
     };  // customLayer
-    map.on('load', function () {
-      map.addLayer(customLayer);
-    });
+    if (map.isStyleLoaded()) {
+      map.addLayer(customLayer)
+    } else {
+      map.on('load', function () {
+        map.addLayer(customLayer);
+      });
+    }
   }
   
   

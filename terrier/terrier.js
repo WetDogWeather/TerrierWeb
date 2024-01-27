@@ -668,6 +668,8 @@ class TerrierModule {
 
     // Internal setup logic
     setupModule(initFunc, readyFunc) {
+        console.log("setupModule() called.")
+
         // Already initialized the module, so just call them back
         if ('Module' in globalThis) {
             if (initFunc !== undefined) {

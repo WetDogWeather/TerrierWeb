@@ -801,18 +801,20 @@ class TerrierModule {
      */
     fetchStackContents(fetchFunc, failFunc) {
         // TODO: We'll move this into the stack at some point
-        fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
-            .then((response) =>  {
-                if (response.ok) {
-                    return response.json()
-                } else {
-                    failFunc()
-                }
-            })
-            .then((data) => {
-                Terrier.stackContents = data
-                fetchFunc(Terrier.stackContents)
-            })
+        // fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
+        //     .then((response) =>  {
+        //         if (response.ok) {
+        //             return response.json()
+        //         } else {
+        //             failFunc()
+        //         }
+        //     })
+        //     .then((data) => {
+        //         Terrier.stackContents = data
+        //         fetchFunc(Terrier.stackContents)
+        //     })
+        Terrier.stackContents = []
+        fetchFunc(Terrier.stackContents)
     }
 
     // Search through the stack contents to return all the various levels for a variable

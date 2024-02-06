@@ -12053,7 +12053,7 @@ var ASM_CONSTS = {
       });
     }
   }
-  
+
   
   function _initWebglCanvas(canvas) {
       if (!Module.emInitialized) {

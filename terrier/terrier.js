@@ -508,6 +508,29 @@ class TerrierOverlay {
     }
 
     /**
+     * Nearest frame mode means we snap to the nearest frame time when setting
+     * the value (and tracker) for display.
+     * 
+     * @returns Return true if nearest frame mode is on
+     */
+    getNearestFrame() {
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return true; }
+        return globalThis.Module.tracker.nearestFrame
+    }
+
+    /**
+     * Nearest frame mode means we snap to the nearest frame time when setting
+     * the value (and tracker) for display.
+     * 
+     * @param {double} nearFrame 
+     */
+    setNearestFrame(nearFrame) {
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
+
+        globalThis.Module.tracker.nearestFrame = nearFrame
+    }
+
+    /**
      * Returns the minimum and maximum times available from the data currently loaded.
      * Times are in seconds from the 1970 epoch.
      * @returns An array of 2 floats describing the min and max time.

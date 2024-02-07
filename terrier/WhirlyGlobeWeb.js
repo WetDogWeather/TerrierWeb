@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  234788: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 234990: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  234836: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 235038: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 

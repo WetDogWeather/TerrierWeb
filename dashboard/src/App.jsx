@@ -20,6 +20,7 @@ export const AppContext = createContext()
 function App() {
   const [controlsVisible, setControlsVisible] = useState(true)
   const [legendVisible, setLegendVisible] = useState(true)
+  const [snapFrame, setSnapFrame] = useState(false)
   const [curLayer, setCurLayer] = useState(-1)
   const [layers, setLayers] = useState([])
   const [level, setLevel] = useState(null)
@@ -27,6 +28,7 @@ function App() {
   const [animSpeed, setAnimSpeed] = useState(4.0)
   const [timeRange,setTimeRange] = useState([0.0,0.0])
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
+  const [displayedTime, setDisplayedTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
   const [stackName, setStackName] = useState('prod')
@@ -87,11 +89,19 @@ function App() {
     }
   },[level])
 
+  // Change frame snapping
+  useEffect(() => {
+    if (terrierOvl) {
+      terrierOvl.setNearestFrame(snapFrame)
+    }
+  },[snapFrame])
+
   // React to curTime changes
   useEffect(() => {
     if (curTime == Number.NEGATIVE_INFINITY) { return }
     if (terrierOvl == undefined) { return }
     terrierOvl.setCurrentTime(curTime)
+    setDisplayedTime(terrierOvl.getCurrentTime)
   },[curTime])
 
   // React to isPlaying changes
@@ -233,6 +243,7 @@ function App() {
                           curLayer={curLayer} setCurLayer={setCurLayer} 
                           level={level} setLevel={setLevel}
                           legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+                          snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
                           stackName={stackName} setStackName={setStackName}
                           units={units} setUnits={setUnits} />
@@ -240,7 +251,7 @@ function App() {
             </Header>
 
             {canDisplayMediaControls &&  
-              <MediaControls curTime={curTime} setCurTime={setCurTime} timeRange={timeRange} 
+              <MediaControls curTime={displayedTime} setCurTime={setCurTime} timeRange={timeRange} 
                              isPlaying={isPlaying} 
                              setIsPlaying={setIsPlaying}
                              animSpeed={animSpeed} /> }

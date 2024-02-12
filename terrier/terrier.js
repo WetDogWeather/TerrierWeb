@@ -692,15 +692,23 @@ class TerrierModule {
     // Internal setup logic
     setupModule(initFunc, readyFunc) {
         console.log("setupModule() called.")
+        Terrier.initFunc = initFunc
+        Terrier.readyFunc = readyFunc
 
         // Already initialized the module, so just call them back
         if ('Module' in globalThis) {
-            if (initFunc !== undefined) {
-                initFunc()
-            }
-            if (readyFunc !== undefined) {
-                // Let things settle a beat and then let the dev get set up
-                setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
+            if (_initMap) {
+                // This is the normal case where the Module is properly set up
+                if (initFunc !== undefined) {
+                    Terrier.initFunc()
+                }
+                if (readyFunc !== undefined) {
+                    // Let things settle a beat and then let the dev get set up
+                    setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                }
+            } else {
+                // This happens if they somehow do two start-map actions in a row
+                // The right thing will happen here which is the new initFunc and readyFunc will be called
             }
 
             return
@@ -764,14 +772,14 @@ class TerrierModule {
                 globalThis.Module.radarCadence = [-2 * 3600, 0 * 3600, 40];
 
                 if (globalThis.Module.doMapInit) {
-                    initFunc()
+                    Terrier.initFunc()
                 }
             },
             onOverlayInitialized: function() {
                 Terrier.isReady = true
                 if (readyFunc !== undefined) {
                     // Let things settle a beat and then let the dev get set up
-                    setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
+                    setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                 }
                 globalThis.Module.onOverlayInitialized = null
             }
@@ -957,6 +965,10 @@ class TerrierModule {
             onLayerDidMount() {
                 Terrier.fetchStackContents( () => {
                     Terrier.setupModule(() => {
+                        if (!canvasLayer._canvas || !_initMap) {
+                            console.log("Failed to start on Leaflet canvas.  Skipping.")
+                            return
+                        }
                         _initMap("webglcanvas", canvasLayer._canvas)
                     }, readyFunc)
                     globalThis.Module.canvas = canvasLayer._canvas,

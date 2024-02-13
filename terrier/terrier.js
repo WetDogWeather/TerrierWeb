@@ -562,6 +562,9 @@ class TerrierOverlay {
         if ('period' in params) {
             globalThis.Module.setPlayInterval(params['period'])
         }
+        if ('pause' in params) {
+            globalThis.Module.setPauseInterval(params['pause'])
+        }
 
         globalThis.Module.play()  
     }

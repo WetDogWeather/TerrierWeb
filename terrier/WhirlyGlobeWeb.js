@@ -11273,6 +11273,12 @@ var ASM_CONSTS = {
         t.playIntervalSec = s|0;
       }
     };  // setPlayInterval
+    Module.setPauseInterval = (s) => {
+      const t = Module.tracker;
+      if (t) {
+        t.pauseIntervalSec = s|0;
+      }
+    };  // setPauseInterval
     Module.stopOverlay = () => {
       if (Module.tracker) {
           Module.tracker.stop();

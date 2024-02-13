@@ -108,7 +108,7 @@ function App() {
   useEffect(() => {
     if (terrierOvl == undefined) { return }
     if (isPlaying) {
-      terrierOvl.timePlay({'period': 30.0 / animSpeed})
+      terrierOvl.timePlay({'period': 30.0 / animSpeed, 'pause': 1.0})
     } else {
       terrierOvl.timePause()
       // We were animating, so update our curTime from Terrier

@@ -487,7 +487,7 @@ class TerrierOverlay {
      * @returns {float}
      */
     getCurrentTime() {
-        if (globalThis.Module === undefined) { return 0.0 }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return 0.0 }
 
         return globalThis.Module.tracker.curTime / 1000.0
     }
@@ -498,7 +498,7 @@ class TerrierOverlay {
      * @param {float} epoch Seconds since the 1970 epoch.
      */
     setCurrentTime(epoch) {
-        if (globalThis.Module === undefined) { return }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
         // TODO: Cache this if there's no Module yet
 
         if (globalThis.Module.tracker.curTime != epoch) {
@@ -536,7 +536,7 @@ class TerrierOverlay {
      * @returns An array of 2 floats describing the min and max time.
      */
     getTimeRange() {
-        if (globalThis.Module === undefined) { return [0.0,0.0] }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return [0.0,0.0] }
         return [globalThis.Module.tracker.minTime, globalThis.Module.tracker.maxTime]
     }
 
@@ -553,7 +553,7 @@ class TerrierOverlay {
      * the time range to the end of it.
      */
     timePlay(params) {
-        if (globalThis.Module === undefined) { return }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
 
         if (!params) {
             params = {}
@@ -570,7 +570,7 @@ class TerrierOverlay {
      * If Terrier is animating the data over time, this returns true.
      */
     isTimePlaying() {
-        if (globalThis.Module === undefined) { return false }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return false }
 
         return globalThis.Module.tracker.isPlaying
     }
@@ -580,7 +580,7 @@ class TerrierOverlay {
      * already paused.
      */
     timePause() {
-        if (globalThis.Module === undefined) { return }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
 
         globalThis.Module.pause()
     }

@@ -551,6 +551,9 @@ class TerrierOverlay {
      * 
      * 'period' the number of wall clock seconds to animate from the start of
      * the time range to the end of it.
+     * 
+     * 'pause' is the number of wall clock seconds to pause at the end of the
+     * animation before wrapping around to the start.
      */
     timePlay(params) {
         if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }

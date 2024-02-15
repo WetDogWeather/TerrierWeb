@@ -114,7 +114,6 @@ class TerrierLayer {
                 }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
-                globalThis.Module.radarCadence = [-2*3600, 0, 30]
                 break;
             case "visual":
                 globalThis.Module.enableVisual = true

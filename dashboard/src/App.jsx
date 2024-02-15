@@ -183,7 +183,7 @@ function App() {
                     new Layer(ovl, 'Radar', radarIcon, 'radar', 
                         Terrier.variableLevelsForStack('radar'), 
                         'dBz', Terrier.RADAR_COLORS_GREY, Terrier.RADAR_COLORS_NOT_GREY,
-                          [-2*60*60,0,64], 30),
+                          [-4*60*60,0,64], 30),
                     // new Layer(ovl, 'Cloud Ceiling', windIcon, 'CloudCeiling', 
                     //     Terrier.variableLevelsForStack('CloudCeiling'), 
                     //     'm', cloudColorMap, cloudColorMap,

@@ -80,6 +80,7 @@ export default class Layer {
         this.minImportance = this._teaseOutParam(params,'importanceScale',4)      // 5 - 100.
         this.renderScale = this._teaseOutParam(params,'renderScale',0.5)
         this.timeRange = this._teaseOutParam(params,'timeRange',null)
+        this.startFrame = this._teaseOutParam(params,'startFrame','current')
 
         this.source = this._teaseOutParam(params,'source',null)
     }
@@ -93,6 +94,7 @@ export default class Layer {
                 }
                 params['renderScale'] = this.renderScale
                 params['cadence'] = this.timeRange
+                params['startFrame'] = this.startFrame
                 if (this.source) {
                     params['source'] = this.source
                     this.layer = this.terrierOvl.startLayer('visual', params)

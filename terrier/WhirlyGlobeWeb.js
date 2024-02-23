@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  234836: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 235038: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  234852: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 235054: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -11218,6 +11218,7 @@ var ASM_CONSTS = {
         state.connections = state.connections || Module.numConnections;
         state.loadAllFrames = !!state.loadAllFrames;
         state.snapToFrame = !!state.snapToFrame;
+        state.startFrame = !!state.startFrame;
         state.drawPriority = state.drawPriority || baseDrawPriority;
         baseDrawPriority += drawPriorityStep;
         Module.controllerState[i] = state;
@@ -11352,6 +11353,9 @@ var ASM_CONSTS = {
       ctl.connections = state.connections;
       ctl.loadAllFrames = state.loadAllFrames;
       ctl.snapToFrame = state.snapToFrame;
+      if (state.startFrame !== undefined) {
+        ctl.startFrame = _processStartFrame(state.startFrame)
+      }
       if (Module.selectedLevel) {
         ctl.level = Module.selectedLevel;
       }
@@ -11390,6 +11394,9 @@ var ASM_CONSTS = {
           Module.visualCtl.connections = Module.numConnections;
           Module.visualCtl.loadAllFrames = false;
           Module.visualCtl.snapToFrame = true;
+          if (Module.visualStartFrame !== undefined) {
+            Module.visualCtl.startFrame = _processStartFrame(Module.visualStartFrame)
+          }
           Module.visualCtl.scale = 1.0;
           let model = Module.visualSource['model']
           if (!model) { model = "none" }
@@ -11437,6 +11444,9 @@ var ASM_CONSTS = {
       Module.tempCtl.connections = Module.numConnections;
       Module.tempCtl.loadAllFrames = false;
       Module.tempCtl.snapToFrame = false;
+      if (Module.tempStartFrame !== undefined) {
+        Module.tempCtl.startFrame = _processStartFrame(Module.tempStartFrame)
+      }
       if (Module.selectedLevel) {
         Module.tempCtl.level = Module.selectedLevel;
       }
@@ -11718,6 +11728,9 @@ var ASM_CONSTS = {
       Module.radarCtl.connections = Module.numConnections;
       Module.radarCtl.loadAllFrames = false;
       Module.radarCtl.snapToFrame = true;
+      if (Module.radarStartFrame !== undefined) {
+        Module.radarCtl.startFrame = _processStartFrame(Module.radarStartFrame)
+      }
       if (Module.selectedLevel) {
         Module.radarCtl.level = Module.selectedLevel;
       }
@@ -11759,6 +11772,9 @@ var ASM_CONSTS = {
       Module.windCtl.connections = Module.numConnections;
       Module.windCtl.loadAllFrames = false;
       Module.windCtl.snapToFrame = false;
+      if (Module.windStartFrame !== undefined) {
+        Module.windCtl.startFrame = _processStartFrame(Module.windStartFrame)
+      }
       if (Module.selectedLevel) {
         Module.windCtl.level = Module.selectedLevel;
       }
@@ -11927,6 +11943,19 @@ var ASM_CONSTS = {
   }
   
   
+  
+  function _processStartFrame(frameInfo) {
+    if (frameInfo === undefined || frameInfo === null) {
+      return 0
+    }
+    if (frameInfo == 'start' || frameInfo == 'first') {
+      return -1;
+    } else if (frameInfo == 'end' || frameInfo == 'last') {
+      return 1;
+    }
+  
+    return 0;
+  }
   function _initMapLibre(map) {
     if (!Module.emInitialized) {
       console.log("Deferring Map Init");

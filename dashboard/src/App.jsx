@@ -186,7 +186,8 @@ function App() {
                       'units': 'm/s',
                       'colorsGrey': Terrier.WIND_COLORS_GREY,
                       'colors': Terrier.WIND_COLORS_NOT_GREY,
-                      'timeRange': [-1*24*60*60,1*24*60*60,32]
+                      'timeRange': [-1*24*60*60,1*24*60*60,32],
+                      'startFrame': 'last'
                       }),                              
                     new Layer(ovl, 
                       {'displayName': 'Radar',

@@ -44,6 +44,9 @@ class TerrierLayer {
         if ('cadence' in params) {
             this.cadence = params['cadence']
         }
+        if ('startFrame' in params) {
+            this.startFrame = params['startFrame']
+        }
         var hasImportScale = false
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
@@ -85,6 +88,9 @@ class TerrierLayer {
                 } else {
                     globalThis.Module.selectedLevel = null
                 }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.windStartFrame = this.startFrame
+                }
                 foundState = findControllerState("winduv")
                 break;
             case "temperature":
@@ -96,6 +102,9 @@ class TerrierLayer {
                     globalThis.Module.selectedLevel = this.level
                 } else {
                     globalThis.Module.selectedLevel = null
+                }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.tempStartFrame = this.startFrame
                 }
                 foundState = findControllerState("temperature")
                 break;
@@ -112,6 +121,9 @@ class TerrierLayer {
                 if (!hasImportScale) {
                     this.importScale = 16.0
                 }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.radarStartFrame = this.startFrame
+                }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
                 break;
@@ -119,6 +131,9 @@ class TerrierLayer {
                 globalThis.Module.enableVisual = true
                 globalThis.Module.visualSource = this.source
                 foundState = findControllerState("visual")
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.visualStartFrame = this.startFrame
+                }
                 // Note: Debugging
                 globalThis.Module.visualCadence = [0,30*60,6]
                 break;
@@ -141,6 +156,9 @@ class TerrierLayer {
                 }
                 if (this.colorMap !== null && this.colorMap !== undefined) {
                     foundState.colorMap = this.colorMap
+                }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    foundState.startFrame = this.startFrame
                 }
                 foundState.cadence = this.cadence
                 foundState.renderScale = this.renderScale
@@ -408,6 +426,10 @@ class TerrierOverlay {
      * data with a lot of time slices we don't tend to match it pixel for pixel for the screen
      * resolution.  By default this value is 8.  If you want more resolution, set a value up to
      * 32.  If you want less, for some reason, it can go down to 1.
+     * 
+     * 'startFrame' will set the starting frame to either 'first' or 'last' or 'current.
+     * 'current' just sets the current time where 'first' or 'last' will snap to the appropriate
+     * frame time.  You would use 'last' for radar, for example to show the most recent radar.
      * 
      * @returns {TerrierLayer} The layer object you can interact with directly to make
      * real-time changes.

@@ -3,34 +3,85 @@ import React from 'react'
 // Wrapper around a Terrier layer
 export default class Layer {
 
-    constructor(terrierOvl, displayName, icon, layerName, levels, units, 
-                colorsGrey, colorsNotGrey, timeRange, importanceScale, source) {
+    constructor(terrierOvl, arg1, arg2, arg3, arg4, arg5, 
+        arg6, arg7, arg8, arg9, arg10) {
+        if (arg1 === undefined) {
+            console.log("Invalid call to Layer::constructor() in Terrier.")
+            return
+        }
+        if (arg8 !== undefined) {
+            var params = {}
+            if (arg1 !== undefined) {
+                params['displayName'] = arg1
+            }
+            if (arg2 !== undefined) {
+                params['icon'] = arg2
+            }
+            if (arg3 !== undefined) {
+                params['layerName'] = arg3
+            }
+            if (arg4 !== undefined) {
+                params['levels'] = arg4
+            }
+            if (arg5 !== undefined) {
+                params['units'] = arg5
+            }
+            if (arg6 !== undefined) {
+                params['colorsGrey'] = arg6
+            }
+            if (arg7 !== undefined) {
+                params['colorsNotGrey'] = arg7
+            }
+            if (arg8 !== undefined) {
+                params['timeRange'] = arg8
+            }
+            if (arg9 !== undefined) {
+                params['importanceScale'] = arg9
+            }
+            if (arg10 !== undefined) {
+                params['source'] = arg10
+            }
+            this._constructorNewStyle(terrierOvl, params)
+            return
+        }
 
+        this._constructorNewStyle(terrierOvl, arg1)
+    }
+
+    // Used to parse out params
+    _teaseOutParam(params,name,defValue) {
+        if (name in params) {
+            return params[name]
+        }
+        return defValue
+    }
+
+    _constructorNewStyle(terrierOvl, params) {
         // Parameters
         this.terrierOvl = terrierOvl
-        this.displayName = displayName;
-        this.icon = icon;
-        this.layerName = layerName; // 'temperature', 'windUV', or 'radar'
-        this.levels = levels ? levels : []
-        this.level = !levels || levels.length == 0 ? null : levels[0]
-        this.colorsGrey = colorsGrey;
-        this.colorsNotGrey = colorsNotGrey;
-        this.units = units; // temp = 'K' / 'F' / 'C'    wind = 'm/s'    radar = 'dBz'
+
+        this.displayName = this._teaseOutParam(params,'displayName','unknown')
+        this.icon = this._teaseOutParam(params,'icon',null)
+        this.layerName = this._teaseOutParam(params,'layerName',this.displayName)
+        this.levels = this._teaseOutParam(params,'levels',[])
+        if (this.levels == null) {
+            this.levels = []
+        }
+        this.level = this._teaseOutParam(params,'level',null)
+        this.colorsGrey = this._teaseOutParam(params,'colorsGrey',null)
+        this.colorsNotGrey = this._teaseOutParam(params,'colors',null)
+        this.units = this._teaseOutParam(params,'units','C')
 
         // Default variables
         this.colored = true;
         this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
-        this.minImportance = importanceScale !== undefined ? importanceScale : 4;      // 5 - 100.
-        this.renderScale = 0.5;
-        this.timeRange = timeRange;
 
-        this.layer = null
-        if (source) {
-            this.source = source
-        } else {
-            this.source = null
-        }
+        this.minImportance = this._teaseOutParam(params,'importanceScale',4)      // 5 - 100.
+        this.renderScale = this._teaseOutParam(params,'renderScale',0.5)
+        this.timeRange = this._teaseOutParam(params,'timeRange',null)
+
+        this.source = this._teaseOutParam(params,'source',null)
     }
 
     enable(onOff) {

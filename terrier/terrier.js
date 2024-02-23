@@ -724,7 +724,7 @@ class TerrierModule {
 
         // Already initialized the module, so just call them back
         if ('Module' in globalThis) {
-            if (_initMap) {
+            if ('_initMap' in globalThis) {
                 // This is the normal case where the Module is properly set up
                 if (initFunc !== undefined) {
                     Terrier.initFunc()

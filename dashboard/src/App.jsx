@@ -120,7 +120,7 @@ function App() {
   // TODO: Turn this off when we don't need it
   const updatePlayTime = () => {
     if (terrierOvl == undefined) { return }
-    if (!isPlaying) { return }
+    // if (!isPlaying) { return }
     const newTime = terrierOvl.getCurrentTime()
     if (curTime != newTime) {
       // TODO: Check that we're not creating a slow recursion here
@@ -186,8 +186,7 @@ function App() {
                       'units': 'm/s',
                       'colorsGrey': Terrier.WIND_COLORS_GREY,
                       'colors': Terrier.WIND_COLORS_NOT_GREY,
-                      'timeRange': [-1*24*60*60,1*24*60*60,32],
-                      'startFrame': 'last'
+                      'timeRange': [-1*24*60*60,1*24*60*60,32]
                       }),                              
                     new Layer(ovl, 
                       {'displayName': 'Radar',
@@ -197,8 +196,9 @@ function App() {
                       'units': 'dBz',
                       'colorsGrey': Terrier.RADAR_COLORS_GREY,
                       'colors': Terrier.RADAR_COLORS_NOT_GREY,
-                      'timeRange': [-4*60*60,0,64],
-                      'importanceScale': 8.0
+                      'timeRange': [-2*60*60,0,64],
+                      'importanceScale': 8.0,
+                      'startFrame': 'first'
                       }),                              
                     // new Layer(ovl, 
                     //   {'displayName': 'Cloud Ceiling',

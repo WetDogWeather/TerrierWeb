@@ -83,6 +83,7 @@ export default class Layer {
         this.startFrame = this._teaseOutParam(params,'startFrame','current')
 
         this.source = this._teaseOutParam(params,'source',null)
+        this.loadCallback = this._teaseOutParam(params,'loadCallback',null)
     }
 
     enable(onOff) {
@@ -95,6 +96,9 @@ export default class Layer {
                 params['renderScale'] = this.renderScale
                 params['cadence'] = this.timeRange
                 params['startFrame'] = this.startFrame
+                if (this.loadCallback) {
+                    params['loadCallback'] = this.loadCallback
+                }
                 if (this.source) {
                     params['source'] = this.source
                     this.layer = this.terrierOvl.startLayer('visual', params)
@@ -186,6 +190,11 @@ export default class Layer {
     // Return available time range
     getTimeRange() {
         return this.timeRange
+    }
+
+    // Change the time range of a running layer
+    setTimeRange(timeRange) {
+        this.terrierOvl.setCadence(timeRange)
     }
     
     // Query the given location on the screen for a data value

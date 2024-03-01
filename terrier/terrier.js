@@ -52,6 +52,9 @@ class TerrierLayer {
             this.importScale = params['importFactor']
             hasImportScale = true
         }
+        if ('loadCallback' in params) {
+            this.loadCallback = params['loadCallback']
+        }
         if ('source' in params) {
             // model, region, type, variable, level
             this.source = params['source']
@@ -91,6 +94,9 @@ class TerrierLayer {
                 if (this.startFrame !== null && this.startFrame !== undefined) {
                     globalThis.Module.windStartFrame = this.startFrame
                 }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.windCallback = this.loadCallback
+                }
                 foundState = findControllerState("winduv")
                 break;
             case "temperature":
@@ -105,6 +111,9 @@ class TerrierLayer {
                 }
                 if (this.startFrame !== null && this.startFrame !== undefined) {
                     globalThis.Module.tempStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.tempCallback = this.loadCallback
                 }
                 foundState = findControllerState("temperature")
                 break;
@@ -124,6 +133,9 @@ class TerrierLayer {
                 if (this.startFrame !== null && this.startFrame !== undefined) {
                     globalThis.Module.radarStartFrame = this.startFrame
                 }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.radarCallback = this.loadCallback
+                }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
                 break;
@@ -133,6 +145,9 @@ class TerrierLayer {
                 foundState = findControllerState("visual")
                 if (this.startFrame !== null && this.startFrame !== undefined) {
                     globalThis.Module.visualStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.visualCallback = this.loadCallback
                 }
                 // Note: Debugging
                 globalThis.Module.visualCadence = [0,30*60,6]
@@ -159,6 +174,9 @@ class TerrierLayer {
                 }
                 if (this.startFrame !== null && this.startFrame !== undefined) {
                     foundState.startFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    foundState.callback = this.loadCallback
                 }
                 foundState.cadence = this.cadence
                 foundState.renderScale = this.renderScale
@@ -337,6 +355,19 @@ class TerrierLayer {
         }
         this.state.controller.colorMap = colorMap
         globalThis.Module.repaint()
+    }
+
+    /**
+     * Change the cadence (time range and time steps).
+     * If the data has already loaded, this will only change the start/end
+     * times of the display.
+     */
+    setCadence(cadence) {
+        if (this.state === undefined || this.state.controller === undefined) {
+            return
+        }
+        this.cadence = cadence
+        this.state.controller.cadence = new Module.TrrSourceCadence(...cadence)
     }
 
     /**
@@ -559,6 +590,14 @@ class TerrierOverlay {
     getTimeRange() {
         if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return [0.0,0.0] }
         return [globalThis.Module.tracker.minTime, globalThis.Module.tracker.maxTime]
+    }
+
+    /**
+     * Set the min and max epoch (time in seconds since 1970) for the current display.
+     */
+    setTimeRange(minEpoch,maxEpoch) {
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
+        globalThis.Module.tracker.setRange(minEpoch,maxEpoch)
     }
 
     /**

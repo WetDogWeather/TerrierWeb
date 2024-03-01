@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  234852: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 235054: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  236868: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 237070: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -11356,6 +11356,9 @@ var ASM_CONSTS = {
       if (state.startFrame !== undefined) {
         ctl.startFrame = _processStartFrame(state.startFrame)
       }
+      if (state.callback) {
+        ctl.addLoadCallback(state.callback)
+      }
       if (Module.selectedLevel) {
         ctl.level = Module.selectedLevel;
       }
@@ -11396,6 +11399,9 @@ var ASM_CONSTS = {
           Module.visualCtl.snapToFrame = true;
           if (Module.visualStartFrame !== undefined) {
             Module.visualCtl.startFrame = _processStartFrame(Module.visualStartFrame)
+          }
+          if (Module.visualCallback) {
+            Module.visualCtl.addLoadCallback(Module.visualCallback)
           }
           Module.visualCtl.scale = 1.0;
           let model = Module.visualSource['model']
@@ -11455,6 +11461,9 @@ var ASM_CONSTS = {
       }
       if (Module.tempColorMap) {
         Module.tempCtl.colorMap = Module.tempColorMap;
+      }
+      if (Module.tempCallback) {
+        Module.tempCtl.addLoadCallback(Module.tempCallback)
       }
       if (Module.updateFrameInfo) {
         Module.tempCtlFrameChange = Module.tempCtl.addOnFrameChange(Module.updateFrameInfo);
@@ -11740,6 +11749,9 @@ var ASM_CONSTS = {
       if (Module.radarColorMap) {
         Module.radarCtl.colorMap = Module.radarColorMap;
       }
+      if (Module.radarCallback) {
+        Module.radarCtl.addLoadCallback(Module.radarCallback)
+      }
       if (Module.updateFrameInfo) {
         Module.radarCtlFrameChange = Module.radarCtl.addOnFrameChange(Module.updateFrameInfo);
       }
@@ -11783,6 +11795,9 @@ var ASM_CONSTS = {
       }
       if (Module.windColorMap) {
         Module.windCtl.colorMap = Module.windColorMap;
+      }
+      if (Module.windCallback) {
+        Module.windCtl.addLoadCallback(Module.windCallback)
       }
       if (Module.updateFrameInfo) {
         Module.windCtlFrameChange = Module.windCtl.addOnFrameChange(Module.updateFrameInfo);

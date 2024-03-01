@@ -63,11 +63,18 @@ function App() {
       layer.enable(true)
 
       // Update the time range
-      setTimeRange([now+layer.timeRange[0],now+layer.timeRange[1]])
-      if (curTime < layer.timeRange[0]+now) {
-        setCurTime(layer.timeRange[0]+now)
-      } else if (curTime >= layer.timeRange[1]+now) {
-        setCurTime(layer.timeRange[1]+now)
+      let timeRange = layer.layer.ovl.getTimeRange()
+      if (timeRange[0] != timeRange[1]) {
+        timeRange[0] = timeRange[0]/1000-now
+        timeRange[1] = timeRange[1]/1000-now
+      } else {
+        timeRange = layer.timeRange
+      }
+      setTimeRange([now+timeRange[0],now+timeRange[1]])
+      if (curTime < timeRange[0]+now) {
+        setCurTime(timeRange[0]+now)
+      } else if (curTime >= timeRange[1]+now) {
+        setCurTime(timeRange[1]+now)
       }
 
       // And update the units of whatever is being displayed
@@ -196,9 +203,32 @@ function App() {
                       'units': 'dBz',
                       'colorsGrey': Terrier.RADAR_COLORS_GREY,
                       'colors': Terrier.RADAR_COLORS_NOT_GREY,
-                      'timeRange': [-2*60*60,0,64],
-                      'importanceScale': 8.0,
-                      'startFrame': 'first'
+                      'timeRange': [-4*60*60,0,64],
+                      // The load callback lets us insert some logic when the manifest for a
+                      //  given data source loads.  You'll see more than one data source, depending
+                      //  on what you're displaying.
+                      // In this case we want to snap the displayed time range to the available
+                      //  data (first and last frame of radar) and then we want to snap current
+                      //  time to the last frame.
+                      'loadCallback': (manifest) => {
+                        // Ignore everything but the biggest region
+                        if (manifest.region != 'conus') {
+                          return
+                        }
+
+                        // The manifest has a list of time slices which we can interrogate
+                        let firstSlice = manifest.timeSlices[0]
+                        let lastSlice = manifest.timeSlices.slice(-1)[0]
+                        
+                        // Construct a new relative time range to display
+                        // Snap to the available time slices
+                        let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
+                        ovl.setTimeRange(newTimeRange[0],newTimeRange[1])
+                        setTimeRange(newTimeRange)
+
+                        // And snap to the end for the current time
+                        ovl.setCurrentTime(lastSlice.forecastEpoch)
+                      }
                       }),                              
                     // new Layer(ovl, 
                     //   {'displayName': 'Cloud Ceiling',

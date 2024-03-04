@@ -219,7 +219,7 @@ function App() {
                         // The manifest has a list of time slices which we can interrogate
                         let firstSlice = manifest.timeSlices[0]
                         let lastSlice = manifest.timeSlices.slice(-1)[0]
-                        
+
                         // Construct a new relative time range to display
                         // Snap to the available time slices
                         let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
@@ -255,12 +255,24 @@ function App() {
                     //   'layerName': 'visual',
                     //   'icon': radarIcon,
                     //   'units': 'dBz',
-                    //   'timeRange': [0.0,60*60,12],
                     //   'importanceScale': 8.0,
                     //   'source': {
                     //     model: 'myradar',
                     //     region: 'global',
                     //     variable: 'reflectivity'
+                    //   },
+                    //   'loadCallback': (manifest) => {
+                    //     // The manifest has a list of time slices which we can interrogate
+                    //     let lastSlice = manifest.timeSlices.slice(-1)[0]
+
+                    //     // Construct a new relative time range to display
+                    //     // Snap to the current time and the last available time slice
+                    //     let newTimeRange = [Date.now()/1000,lastSlice.forecastEpoch]
+                    //     ovl.setTimeRange(newTimeRange[0],newTimeRange[1])
+                    //     setTimeRange(newTimeRange)
+
+                    //     // And snap to the end for the current time
+                    //     ovl.setCurrentTime(lastSlice.forecastEpoch)
                     //   }
                     //   })
                   ]

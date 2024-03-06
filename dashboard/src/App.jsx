@@ -223,7 +223,7 @@ function App() {
                         // Construct a new relative time range to display
                         // Snap to the available time slices
                         let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
-                        ovl.setTimeRange(newTimeRange[0],newTimeRange[1])
+                        ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
                         setTimeRange(newTimeRange)
 
                         // And snap to the end for the current time
@@ -267,12 +267,13 @@ function App() {
 
                     //     // Construct a new relative time range to display
                     //     // Snap to the current time and the last available time slice
-                    //     let newTimeRange = [Date.now()/1000,lastSlice.forecastEpoch]
-                    //     ovl.setTimeRange(newTimeRange[0],newTimeRange[1])
+                    //     let now = Date.now()/1000
+                    //     let newTimeRange = [now,lastSlice.forecastEpoch]
+                    //     ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
                     //     setTimeRange(newTimeRange)
 
                     //     // And snap to the end for the current time
-                    //     ovl.setCurrentTime(lastSlice.forecastEpoch)
+                    //     ovl.setCurrentTime(now)
                     //   }
                     //   })
                   ]

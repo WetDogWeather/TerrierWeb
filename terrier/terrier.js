@@ -187,6 +187,11 @@ class TerrierLayer {
 
         this.state = foundState
 
+        if (this.cadence) {
+            let now = Date.now()
+            this.ovl.setTimeRange(now+this.cadence[0]*1000,now+this.cadence[1]*1000)
+        }
+
         // This creates the controls if they're not there already
         globalThis.Module.updateOverlay()
 
@@ -593,13 +598,13 @@ class TerrierOverlay {
     }
 
     /**
-     * Set the min and max epoch (time in seconds since 1970) for the current display.
+     * Set the min and max epoch (time in ms since 1970) for the current display.
      */
     setTimeRange(minEpoch,maxEpoch) {
         if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
         globalThis.Module.tracker.setRange(minEpoch,maxEpoch)
     }
-
+    
     /**
      * Terrier likes to control animation itself, rather than depend on an outside
      * app to smoothly run through a time range with setCurrentTime().  The way

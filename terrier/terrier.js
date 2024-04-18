@@ -229,8 +229,8 @@ class TerrierLayer {
      * The data for that level needs to be available from the source.
      */
     setLevel(newLevel) {
-        if (globalThis.Module.selectedLevel != newLevel) {
-            globalThis.Module.selectedLevel = newLevel
+        if (this.level != newLevel) {
+            this.level = newLevel
             this.refresh()
         }
     }
@@ -358,6 +358,7 @@ class TerrierLayer {
         if (!colorMap) {
             return
         }
+        this.colorMap = colorMap
         this.state.controller.colorMap = colorMap
         globalThis.Module.repaint()
     }
@@ -903,7 +904,7 @@ class TerrierModule {
      */
     fetchStackContents(fetchFunc, failFunc) {
         // TODO: We'll move this into the stack at some point
-        fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
+        fetch("https://"+this.stackName+".api.wetdogweather.com/manifest/v2/getvarkeys")
             .then((response) =>  {
                 if (response.ok) {
                     return response.json()

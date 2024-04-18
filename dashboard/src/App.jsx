@@ -32,7 +32,7 @@ function App() {
   const [displayedTime, setDisplayedTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('prod')
+  const [stackName, setStackName] = useState('dev')
 
   // React to stackName changes
   useEffect(() => {
@@ -170,7 +170,7 @@ function App() {
       layer.enable(false)
     })
 
-    let feetToMeters = 3.28084
+    let feetToMeters = 1/3.28084
     let cloudColorMap = Terrier.createColorMap(
       [0.0*feetToMeters,500.0*feetToMeters,
         500.0*feetToMeters,900.0*feetToMeters,
@@ -349,7 +349,7 @@ function App() {
                     //     // And snap to the end for the current time
                     //     ovl.setCurrentTime(now)
                     //   }
-                      // })
+                    //   })
                     ]
     setLayers(newLayers)
     setCurLayer(0)

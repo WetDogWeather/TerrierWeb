@@ -219,7 +219,8 @@ function App() {
     )
 
     // Set up the layers we know about and enable the first one
-    let newLayers = [new Layer(ovl, 
+    let newLayers = [
+                      new Layer(ovl,
                       {'displayName': 'Temperature',
                       'layerName': 'temperature',
                       'icon': tempIcon,
@@ -363,10 +364,14 @@ function App() {
     const layers = Terrier.ovl.getLayers()
     if (layers.length > 0) {
       const layer = layers[0]
-      const x = window.devicePixelRatio * e.point.x
-      const y = window.devicePixelRatio * e.point.y
+      const x = window.devicePixelRatio * e.point.x / e.originalEvent.target.width
+      const y = window.devicePixelRatio * e.point.y / e.originalEvent.target.height
       const ret = layer.queryValue(x, y)
-      setLegendValue(ret['value'])
+      if (ret != null) {
+        setLegendValue(ret['value'])
+      } else {
+        setLegendValue(null)
+      }
       console.log("Map clicked %d, %d: " + ret['value'].toString(), x, y)
 }
   }

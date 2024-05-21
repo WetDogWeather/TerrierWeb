@@ -386,14 +386,17 @@ class TerrierLayer {
      * Query the data value at a particular screen location.  Coordinates are at full
      * resolution within the OpenGL context.
      * 
-     * @param {float} x Horizontal pixel within the OpenGL screen.
-     * @param {float} y Vertical pixel within the OpenGL screen
+     * @param {float} x Horizontal fraction across the OpenGL window, from 0 to 1.
+     * @param {float} y Vertical fraction across the OpenGL window, from 0 to 1.
      * @returns An array with one or two values, depending on what you queried.  Wind returns two.
      */
     queryValue(x,y) {
         var ret = this.state.controller.queryValue(x, y)
         if (!Array.isArray(ret)) {
             ret = [ret]
+        }
+        if (ret[0] > 1e10) {
+            return null
         }
         return {
             // Can return one or more values

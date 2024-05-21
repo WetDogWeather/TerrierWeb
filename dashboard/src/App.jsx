@@ -364,8 +364,8 @@ function App() {
     const layers = Terrier.ovl.getLayers()
     if (layers.length > 0) {
       const layer = layers[0]
-      const x = window.devicePixelRatio * e.point.x / e.originalEvent.target.width
-      const y = window.devicePixelRatio * e.point.y / e.originalEvent.target.height
+      const x = window.devicePixelRatio * e.point.x
+      const y = window.devicePixelRatio * e.point.y
       const ret = layer.queryValue(x, y)
       if (ret != null) {
         setLegendValue(ret['value'])

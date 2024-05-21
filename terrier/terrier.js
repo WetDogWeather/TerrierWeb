@@ -391,7 +391,10 @@ class TerrierLayer {
      * @returns An array with one or two values, depending on what you queried.  Wind returns two.
      */
     queryValue(x,y) {
-        var ret = this.state.controller.queryValue(x, y)
+        if (globalThis.Module === undefined || globalThis.Module.canvas === undefined) {
+            return null
+        }
+        var ret = this.state.controller.queryValue(x / globalThis.Module.canvas.width, y / globalThis.Module.canvas.height)
         if (!Array.isArray(ret)) {
             ret = [ret]
         }

@@ -910,7 +910,14 @@ class TerrierModule {
      */
     fetchStackContents(fetchFunc, failFunc) {
         // TODO: We'll move this into the stack at some point
-        fetch("https://"+this.stackName+".api.wetdogweather.com/manifest/v2/getvarkeys")
+        var endpoint = ''
+        if (this.stackName.includes('localhost')) {
+            endpoint = "http://" + this.stackName
+        } else {
+            endpoint = "https://"+this.stackName+".api.wetdogweather.com"
+        }
+
+        fetch(endpoint + "/manifest/v2/getvarkeys")
             .then((response) =>  {
                 if (response.ok) {
                     return response.json()

@@ -25,7 +25,7 @@ const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SE
 if (service == 'WMS') {
   // Create a layer from WMS data
   let data = new WMSData(capURL);
-  let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected', 'mp_jet');
+  let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected');
   let bbox = data.getBBox();
 
   const imgLayer = new ImageLayer({
@@ -36,8 +36,11 @@ if (service == 'WMS') {
   layers.push(imgLayer);
 } else {
   // Create a layer from WMTS data
-  let data = new WMTSData(capURL);
-  let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected')
+  let data = new WMTSData(capURL)
+  let dataLayer = await data.getLayer('hrrr-conus-sfcf-cloud_ceiling-none-16-projected',
+                  {opacity: 0.5,
+                   style: 'truwx_ceiling'})
+  // dataLayer.updateDimensions({'style': 'mp_viridis'});
   
   const dataTileLayer =  new TileLayer({opacity: 0.5, source: dataLayer});
 

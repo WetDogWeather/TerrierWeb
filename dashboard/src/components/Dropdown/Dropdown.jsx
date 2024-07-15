@@ -19,6 +19,7 @@ function Dropdown({layers,
                     curLayer, setCurLayer, 
                     level, setLevel,
                     legendVisible, setLegendVisible,
+                    snapFrame, setSnapFrame,
                     animSpeed, setAnimSpeed, 
                     stackName, setStackName,
                     units, setUnits}) {
@@ -87,6 +88,7 @@ function Dropdown({layers,
     } else if (curSelection == numLayers) {
         const settingsContent = (
             <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+                              snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                               animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
                               stackName={stackName} setStackName={setStackName}
              />

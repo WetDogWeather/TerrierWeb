@@ -4,6 +4,7 @@ import './dropdown.css'
 
 // Settings are a separate dropdown
 function SettingsDropdown({legendVisible, setLegendVisible, 
+                            snapFrame, setSnapFrame,
                             animSpeed, setAnimSpeed, 
                             stackName, setStackName}) 
 {
@@ -25,6 +26,13 @@ function SettingsDropdown({legendVisible, setLegendVisible,
             <label>
                 <input type="checkbox" checked={!legendVisible} onChange={() => setLegendVisible(!legendVisible)}/>
             Hide Legend
+            </label>
+            <br />
+            <br />
+
+            <label>
+                <input type="checkbox" checked={snapFrame} onChange={() => setSnapFrame(!snapFrame)}/>
+            Snap to Time Slices
             </label>
 
             <p>Animation Speed</p>

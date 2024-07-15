@@ -7,9 +7,9 @@ import './map.css';
 export default function Map({stackName,readyFunc,fullScreen,onClick}) {
   const mapContainer = useRef(null);
   const [map,setMap] = useState(null);
-  const [lng] = useState(-100);
-  const [lat] = useState(35.6844);
-  const [zoom] = useState(3);
+  const [lng] = useState(-71);
+  const [lat] = useState(42);
+  const [zoom] = useState(8);
   const [API_KEY] = useState('shArXuSxvZazDjMsjkIm');
   const [navControl,setNavControl] = useState(null)
 

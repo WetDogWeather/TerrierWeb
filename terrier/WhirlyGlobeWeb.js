@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  234484: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 234686: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  236804: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 237100: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -11218,6 +11218,7 @@ var ASM_CONSTS = {
         state.connections = state.connections || Module.numConnections;
         state.loadAllFrames = !!state.loadAllFrames;
         state.snapToFrame = !!state.snapToFrame;
+        state.startFrame = !!state.startFrame;
         state.drawPriority = state.drawPriority || baseDrawPriority;
         baseDrawPriority += drawPriorityStep;
         Module.controllerState[i] = state;
@@ -11273,6 +11274,12 @@ var ASM_CONSTS = {
         t.playIntervalSec = s|0;
       }
     };  // setPlayInterval
+    Module.setPauseInterval = (s) => {
+      const t = Module.tracker;
+      if (t) {
+        t.pauseIntervalSec = s|0;
+      }
+    };  // setPauseInterval
     Module.stopOverlay = () => {
       if (Module.tracker) {
           Module.tracker.stop();
@@ -11346,6 +11353,12 @@ var ASM_CONSTS = {
       ctl.connections = state.connections;
       ctl.loadAllFrames = state.loadAllFrames;
       ctl.snapToFrame = state.snapToFrame;
+      if (state.startFrame !== undefined) {
+        ctl.startFrame = _processStartFrame(state.startFrame)
+      }
+      if (state.callback) {
+        ctl.addLoadCallback(state.callback)
+      }
       if (Module.selectedLevel) {
         ctl.level = Module.selectedLevel;
       }
@@ -11384,6 +11397,12 @@ var ASM_CONSTS = {
           Module.visualCtl.connections = Module.numConnections;
           Module.visualCtl.loadAllFrames = false;
           Module.visualCtl.snapToFrame = true;
+          if (Module.visualStartFrame !== undefined) {
+            Module.visualCtl.startFrame = _processStartFrame(Module.visualStartFrame)
+          }
+          if (Module.visualCallback) {
+            Module.visualCtl.addLoadCallback(Module.visualCallback)
+          }
           Module.visualCtl.scale = 1.0;
           let model = Module.visualSource['model']
           if (!model) { model = "none" }
@@ -11431,6 +11450,9 @@ var ASM_CONSTS = {
       Module.tempCtl.connections = Module.numConnections;
       Module.tempCtl.loadAllFrames = false;
       Module.tempCtl.snapToFrame = false;
+      if (Module.tempStartFrame !== undefined) {
+        Module.tempCtl.startFrame = _processStartFrame(Module.tempStartFrame)
+      }
       if (Module.selectedLevel) {
         Module.tempCtl.level = Module.selectedLevel;
       }
@@ -11439,6 +11461,9 @@ var ASM_CONSTS = {
       }
       if (Module.tempColorMap) {
         Module.tempCtl.colorMap = Module.tempColorMap;
+      }
+      if (Module.tempCallback) {
+        Module.tempCtl.addLoadCallback(Module.tempCallback)
       }
       if (Module.updateFrameInfo) {
         Module.tempCtlFrameChange = Module.tempCtl.addOnFrameChange(Module.updateFrameInfo);
@@ -11533,7 +11558,11 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start " + state.name);
       }
-      const colorMap = new Module.TrrShaderColorMap(0, false, [0, 20], [0xFF000000, 0xFFFFFFFF]);
+      if (state.colorMap) {
+        colorMap = state.colorMap
+      } else {
+        colorMap = new Module.TrrShaderColorMap(0, false, [0, 20], [0xFF000000, 0xFFFFFFFF]);
+      }
       var cadence = null;
       if (state.cadence) {
         cadence = new Module.TrrSourceCadence(...state.cadence)
@@ -11712,6 +11741,9 @@ var ASM_CONSTS = {
       Module.radarCtl.connections = Module.numConnections;
       Module.radarCtl.loadAllFrames = false;
       Module.radarCtl.snapToFrame = true;
+      if (Module.radarStartFrame !== undefined) {
+        Module.radarCtl.startFrame = _processStartFrame(Module.radarStartFrame)
+      }
       if (Module.selectedLevel) {
         Module.radarCtl.level = Module.selectedLevel;
       }
@@ -11720,6 +11752,9 @@ var ASM_CONSTS = {
       }
       if (Module.radarColorMap) {
         Module.radarCtl.colorMap = Module.radarColorMap;
+      }
+      if (Module.radarCallback) {
+        Module.radarCtl.addLoadCallback(Module.radarCallback)
       }
       if (Module.updateFrameInfo) {
         Module.radarCtlFrameChange = Module.radarCtl.addOnFrameChange(Module.updateFrameInfo);
@@ -11753,6 +11788,9 @@ var ASM_CONSTS = {
       Module.windCtl.connections = Module.numConnections;
       Module.windCtl.loadAllFrames = false;
       Module.windCtl.snapToFrame = false;
+      if (Module.windStartFrame !== undefined) {
+        Module.windCtl.startFrame = _processStartFrame(Module.windStartFrame)
+      }
       if (Module.selectedLevel) {
         Module.windCtl.level = Module.selectedLevel;
       }
@@ -11761,6 +11799,9 @@ var ASM_CONSTS = {
       }
       if (Module.windColorMap) {
         Module.windCtl.colorMap = Module.windColorMap;
+      }
+      if (Module.windCallback) {
+        Module.windCtl.addLoadCallback(Module.windCallback)
       }
       if (Module.updateFrameInfo) {
         Module.windCtlFrameChange = Module.windCtl.addOnFrameChange(Module.updateFrameInfo);
@@ -11921,6 +11962,19 @@ var ASM_CONSTS = {
   }
   
   
+  
+  function _processStartFrame(frameInfo) {
+    if (frameInfo === undefined || frameInfo === null) {
+      return 0
+    }
+    if (frameInfo == 'start' || frameInfo == 'first') {
+      return -1;
+    } else if (frameInfo == 'end' || frameInfo == 'last') {
+      return 1;
+    }
+  
+    return 0;
+  }
   function _initMapLibre(map) {
     if (!Module.emInitialized) {
       console.log("Deferring Map Init");
@@ -12045,7 +12099,6 @@ var ASM_CONSTS = {
         }
       } // render
     };  // customLayer
-
     if (map.isStyleLoaded()) {
       map.addLayer(customLayer)
     } else {

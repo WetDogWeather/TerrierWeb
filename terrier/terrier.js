@@ -44,10 +44,16 @@ class TerrierLayer {
         if ('cadence' in params) {
             this.cadence = params['cadence']
         }
+        if ('startFrame' in params) {
+            this.startFrame = params['startFrame']
+        }
         var hasImportScale = false
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
             hasImportScale = true
+        }
+        if ('loadCallback' in params) {
+            this.loadCallback = params['loadCallback']
         }
         if ('source' in params) {
             // model, region, type, variable, level
@@ -85,6 +91,12 @@ class TerrierLayer {
                 } else {
                     globalThis.Module.selectedLevel = null
                 }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.windStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.windCallback = this.loadCallback
+                }
                 foundState = findControllerState("winduv")
                 break;
             case "temperature":
@@ -96,6 +108,12 @@ class TerrierLayer {
                     globalThis.Module.selectedLevel = this.level
                 } else {
                     globalThis.Module.selectedLevel = null
+                }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.tempStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.tempCallback = this.loadCallback
                 }
                 foundState = findControllerState("temperature")
                 break;
@@ -112,14 +130,25 @@ class TerrierLayer {
                 if (!hasImportScale) {
                     this.importScale = 16.0
                 }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.radarStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.radarCallback = this.loadCallback
+                }
                 globalThis.Module.radarScale = this.renderScale
                 foundState = findControllerState("radar")
-                globalThis.Module.radarCadence = [-2*3600, 0, 30]
                 break;
             case "visual":
                 globalThis.Module.enableVisual = true
                 globalThis.Module.visualSource = this.source
                 foundState = findControllerState("visual")
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.visualStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.visualCallback = this.loadCallback
+                }
                 // Note: Debugging
                 globalThis.Module.visualCadence = [0,30*60,6]
                 break;
@@ -143,6 +172,12 @@ class TerrierLayer {
                 if (this.colorMap !== null && this.colorMap !== undefined) {
                     foundState.colorMap = this.colorMap
                 }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    foundState.startFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    foundState.callback = this.loadCallback
+                }
                 foundState.cadence = this.cadence
                 foundState.renderScale = this.renderScale
                 foundState.enabled = true
@@ -151,6 +186,11 @@ class TerrierLayer {
         }
 
         this.state = foundState
+
+        if (this.cadence) {
+            let now = Date.now()
+            this.ovl.setTimeRange(now+this.cadence[0]*1000,now+this.cadence[1]*1000)
+        }
 
         // This creates the controls if they're not there already
         globalThis.Module.updateOverlay()
@@ -189,8 +229,8 @@ class TerrierLayer {
      * The data for that level needs to be available from the source.
      */
     setLevel(newLevel) {
-        if (globalThis.Module.selectedLevel != newLevel) {
-            globalThis.Module.selectedLevel = newLevel
+        if (this.level != newLevel) {
+            this.level = newLevel
             this.refresh()
         }
     }
@@ -318,8 +358,22 @@ class TerrierLayer {
         if (!colorMap) {
             return
         }
+        this.colorMap = colorMap
         this.state.controller.colorMap = colorMap
         globalThis.Module.repaint()
+    }
+
+    /**
+     * Change the cadence (time range and time steps).
+     * If the data has already loaded, this will only change the start/end
+     * times of the display.
+     */
+    setCadence(cadence) {
+        if (this.state === undefined || this.state.controller === undefined) {
+            return
+        }
+        this.cadence = cadence
+        this.state.controller.cadence = new Module.TrrSourceCadence(...cadence)
     }
 
     /**
@@ -332,14 +386,20 @@ class TerrierLayer {
      * Query the data value at a particular screen location.  Coordinates are at full
      * resolution within the OpenGL context.
      * 
-     * @param {float} x Horizontal pixel within the OpenGL screen.
-     * @param {float} y Vertical pixel within the OpenGL screen
+     * @param {float} x Horizontal fraction across the OpenGL window, from 0 to 1.
+     * @param {float} y Vertical fraction across the OpenGL window, from 0 to 1.
      * @returns An array with one or two values, depending on what you queried.  Wind returns two.
      */
     queryValue(x,y) {
-        var ret = this.state.controller.queryValue(x, y)
+        if (globalThis.Module === undefined || globalThis.Module.canvas === undefined) {
+            return null
+        }
+        var ret = this.state.controller.queryValue(x / globalThis.Module.canvas.width, y / globalThis.Module.canvas.height)
         if (!Array.isArray(ret)) {
             ret = [ret]
+        }
+        if (ret[0] > 1e10) {
+            return null
         }
         return {
             // Can return one or more values
@@ -409,6 +469,10 @@ class TerrierOverlay {
      * data with a lot of time slices we don't tend to match it pixel for pixel for the screen
      * resolution.  By default this value is 8.  If you want more resolution, set a value up to
      * 32.  If you want less, for some reason, it can go down to 1.
+     * 
+     * 'startFrame' will set the starting frame to either 'first' or 'last' or 'current.
+     * 'current' just sets the current time where 'first' or 'last' will snap to the appropriate
+     * frame time.  You would use 'last' for radar, for example to show the most recent radar.
      * 
      * @returns {TerrierLayer} The layer object you can interact with directly to make
      * real-time changes.
@@ -487,7 +551,7 @@ class TerrierOverlay {
      * @returns {float}
      */
     getCurrentTime() {
-        if (globalThis.Module === undefined) { return 0.0 }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return 0.0 }
 
         return globalThis.Module.tracker.curTime / 1000.0
     }
@@ -498,7 +562,7 @@ class TerrierOverlay {
      * @param {float} epoch Seconds since the 1970 epoch.
      */
     setCurrentTime(epoch) {
-        if (globalThis.Module === undefined) { return }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
         // TODO: Cache this if there's no Module yet
 
         if (globalThis.Module.tracker.curTime != epoch) {
@@ -508,15 +572,46 @@ class TerrierOverlay {
     }
 
     /**
+     * Nearest frame mode means we snap to the nearest frame time when setting
+     * the value (and tracker) for display.
+     * 
+     * @returns Return true if nearest frame mode is on
+     */
+    getNearestFrame() {
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return true; }
+        return globalThis.Module.tracker.nearestFrame
+    }
+
+    /**
+     * Nearest frame mode means we snap to the nearest frame time when setting
+     * the value (and tracker) for display.
+     * 
+     * @param {double} nearFrame 
+     */
+    setNearestFrame(nearFrame) {
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
+
+        globalThis.Module.tracker.nearestFrame = nearFrame
+    }
+
+    /**
      * Returns the minimum and maximum times available from the data currently loaded.
      * Times are in seconds from the 1970 epoch.
      * @returns An array of 2 floats describing the min and max time.
      */
     getTimeRange() {
-        if (globalThis.Module === undefined) { return [0.0,0.0] }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return [0.0,0.0] }
         return [globalThis.Module.tracker.minTime, globalThis.Module.tracker.maxTime]
     }
 
+    /**
+     * Set the min and max epoch (time in ms since 1970) for the current display.
+     */
+    setTimeRange(minEpoch,maxEpoch) {
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
+        globalThis.Module.tracker.setRange(minEpoch,maxEpoch)
+    }
+    
     /**
      * Terrier likes to control animation itself, rather than depend on an outside
      * app to smoothly run through a time range with setCurrentTime().  The way
@@ -528,9 +623,12 @@ class TerrierOverlay {
      * 
      * 'period' the number of wall clock seconds to animate from the start of
      * the time range to the end of it.
+     * 
+     * 'pause' is the number of wall clock seconds to pause at the end of the
+     * animation before wrapping around to the start.
      */
     timePlay(params) {
-        if (globalThis.Module === undefined) { return }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
 
         if (!params) {
             params = {}
@@ -538,6 +636,9 @@ class TerrierOverlay {
 
         if ('period' in params) {
             globalThis.Module.setPlayInterval(params['period'])
+        }
+        if ('pause' in params) {
+            globalThis.Module.setPauseInterval(params['pause'])
         }
 
         globalThis.Module.play()  
@@ -547,7 +648,7 @@ class TerrierOverlay {
      * If Terrier is animating the data over time, this returns true.
      */
     isTimePlaying() {
-        if (globalThis.Module === undefined) { return false }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return false }
 
         return globalThis.Module.tracker.isPlaying
     }
@@ -557,7 +658,7 @@ class TerrierOverlay {
      * already paused.
      */
     timePause() {
-        if (globalThis.Module === undefined) { return }
+        if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
 
         globalThis.Module.pause()
     }
@@ -635,6 +736,12 @@ class TerrierModule {
             0x4410E6E7, 0x7710E6E7, 0xBB10E6E7, // Not visible either
             0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
             0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA,
+        ], [
+            false, false, false,
+            false, false, false,
+            true, true, true, true, true, true,
+            true, true, true, true, true, true, true, true,
+            true, true, true, true, true, true, true, true
         ]);
     }
 
@@ -662,14 +769,24 @@ class TerrierModule {
 
     // Internal setup logic
     setupModule(initFunc, readyFunc) {
+        console.log("setupModule() called.")
+        Terrier.initFunc = initFunc
+        Terrier.readyFunc = readyFunc
+
         // Already initialized the module, so just call them back
         if ('Module' in globalThis) {
-            if (initFunc !== undefined) {
-                initFunc()
-            }
-            if (readyFunc !== undefined) {
-                // Let things settle a beat and then let the dev get set up
-                setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
+            if ('_initMap' in globalThis) {
+                // This is the normal case where the Module is properly set up
+                if (initFunc !== undefined) {
+                    Terrier.initFunc()
+                }
+                if (readyFunc !== undefined) {
+                    // Let things settle a beat and then let the dev get set up
+                    setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                }
+            } else {
+                // This happens if they somehow do two start-map actions in a row
+                // The right thing will happen here which is the new initFunc and readyFunc will be called
             }
 
             return
@@ -733,14 +850,14 @@ class TerrierModule {
                 globalThis.Module.radarCadence = [-2 * 3600, 0 * 3600, 40];
 
                 if (globalThis.Module.doMapInit) {
-                    initFunc()
+                    Terrier.initFunc()
                 }
             },
             onOverlayInitialized: function() {
                 Terrier.isReady = true
                 if (readyFunc !== undefined) {
                     // Let things settle a beat and then let the dev get set up
-                    setTimeout( () => {readyFunc(Terrier.ovl) }, 0)
+                    setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                 }
                 globalThis.Module.onOverlayInitialized = null
             }
@@ -793,7 +910,14 @@ class TerrierModule {
      */
     fetchStackContents(fetchFunc, failFunc) {
         // TODO: We'll move this into the stack at some point
-        fetch("https://wetdogmaplibre.s3.us-west-2.amazonaws.com/config/"+this.stackName+"_stack_contents.json")
+        var endpoint = ''
+        if (this.stackName.includes('localhost')) {
+            endpoint = "http://" + this.stackName
+        } else {
+            endpoint = "https://"+this.stackName+".api.wetdogweather.com"
+        }
+
+        fetch(endpoint + "/manifest/v2/getvarkeys")
             .then((response) =>  {
                 if (response.ok) {
                     return response.json()
@@ -926,6 +1050,10 @@ class TerrierModule {
             onLayerDidMount() {
                 Terrier.fetchStackContents( () => {
                     Terrier.setupModule(() => {
+                        if (!canvasLayer._canvas || !_initMap) {
+                            console.log("Failed to start on Leaflet canvas.  Skipping.")
+                            return
+                        }
                         _initMap("webglcanvas", canvasLayer._canvas)
                     }, readyFunc)
                     globalThis.Module.canvas = canvasLayer._canvas,

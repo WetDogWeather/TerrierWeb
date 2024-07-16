@@ -7,7 +7,7 @@ function Header(props) {
         <>
             <nav className="header">
                     <img id='logo' src={zeusLogo} alt="Zeus.ai Logo" /> 
-                    <h1 id='splash-text'>LENS-Cast</h1>
+                    <h1 id='splash-text'>Land surface temperature</h1>
                     <div>
                     <h3 id='splash-text2'>Visualization by </h3>
                     <a href="https://www.wetdogweather.com/">

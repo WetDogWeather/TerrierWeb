@@ -1123,6 +1123,33 @@ class TerrierModule {
         })
     }
 
+    startArcGIS(stackName, arcGISMapView, readyFunc) {
+        this.stackName = stackName
+        if (arcGISMapView == undefined) {
+            console.log('Need to pass the ArcGIS map into TerrierInit.  Not starting.')
+            return
+        }
+
+        // Already started, so just call them back
+        if (this.isReady) {
+            if (readyFunc !== undefined) {
+                readyFunc(this.ovl)
+            }
+            return
+        }
+
+        this.fetchStackContents( () => {
+            this.setupModule(() => {
+                _initArcGIS(arcGISMapView)
+            }, readyFunc)
+            this.loadLibrary()
+        },
+        () => {
+            console.log("Failed to fetch stack contents.  Terrier will not start.")
+        })
+    }
+
+
     /**
      * If you want Terrier completely stopped, this is what you can call.
      * If you want to shutdown a layer, just call the corresponding method

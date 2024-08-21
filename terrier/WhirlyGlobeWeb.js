@@ -11173,19 +11173,21 @@ var ASM_CONSTS = {
         .addEventListener('change', updatePixelRatio, {once: true});
         GLFW.onWindowContentScaleChanged(_emscripten_get_device_pixel_ratio());
         })();
-      Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
-      Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
-      Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
-      Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
-      Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
-      Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
-      Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
-      Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
-      Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
-      Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
-      Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
-      Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
-      Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
+      if ("canvas" in Module) {
+        Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
+        Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
+        Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
+        Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
+        Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
+        Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
+        Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
+        Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
+        Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
+        Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
+        Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
+        Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
+        Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
+      }
   
       Browser.resizeListeners.push((width, height) => {
          GLFW.onCanvasResize(width, height);
@@ -11993,29 +11995,29 @@ var ASM_CONSTS = {
     };
     _initUI(() => Module.animateFor(5000));
   
-      // We'll check our own renderer periodically to see if it has changes to
-      //  draw and keep drawing until it doesn't
-      // TODO: Have some way to shut this down
+    // We'll check our own renderer periodically to see if it has changes to
+    //  draw and keep drawing until it doesn't
+    // TODO: Have some way to shut this down
+    Module.animationFrameRequested = false
+    let repaintAndSchedule = () => {
+      Module.repaint()
       Module.animationFrameRequested = false
-      let repaintAndSchedule = () => {
-        Module.repaint()
-        Module.animationFrameRequested = false
-        if (Module.overlay.hasChanges()) {
-          Module.animationFrameRequested = true
-          Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
-          })
-        }
+      if (Module.overlay.hasChanges()) {
+        Module.animationFrameRequested = true
+        Module.requestAnimationFrame(() => {
+          repaintAndSchedule()
+        })
       }
-      setInterval(() => {
-        if (!Module.overlay) { return }
-        if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
-          Module.animationFrameRequested = true
-          Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
-          })
-        }
-      },100);
+    }
+    setInterval(() => {
+      if (!Module.overlay) { return }
+      if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
+        Module.animationFrameRequested = true
+        Module.requestAnimationFrame(() => {
+          repaintAndSchedule()
+        })
+      }
+    },100);
   
     const customLayer = {
       id: 'terrier',
@@ -12108,7 +12110,137 @@ var ASM_CONSTS = {
     }
   }
   
+  function _initArcGIS(mapView) {
+    if (!Module.emInitialized) {
+      console.log("Deferring Map Init");
+      Module.doMapInit = true;
+      return;
+    }
   
+    console.log("Initializing ArcGIS Overlay");
+  
+    Module.map = mapView.map;
+  
+    Module.repaint = function() {
+      if (Module.controllers.length && Module.map) {
+        // Module.map.triggerRepaint();
+        // TODO: Trigger a repaint
+      }
+    };
+    _initUI(() => Module.animateFor(5000));
+  
+      // We'll check our own renderer periodically to see if it has changes to
+      //  draw and keep drawing until it doesn't
+      // TODO: Have some way to shut this down
+      Module.animationFrameRequested = false
+      let repaintAndSchedule = () => {
+        Module.repaint()
+        Module.animationFrameRequested = false
+        if (Module.overlay.hasChanges()) {
+          Module.animationFrameRequested = true
+          Module.requestAnimationFrame(() => {
+            repaintAndSchedule()
+          })
+        }
+      }
+      setInterval(() => {
+        if (!Module.overlay) { return }
+        if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
+          Module.animationFrameRequested = true
+          Module.requestAnimationFrame(() => {
+            repaintAndSchedule()
+          })
+        }
+      },100);
+  
+      require(["esri/views/2d/layers/BaseLayerViewGL2D",
+               "esri/layers/GraphicsLayer"],(BaseLayerViewGL2D,GraphicsLayer) => {
+        // Subclass the custom layer view from BaseLayerViewGL2D.
+        const CustomLayerView2D = BaseLayerViewGL2D.createSubclass({
+          constructor: function(mapView) {
+            Module.mapView = mapView.view
+          },
+          // Called once a custom layer is added to the map.layers collection and this layer view is instantiated.
+          attach: function () {
+            console.log("Terrier custom layer add");      
+
+            let gl = this.context;
+
+            _glfwInit();
+  
+            const handle = GL.registerContext(gl, gl.getContextAttributes());
+            if (handle) {
+              Module.ctx = GL.getContext(handle).GLctx;
+              GL.makeContextCurrent(handle);
+              Module.useWebGL = true;
+              Browser.init();
+
+              // todo: delete old overlay?
+              if (!Module.overlay) {
+                Module.overlay = new Module.MapOverlay();
+                Module.overlay.setup();
+              }
+
+              if (!Module.service) {
+                Module.service = new Module.TrrService();
+                Module.service.stackName = "dev";
+              }
+        
+              Module.updateOverlay();
+      
+              if (Module.onOverlayInitialized) {
+                Module.onOverlayInitialized(Module.overlay);
+              }
+            }    
+          },
+
+          // Called every time a frame is rendered.
+          render: function (renderParameters) {
+            if (renderParameters.context) {
+              const stack = createGLStateStack(renderParameters.context);
+              stack.push();
+              {
+                const width = Module.mapView.width;
+                const height = Module.mapView.height;
+                const center = renderParameters.state.center;
+                const zoom = 0.0;
+                const tileSize = 256; //Module.map.transform.tileSize;
+                Module.overlay.render(width, height, tileSize, center[0], center[1], zoom,
+                  renderParameters.state.transform, true);
+      
+                Module.lastRenderTime = new Date().getTime();
+              }
+              stack.pop();
+            }
+          },
+
+          // Called once a custom layer is removed from the map.layers collection and this layer view is destroyed.
+          detach: function () {
+          },
+
+          // Called by the map view or the popup view when hit testing is required.
+          hitTest: function(mapPoint, screenPoint) {
+          },
+        });
+
+        // Subclass the custom layer view from GraphicsLayer.
+        const CustomLayer = GraphicsLayer.createSubclass({
+          createLayerView: function (view) {
+            // We only support MapView, so we only need to return a
+            // custom layer view for the `2d` case.
+            if (view.type === "2d") {
+              return new CustomLayerView2D({
+                view: view,
+                layer: this
+              });
+            }
+          }
+        });
+        
+        const layer = new CustomLayer();
+        mapView.map.layers.add(layer);
+      })
+  }
   function _initWebglCanvas(canvas) {
       if (!Module.emInitialized) {
         console.log("Deferring Map Init");

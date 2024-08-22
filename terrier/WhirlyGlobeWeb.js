@@ -11995,29 +11995,29 @@ var ASM_CONSTS = {
     };
     _initUI(() => Module.animateFor(5000));
   
-    // We'll check our own renderer periodically to see if it has changes to
-    //  draw and keep drawing until it doesn't
-    // TODO: Have some way to shut this down
-    Module.animationFrameRequested = false
-    let repaintAndSchedule = () => {
-      Module.repaint()
+      // We'll check our own renderer periodically to see if it has changes to
+      //  draw and keep drawing until it doesn't
+      // TODO: Have some way to shut this down
       Module.animationFrameRequested = false
-      if (Module.overlay.hasChanges()) {
-        Module.animationFrameRequested = true
-        Module.requestAnimationFrame(() => {
-          repaintAndSchedule()
-        })
+      let repaintAndSchedule = () => {
+        Module.repaint()
+        Module.animationFrameRequested = false
+        if (Module.overlay.hasChanges()) {
+          Module.animationFrameRequested = true
+          Module.requestAnimationFrame(() => {
+            repaintAndSchedule()
+          })
+        }
       }
-    }
-    setInterval(() => {
-      if (!Module.overlay) { return }
-      if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
-        Module.animationFrameRequested = true
-        Module.requestAnimationFrame(() => {
-          repaintAndSchedule()
-        })
-      }
-    },100);
+      setInterval(() => {
+        if (!Module.overlay) { return }
+        if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
+          Module.animationFrameRequested = true
+          Module.requestAnimationFrame(() => {
+            repaintAndSchedule()
+          })
+        }
+      },100);
   
     const customLayer = {
       id: 'terrier',
@@ -12110,6 +12110,8 @@ var ASM_CONSTS = {
     }
   }
   
+  
+  
   function _initArcGIS(mapView) {
     if (!Module.emInitialized) {
       console.log("Deferring Map Init");
@@ -12163,9 +12165,9 @@ var ASM_CONSTS = {
           // Called once a custom layer is added to the map.layers collection and this layer view is instantiated.
           attach: function () {
             console.log("Terrier custom layer add");      
-
+  
             let gl = this.context;
-
+  
             _glfwInit();
   
             const handle = GL.registerContext(gl, gl.getContextAttributes());
@@ -12174,13 +12176,13 @@ var ASM_CONSTS = {
               GL.makeContextCurrent(handle);
               Module.useWebGL = true;
               Browser.init();
-
+  
               // todo: delete old overlay?
               if (!Module.overlay) {
                 Module.overlay = new Module.MapOverlay();
                 Module.overlay.setup();
               }
-
+  
               if (!Module.service) {
                 Module.service = new Module.TrrService();
                 Module.service.stackName = "dev";
@@ -12191,38 +12193,73 @@ var ASM_CONSTS = {
               if (Module.onOverlayInitialized) {
                 Module.onOverlayInitialized(Module.overlay);
               }
-            }    
+            }  
+            
+            // Copied from the ESRI example code
+            this.transform = mat4.create();
+            this.translationToCenter = vec4.create();
+            this.screenTranslation = vec4.create();
+  
+            // Geometrical transformations whose only a few elements
+            // must be updated per frame. Those elements are marked
+            // with NaN.
+            this.display = mat4.fromValues(NaN, 0, 0, 0, 0, NaN, 0, 0, 0, 0, 1, 0, -1, 1, 1, 1);
+            this.screenScaling = vec4.fromValues(NaN, NaN, 1, 1);  
+            
           },
-
+  
           // Called every time a frame is rendered.
           render: function (renderParameters) {
             if (renderParameters.context) {
               const stack = createGLStateStack(renderParameters.context);
               stack.push();
               {
+                state = renderParameters.state;
                 const width = Module.mapView.width;
                 const height = Module.mapView.height;
                 const center = renderParameters.state.center;
                 const zoom = 0.0;
                 const tileSize = 256; //Module.map.transform.tileSize;
-                Module.overlay.render(width, height, tileSize, center[0], center[1], zoom,
-                  renderParameters.state.transform, true);
-      
+  
+                // Update view `transform` matrix; it converts from map units to pixels.
+                mat4.identity(this.transform);
+                this.screenTranslation[0] = (state.pixelRatio * state.size[0]) / 2;
+                this.screenTranslation[1] = (state.pixelRatio * state.size[1]) / 2;
+                mat4.translate(this.transform, this.transform, this.screenTranslation);
+                // mat4.rotate(this.transform, this.transform, (Math.PI * state.rotation) / 180);
+                this.screenScaling[0] = state.pixelRatio / state.resolution;
+                this.screenScaling[1] = -state.pixelRatio / state.resolution;
+                mat4.scale(this.transform, this.transform, this.screenScaling);
+                mat4.translate(this.transform, this.transform, this.translationToCenter);
+  
+                // Update view `display` matrix; it converts from pixels to normalized device coordinates.
+                this.display[0] = 2 / (state.pixelRatio * state.size[0]);
+                this.display[5] = -2 / (state.pixelRatio * state.size[1]);
+  
+                transform = mat4.create();
+                mat4.identity(transform);
+                mat4.multiply(transform,transform,this.transform);
+                mat4.multiply(transform,transform,this.display);
+  
+                transform = mat4.fromValues(2.7486423584173774, 0, 0, 0,  0, -3, 0, 0,  0, 0, -0.00012934612335298946,-0.00012597554033401905,  -2790.4828032065184, 4838.61119667461, 1771.0260200668897, 1771.5);
+  
+                Module.overlay.render(width, height, tileSize, 35.68440000000396, -90.77148437500324, 3,
+                  transform, true);    
                 Module.lastRenderTime = new Date().getTime();
               }
               stack.pop();
             }
           },
-
+  
           // Called once a custom layer is removed from the map.layers collection and this layer view is destroyed.
           detach: function () {
           },
-
+  
           // Called by the map view or the popup view when hit testing is required.
           hitTest: function(mapPoint, screenPoint) {
           },
         });
-
+  
         // Subclass the custom layer view from GraphicsLayer.
         const CustomLayer = GraphicsLayer.createSubclass({
           createLayerView: function (view) {
@@ -12241,6 +12278,8 @@ var ASM_CONSTS = {
         mapView.map.layers.add(layer);
       })
   }
+  
+  
   function _initWebglCanvas(canvas) {
       if (!Module.emInitialized) {
         console.log("Deferring Map Init");
@@ -12351,6 +12390,8 @@ var ASM_CONSTS = {
       _initMapLibre(...args);
     } else if (type == "webglcanvas") {
       _initWebglCanvas(...args);
+    } else if (type == "arcgis") {
+      _initArcGIS(...args)
     }
   }
   Module['_initMap'] = _initMap;

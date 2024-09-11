@@ -1123,6 +1123,23 @@ class TerrierModule {
         })
     }
 
+    /**
+     * If you're using ArcGIS Maps SDK for JavaScript as your base map package, this is the method
+     * to call to kick off Terrier.  The system does a lot on initialization,
+     * including load its WebAssembly.  
+     * 
+     * ArcGIS Maps SDK integration is very smooth since
+     * both the base toolkit and Terrier are using WebGL.
+     * 
+     * @param {string} stackName Name of the Boxer stack you're communicating with.
+     * You'll typically have one production and one development stack as an enterprise
+     * user.
+     * @param {Map} arcgisMAp The main Map object.  See the ArcGISMaps example
+     * for details.
+     * @param {function(TerrierOverlay): void} readyFunc When Terrier is properly initialized it will
+     * call this function back with the TerrierOverlay you can use to start new
+     * layer displays.
+     */
     startArcGIS(stackName, arcGISMapView, readyFunc) {
         this.stackName = stackName
         if (arcGISMapView == undefined) {

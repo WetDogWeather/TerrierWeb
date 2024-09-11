@@ -2,6 +2,7 @@ import Terrier from "./terrier.js"
 
 require(["esri/Map", 
          "esri/views/MapView"], (Map, MapView) => {
+  // Start by creating a map in the way ESRI suggests
   const map = new Map({
     basemap: "streets-night-vector"
   });
@@ -15,11 +16,13 @@ require(["esri/Map",
   Terrier.startArcGIS("dev", mapView, (ovl) => {
     let tempLayer = ovl.startLayer('radar', {
         // colorMap: {}
-        // level: 80
         interpMode: 'linear',
         opacity: 0.5,
+        // Four hours worth of past radar, maximum of 64 frames
         cadence: [-4*60*60,0,64]
     })
+
+    // Turn this on to animate over time
     // ovl.timePlay({period: 20.0})    
-})
+  })
 });

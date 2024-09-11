@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  237028: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 237324: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  236916: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 237212: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -10557,9 +10557,9 @@ var ASM_CONSTS = {
         // This logic comes directly from the sdl implementation. We cannot
         // call preventDefault on all keydown events otherwise onKeyPress will
         // not get called
-        if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
-          event.preventDefault();
-        }
+        // if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
+        //   event.preventDefault();
+        // }
       },
   onKeyup:(event) => {
         GLFW.onKeyChanged(event.keyCode, 0); // GLFW_RELEASE
@@ -11932,7 +11932,7 @@ var ASM_CONSTS = {
           const width = Module.canvas.width;
           const height = Module.canvas.height;
           const fieldOfView = 85;
-          Module.overlay.render(width, height, cp.center.lng(), cp.center.lat(), cp.zoom, fieldOfView);
+          Module.overlay.render(width, height, cp.center.lng(), cp.center.lat(), cp.zoom, 0.0, fieldOfView);
         }
         stack.pop();
       }
@@ -12092,7 +12092,7 @@ var ASM_CONSTS = {
             const zoom = Module.map.getZoom();
             const fieldOfView = Module.map._fov * 180 / Math.PI;
             const tileSize = 256; //Module.map.transform.tileSize;
-            Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom,
+            Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom, 0.0,
               Module.map.transform.projMatrix, true);
   
             Module.lastRenderTime = new Date().getTime();
@@ -12231,7 +12231,11 @@ var ASM_CONSTS = {
                                   -(extent.xmax+extent.xmin)/(extent.xmax-extent.xmin), -(extent.ymax+extent.ymin)/(extent.ymax-extent.ymin), -(far+near)/(far-near), 1.0]
                   let worldSize = 20037508.3427892 * 2.0
   
-                  Module.overlay.render(width, height, tileSize, 0.0, 0.0, -worldSize, transform, true);    
+                  Module.overlay.render(width, height, 
+                                        tileSize, 
+                                        extent.center.longitude, extent.center.latitude, 
+                                        0.0, worldSize, 
+                                        transform, true);    
                   Module.lastRenderTime = new Date().getTime();
               }
               stack.pop();
@@ -12358,7 +12362,7 @@ var ASM_CONSTS = {
           const height = Module.canvas.height;
           const tileSize = 128;
           Module.overlay.render(width, height, tileSize, 
-            transform.centerLng, transform.centerLat, transform.zoom,
+            transform.centerLng, transform.centerLat, transform.zoom, 0.0,
             transform.projMatrix, false);
   
           Module.lastRenderTime = new Date().getTime();

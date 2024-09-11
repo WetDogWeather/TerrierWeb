@@ -10557,9 +10557,9 @@ var ASM_CONSTS = {
         // This logic comes directly from the sdl implementation. We cannot
         // call preventDefault on all keydown events otherwise onKeyPress will
         // not get called
-        // if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
-        //   event.preventDefault();
-        // }
+        if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
+          event.preventDefault();
+        }
       },
   onKeyup:(event) => {
         GLFW.onKeyChanged(event.keyCode, 0); // GLFW_RELEASE
@@ -12195,63 +12195,48 @@ var ASM_CONSTS = {
               }
             }  
             
-            // Copied from the ESRI example code
-            this.transform = mat4.create();
-            this.translationToCenter = vec4.create();
-            this.screenTranslation = vec4.create();
+              // Copied from the ESRI example code
+              this.transform = mat4.create();
+              this.translationToCenter = vec3.create();
+              this.screenTranslation = vec3.create();
+    
+              // Geometrical transformations whose only a few elements
+              // must be updated per frame. Those elements are marked
+              // with NaN.
+              this.display = mat4.fromValues(NaN, 0, 0, 0,  0, NaN, 0, 0,  0, 0, 1, 0,  -1, 1, 1, 1);
+              this.screenScaling = vec4.fromValues(NaN, NaN, 1, 1);
+              
+            },
+    
+            // Called every time a frame is rendered.
+            render: function (renderParameters) {
+              if (renderParameters.context) {
+                const stack = createGLStateStack(renderParameters.context);
+                GL.makeContextCurrent(Module.glHandle);
+                stack.push();
+                // Set the default framebuffer manually so we can get render to it
+                GL.framebuffers[0] = GLctx.getParameter(this.context.FRAMEBUFFER_BINDING);
+                {
+                  state = renderParameters.state;
+                  const width = state.pixelRatio * state.size[0];
+                  const height = state.pixelRatio * state.size[1];
+                  const tileSize = 256;
   
-            // Geometrical transformations whose only a few elements
-            // must be updated per frame. Those elements are marked
-            // with NaN.
-            this.display = mat4.fromValues(NaN, 0, 0, 0, 0, NaN, 0, 0, 0, 0, 1, 0, -1, 1, 1, 1);
-            this.screenScaling = vec4.fromValues(NaN, NaN, 1, 1);  
-            
-          },
+                  let far = 10.0
+                  let near = -10.0
+                  let extent = renderParameters.state.extent
+                  var transform = [2.0/(extent.xmax-extent.xmin), 0.0, 0.0, 0.0,  
+                                  0.0, -2.0/(extent.ymax-extent.ymin), 0.0, 0.0,  
+                                  0.0, 0.0, -2.0/(far-near), 0.0,
+                                  -(extent.xmax+extent.xmin)/(extent.xmax-extent.xmin), -(extent.ymax+extent.ymin)/(extent.ymax-extent.ymin), -(far+near)/(far-near), 1.0]
+                  let worldSize = 20037508.3427892 * 2.0
   
-          // Called every time a frame is rendered.
-          render: function (renderParameters) {
-            if (renderParameters.context) {
-              const stack = createGLStateStack(renderParameters.context);
-              GL.makeContextCurrent(Module.glHandle);
-              stack.push();
-              // Set the default framebuffer manually so we can get render to it
-              GL.framebuffers[0] = GLctx.getParameter(this.context.FRAMEBUFFER_BINDING);
-              {
-                state = renderParameters.state;
-                const width = Module.mapView.width;
-                const height = Module.mapView.height;
-                const center = renderParameters.state.center;
-                const zoom = 0.0;
-                const tileSize = 256; //Module.map.transform.tileSize;
-  
-                // Update view `transform` matrix; it converts from map units to pixels.
-                mat4.identity(this.transform);
-                this.screenTranslation[0] = (state.pixelRatio * state.size[0]) / 2;
-                this.screenTranslation[1] = (state.pixelRatio * state.size[1]) / 2;
-                mat4.translate(this.transform, this.transform, this.screenTranslation);
-                // mat4.rotate(this.transform, this.transform, (Math.PI * state.rotation) / 180);
-                this.screenScaling[0] = state.pixelRatio / state.resolution;
-                this.screenScaling[1] = -state.pixelRatio / state.resolution;
-                mat4.scale(this.transform, this.transform, this.screenScaling);
-                mat4.translate(this.transform, this.transform, this.translationToCenter);
-  
-                // Update view `display` matrix; it converts from pixels to normalized device coordinates.
-                this.display[0] = 2 / (state.pixelRatio * state.size[0]);
-                this.display[5] = -2 / (state.pixelRatio * state.size[1]);
-  
-                transform = mat4.create();
-                mat4.identity(transform);
-                mat4.multiply(transform,transform,this.transform);
-                mat4.multiply(transform,transform,this.display);
-  
-                transform = mat4.fromValues(2.7486423584173774, 0, 0, 0,  0, -3, 0, 0,  0, 0, -0.00012934612335298946,-0.00012597554033401905,  -2790.4828032065184, 4838.61119667461, 1771.0260200668897, 1771.5);
-  
-                Module.overlay.render(width, height, tileSize, 35.68440000000396, -90.77148437500324, 3,
-                  transform, true);    
-                Module.lastRenderTime = new Date().getTime();
+                  Module.overlay.render(width, height, tileSize, 0.0, 0.0, -worldSize, transform, true);    
+                  Module.lastRenderTime = new Date().getTime();
               }
               stack.pop();
             }
+  
           },
   
           // Called once a custom layer is removed from the map.layers collection and this layer view is destroyed.

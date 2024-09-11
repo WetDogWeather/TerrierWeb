@@ -1,7 +1,7 @@
 import Terrier from "./terrier.js"
 
 require(["esri/Map", 
-    "esri/views/MapView"], (Map, MapView, BaseLayerViewGL2D) => {
+         "esri/views/MapView"], (Map, MapView) => {
   const map = new Map({
     basemap: "streets-night-vector"
   });
@@ -10,7 +10,7 @@ require(["esri/Map",
     map: map, // Reference to the map object created before the view
     center: [0, 0],
     zoom: 1
-});
+  });
 
   Terrier.startArcGIS("dev", mapView, (ovl) => {
     let tempLayer = ovl.startLayer('radar', {
@@ -18,8 +18,8 @@ require(["esri/Map",
         // level: 80
         interpMode: 'linear',
         opacity: 0.5,
-        cadence: [-4*60*60,0,32]
+        cadence: [-4*60*60,0,64]
     })
-    ovl.timePlay({period: 20.0})    
+    // ovl.timePlay({period: 20.0})    
 })
 });

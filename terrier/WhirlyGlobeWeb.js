@@ -12239,6 +12239,11 @@ var ASM_CONSTS = {
                   Module.lastRenderTime = new Date().getTime();
               }
               stack.pop();
+  
+              if (Module.overlay.hasChanges()) {
+                this.requestRender();
+              }
+  
             }
   
           },

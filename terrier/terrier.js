@@ -106,6 +106,7 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.windCallback = this.loadCallback
                 }
+                globalThis.Module.windSources = sources
                 foundState = findControllerState("winduv")
                 break;
             case "temperature":
@@ -124,6 +125,7 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.tempCallback = this.loadCallback
                 }
+                globalThis.Module.tempSources = sources
                 foundState = findControllerState("temperature")
                 break;
             case "radar":
@@ -147,6 +149,7 @@ class TerrierLayer {
                     globalThis.Module.radarCallback = this.loadCallback
                 }
                 globalThis.Module.radarScale = this.renderScale
+                globalThis.Module.radarSources = sources
                 foundState = findControllerState("radar")
                 break;
             case "visual":
@@ -160,6 +163,7 @@ class TerrierLayer {
                     globalThis.Module.visualCallback = this.loadCallback
                 }
                 // Note: Debugging
+                globalThis.Module.visualSources = sources
                 globalThis.Module.visualCadence = [0,30*60,6]
                 break;
             // And the rest more generic

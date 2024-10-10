@@ -11355,6 +11355,7 @@ var ASM_CONSTS = {
       ctl.connections = state.connections;
       ctl.loadAllFrames = state.loadAllFrames;
       ctl.snapToFrame = state.snapToFrame;
+      ctl.sources = state.sources;
       if (state.startFrame !== undefined) {
         ctl.startFrame = _processStartFrame(state.startFrame)
       }
@@ -11399,6 +11400,7 @@ var ASM_CONSTS = {
           Module.visualCtl.connections = Module.numConnections;
           Module.visualCtl.loadAllFrames = false;
           Module.visualCtl.snapToFrame = true;
+          Module.visualCtl.sources = Module.visualSources;
           if (Module.visualStartFrame !== undefined) {
             Module.visualCtl.startFrame = _processStartFrame(Module.visualStartFrame)
           }
@@ -11452,6 +11454,7 @@ var ASM_CONSTS = {
       Module.tempCtl.connections = Module.numConnections;
       Module.tempCtl.loadAllFrames = false;
       Module.tempCtl.snapToFrame = false;
+      Module.tempCtl.sources = Module.tempSources;
       if (Module.tempStartFrame !== undefined) {
         Module.tempCtl.startFrame = _processStartFrame(Module.tempStartFrame)
       }
@@ -11743,6 +11746,7 @@ var ASM_CONSTS = {
       Module.radarCtl.connections = Module.numConnections;
       Module.radarCtl.loadAllFrames = false;
       Module.radarCtl.snapToFrame = true;
+      Module.radarCtl.sources = Module.radarSources;
       if (Module.radarStartFrame !== undefined) {
         Module.radarCtl.startFrame = _processStartFrame(Module.radarStartFrame)
       }
@@ -11790,6 +11794,7 @@ var ASM_CONSTS = {
       Module.windCtl.connections = Module.numConnections;
       Module.windCtl.loadAllFrames = false;
       Module.windCtl.snapToFrame = false;
+      Module.windCtl.sources = Module.windSources;
       if (Module.windStartFrame !== undefined) {
         Module.windCtl.startFrame = _processStartFrame(Module.windStartFrame)
       }

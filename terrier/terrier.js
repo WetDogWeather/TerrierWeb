@@ -64,6 +64,15 @@ class TerrierLayer {
                     return
                 }
         }
+        if (!('sources' in params)) {
+            params['sources'] = Terrier.sourcesFromLayerName(this.name,this.level)
+        }
+        let sources = params['sources']
+        if (sources.length == 0) {
+            console.log("TerrierLayer: No sources set.  Giving up.")
+            return
+        }
+        let dataType = sources[0].datatype
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -77,7 +86,7 @@ class TerrierLayer {
         var foundState = null
         // TODO: Switch to an a/b/c/d endpoint and set this high
         globalThis.Module.numConnections = Terrier.numConnections
-        switch (this.name) {
+        switch (dataType) {
             // Three of these are special
             case "wind_uv":
             case "windUV":
@@ -118,6 +127,7 @@ class TerrierLayer {
                 foundState = findControllerState("temperature")
                 break;
             case "radar":
+            case "reflectivity":
                 globalThis.Module.enableRadar = true
                 globalThis.Module.numConnections = 32
                 globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
@@ -185,6 +195,7 @@ class TerrierLayer {
                 break;
         }
 
+        foundState.sources = sources
         this.state = foundState
 
         if (this.cadence) {
@@ -914,10 +925,14 @@ class TerrierModule {
         if (this.stackName.includes('localhost')) {
             endpoint = "http://" + this.stackName
         } else {
-            endpoint = "https://"+this.stackName+".api.wetdogweather.com"
+            if (this.stackName.includes('http')) {
+                endpoint = this.stackName
+            } else {
+                endpoint = "https://"+this.stackName+".api.wetdogweather.com"
+            }
         }
 
-        fetch(endpoint + "/manifest/v2/getvarkeys")
+        fetch(endpoint + "/manifest/v2/getvisualvarkeys")
             .then((response) =>  {
                 if (response.ok) {
                     return response.json()
@@ -944,21 +959,22 @@ class TerrierModule {
     variableLevelsForStack(dataType) {
         var levels = new Set([])
         if (!this.stackContents) {
-            return levels
+            return Array.from(levels)
         }
-        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
-            for (const [ regionKey, region ] of Object.entries(model)) {
-                for (const [ typeKey, type ] of Object.entries(region)) {
-                    for (const [ _, variable ] of Object.entries(type)) {
-                        if (variable.dataType.toLowerCase() == dataType) {
-                            variable.levels.forEach( (level) => {
-                                levels.add(level)
-                            })
+        this.stackContents.sources.forEach( source =>
+            source.regions.forEach( region =>
+                region.products.forEach( product =>
+                    product.variables.forEach( variable => {
+                            if (variable.dataType.toLowerCase() == dataType) {
+                                variable.levels.forEach( (level) => {
+                                    levels.add(level)
+                                })
+                            }
                         }
-                    }
-                }
-            }
-        }
+                    )
+                )
+            )            
+         )
 
         return Array.from(levels)
     }
@@ -970,19 +986,185 @@ class TerrierModule {
      */
     variablesForStack() {
         var variables = new Set([])
-        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
-            for (const [ regionKey, region ] of Object.entries(model)) {
-                for (const [ typeKey, type ] of Object.entries(region)) {
-                    for (const [ _, variable ] of Object.entries(type)) {
-                        variables.add(variable)
-                    }
-                }
-            }
+        if (!this.stackContents) {
+            return Array.from(variables)
         }
+        this.stackContents.sources.forEach( source =>
+            source.regions.forEach( region =>
+                region.products.forEach( product =>
+                    product.variables.forEach( variable =>
+                        variables.add(variable.name)
+                    )
+                )
+            )            
+         )
 
         return Array.from(variables)
     }
 
+    /**
+     * Construct a list of sources that match certain criteria.  These can be source,
+     * region, or product which can take a list of string or one or no strings to match.
+     * The variable entry must be set as this is the variable you'll match to from 
+     * all available sources.
+     * level can be set, as can interval, but only to one string.  If none is provided
+     * and the source has multiple of those, we'll just pick the first.
+     * 
+     * The simplest example is to pass in {variable: 'temperature', level: '2m'} and you'll
+     * get a list of 2m temperature for all sources.
+     *  
+     * @param {Dictionary} params A dictionary optionally containing match parameters, but must have 'variable'
+     * @returns A list of disambiguated sources to add to a display.
+     */
+    sourcesForVariable(params) {        
+        var sources = new Array()
+        if (!this.stackContents) {
+            return sources
+        }
+        if (!('variable' in params)) {
+            console.log("Must at least match to variable name in sourcesForVariable.")
+            return
+        }
+        var variableMatch = params['variable']
+        if (typeof variableMatch != "string") {
+            console.log("Must specify variable as single string.")
+            return
+        }
+        var sourceMatch = 'source' in params ? params['source'] : null
+        if (typeof sourceMatch == "string") {
+            sourceMatch = [sourceMatch]
+        }
+        var regionMatch = 'region' in params ? params['region'] : null
+        if (typeof regionMatch == "string") {
+            regionMatch = [regionMatch]
+        }
+        var productMatch = 'product' in params ? params['product'] : null
+        if (typeof productMatch == "string") {
+            productMatch = [productMatch]
+        }
+        var levelMatch = 'level' in params ? params['level'] : null
+        var intervalMatch = 'interval' in params ? params['interval'] : null
+        this.stackContents.sources.forEach( source => {
+            var sourceMatched = true
+            if (sourceMatch) {  
+                sourceMatched = false
+                sourceMatch.forEach( match => {
+                    if (match.toLowerCase() == source.name.toLowerCase()) {
+                        sourceMatched = true
+                    }
+                })              
+            }
+
+            if (sourceMatched) {
+                source.regions.forEach( region => {
+                    var regionMatched = true
+                    if (regionMatch) {  
+                        regionMatched = false
+                        regionMatch.forEach( match => {
+                            if (match.toLowerCase() == region.name.toLowerCase()) {
+                                regionMatched = true
+                            }
+                        })              
+                    }
+        
+                    if (regionMatched) {
+                        region.products.forEach( product => {
+                            var productMatched = true
+                            if (productMatch) {  
+                                productMatched = false
+                                productMatch.forEach( match => {
+                                    if (match.toLowerCase() == product.name.toLowerCase()) {
+                                        productMatched = true
+                                    }
+                                })              
+                            }    
+
+                            if (productMatched) {
+                                product.variables.forEach( variable => {
+                                    var variableMatched = true
+                                    if (variableMatch) {  
+                                        variableMatched = false
+                                        if (variableMatch.toLowerCase() == variable.name.toLowerCase()) {
+                                            variableMatched = true
+                                        }
+                                    }    
+                                    if (variableMatched) {
+                                        var levelMatched = true
+                                        var levelName = variable.levels.length > 0 ? variable.levels[0] : "none"
+                                        if (levelMatch) {
+                                            levelMatched = false
+                                            variable.levels.forEach(level => {
+                                                if (levelMatch.toLowerCase() == level.toLowerCase()) {
+                                                    levelMatched = true
+                                                    levelName = levelMatch.toLowerCase()
+                                                }
+                                            })
+                                        }
+                                        var intervalMatched = true
+                                        var intervalName = variable.intervals.length > 0 ? variable.intervals[0] : "none"
+                                        if (intervalMatch) {
+                                            intervalMatched = false
+                                            variable.intervals.forEach(interval => {
+                                                if (intervalMatch.toLowerCase() == interval.toLowerCase()) {
+                                                    intervalMatched = true
+                                                    intervalName = intervalMatch.toLowerCase()
+                                                }
+                                            })
+                                        }
+                                        if (levelMatched && intervalMatched) {
+                                            sources.push({
+                                                source: source.name,
+                                                region: region.name,
+                                                product: product.name,
+                                                variable: variable.name,
+                                                level: levelName,
+                                                interval: intervalName,
+                                                datatype: variable.dataType
+                                            })
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })            
+            }
+        })
+
+        return sources
+    }
+
+    /**
+     * Pass in a generic name like 'windUV' or 'temperature' and we'll pass back
+     * a direct list of sources to display.  These are the more generic names we
+     * used to use before we switched over to a list of sources from the stack.
+     * @param {string} layerName 
+     */
+    sourcesFromLayerName(layerName,level) {
+        var params = {}
+        if (level !== undefined) {
+            params['level'] = level
+        }
+        switch (layerName) {
+            case "wind_uv":
+            case "windUV":
+                params['variable'] = 'wind_uv'
+                break;
+            case "temperature":
+                params['variable'] = 'temperature'
+                break;
+            case "radar":
+                break;
+            case "visual":
+                // TODO: Fix this one
+                break;
+            default:
+                params['variable'] = layerName
+                break;
+        }
+        return this.sourcesForVariable(params)
+    }
+    
     /**
      * Normally you pass in the stack name on startup and then use just that
      * stack.  This will let you point to another stack.  As a developer, you

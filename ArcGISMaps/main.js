@@ -33,21 +33,21 @@ Terrier.startArcGIS("dev", view, (ovl) => {
       cadence: [-4*60*60,0,64]
   })
 
-  setTimeout(() => {
-    ovl.stopLayer(tempLayer)
+  // setTimeout(() => {
+  //   ovl.stopLayer(tempLayer)
 
-    setTimeout(() => {
-      let tempLayer = ovl.startLayer('temperature', {
-          // colorMap: {}
-          interpMode: 'linear',
-          opacity: 0.5,
-          // Four hours worth of past radar, maximum of 64 frames
-          cadence: [-4*60*60,0,64]
-        })
-      }, 5000)
-  }, 10000)
+  //   setTimeout(() => {
+  //     let tempLayer = ovl.startLayer('temperature', {
+  //         // colorMap: {}
+  //         interpMode: 'linear',
+  //         opacity: 0.5,
+  //         // Four hours worth of past radar, maximum of 64 frames
+  //         cadence: [-4*60*60,0,64]
+  //       })
+  //     }, 5000)
+  // }, 10000)
 
 
   // Turn this on to animate over time
-  ovl.timePlay({period: 20.0})    
+  ovl.timePlay({period: 5.0})    
 })

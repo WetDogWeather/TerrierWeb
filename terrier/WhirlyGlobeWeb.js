@@ -12122,9 +12122,8 @@ var ASM_CONSTS = {
     Module.map = mapView.map;
   
     Module.repaint = function() {
-      if (Module.controllers.length && Module.map) {
-        // Module.map.triggerRepaint();
-        // TODO: Trigger a repaint
+      if (Module.arcGisCustomLayer) {
+        Module.arcGisCustomLayer.requestRender();
       }
     };
     _initUI(() => Module.animateFor(5000));
@@ -12247,6 +12246,7 @@ var ASM_CONSTS = {
   
           // Called once a custom layer is removed from the map.layers collection and this layer view is destroyed.
           detach: function () {
+            Module.arcGisCustomLayer = null;
           },
   
           // Called by the map view or the popup view when hit testing is required.
@@ -12260,10 +12260,11 @@ var ASM_CONSTS = {
             // We only support MapView, so we only need to return a
             // custom layer view for the `2d` case.
             if (view.type === "2d") {
-              return new CustomLayerView2D({
+              Module.arcGisCustomLayer = new CustomLayerView2D({
                 view: view,
                 layer: this
               });
+              return Module.arcGisCustomLayer;
             }
           }
         });

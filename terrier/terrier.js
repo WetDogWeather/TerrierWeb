@@ -67,12 +67,32 @@ class TerrierLayer {
         if (!('sources' in params)) {
             params['sources'] = Terrier.sourcesFromLayerName(this.name,this.level)
         }
-        let sources = params['sources']
-        if (sources.length == 0) {
+        let jsonSources = params['sources']
+        if (jsonSources.length == 0) {
             console.log("TerrierLayer: No sources set.  Giving up.")
             return
         }
-        let dataType = sources[0].datatype
+        let dataType = jsonSources[0].dataType
+
+        // Convert to TrrDataSources
+        var sources = []
+        jsonSources.forEach(jsonSource => {
+            let source = new globalThis.Module.TrrDataSource(
+                jsonSource.source,
+                jsonSource.region,
+                jsonSource.product,
+                jsonSource.variable,
+                jsonSource.level,
+                jsonSource.interval,
+                jsonSource.temporalType,
+                jsonSource.dataType,
+                jsonSource.depth,
+                jsonSource.isGlobal,
+                jsonSource.hasMissingValues,
+                jsonSource.importanceScale
+            )
+            sources.push(source)
+        })
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -1123,7 +1143,13 @@ class TerrierModule {
                                                 variable: variable.name,
                                                 level: levelName,
                                                 interval: intervalName,
-                                                datatype: variable.dataType
+                                                temporalType: variable.temporalType,
+                                                dataType: variable.dataType,
+                                                depth: variable.bits,
+                                                isGlobal: region.isglobal,
+                                                hasMissingValues: variable.hasEmptyVals,
+                                                importanceScale: 1.0,
+                                                drawOrder: source.order
                                             })
                                         }
                                     }

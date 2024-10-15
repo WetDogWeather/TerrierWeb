@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  236916: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 237212: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  237380: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 237676: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -10557,9 +10557,9 @@ var ASM_CONSTS = {
         // This logic comes directly from the sdl implementation. We cannot
         // call preventDefault on all keydown events otherwise onKeyPress will
         // not get called
-        // if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
-        //   event.preventDefault();
-        // }
+        if (event.keyCode === 8 /* backspace */ || event.keyCode === 9 /* tab */) {
+          event.preventDefault();
+        }
       },
   onKeyup:(event) => {
         GLFW.onKeyChanged(event.keyCode, 0); // GLFW_RELEASE
@@ -11173,21 +11173,19 @@ var ASM_CONSTS = {
         .addEventListener('change', updatePixelRatio, {once: true});
         GLFW.onWindowContentScaleChanged(_emscripten_get_device_pixel_ratio());
         })();
-      if ("canvas" in Module) {
-        Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
-        Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
-        Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
-        Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
-        Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
-        Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
-        Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
-        Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
-        Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
-        Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
-      }
+      Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
+      Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
+      Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
+      Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
+      Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
+      Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
+      Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
+      Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
+      Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
+      Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
+      Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
+      Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
+      Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
   
       Browser.resizeListeners.push((width, height) => {
          GLFW.onCanvasResize(width, height);
@@ -11393,14 +11391,13 @@ var ASM_CONSTS = {
         }
       const cadence = new Module.TrrSourceCadence(...cadenceArray)
       try {
-          Module.visualCtl = new Module.TrrVisualController(Module.service, cadence, rc, Module.tracker);
+          Module.visualCtl = new Module.TrrVisualController(Module.service, cadence, rc, Module.tracker, Module.visualSources);
           Module.visualCtl.debugMode = !!Module.debugVisual;
           Module.visualCtl.opacity = 1.0;
           Module.visualCtl.minImportanceFactor = 1.0;
           Module.visualCtl.connections = Module.numConnections;
           Module.visualCtl.loadAllFrames = false;
           Module.visualCtl.snapToFrame = true;
-          Module.visualCtl.sources = Module.visualSources;
           if (Module.visualStartFrame !== undefined) {
             Module.visualCtl.startFrame = _processStartFrame(Module.visualStartFrame)
           }
@@ -11444,7 +11441,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Temperature");
       }
-      Module.tempCtl = new Module.TrrTemperatureController(Module.service, rc, Module.tracker);
+      Module.tempCtl = new Module.TrrTemperatureController(Module.service, rc, Module.tracker, Module.tempSources);
       Module.tempCtl.debugMode = !!Module.debugTemp;
       Module.tempCtl.scale = Module.tempScale || 0.25;
       Module.tempCtl.opacity = 0.75;
@@ -11454,7 +11451,6 @@ var ASM_CONSTS = {
       Module.tempCtl.connections = Module.numConnections;
       Module.tempCtl.loadAllFrames = false;
       Module.tempCtl.snapToFrame = false;
-      Module.tempCtl.sources = Module.tempSources;
       if (Module.tempStartFrame !== undefined) {
         Module.tempCtl.startFrame = _processStartFrame(Module.tempStartFrame)
       }
@@ -11506,7 +11502,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11539,7 +11535,7 @@ var ASM_CONSTS = {
       }
     try {
         const ctl = new Module.TrrOneChannelController(Type.Pressure, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11576,7 +11572,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.WindGust, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11609,7 +11605,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.PrecipRate, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11641,7 +11637,7 @@ var ASM_CONSTS = {
         cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
-        const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker);
+        const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11674,7 +11670,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCover, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11712,7 +11708,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCeiling, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11736,7 +11732,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Radar");
       }
-      Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker);
+      Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker, Module.radarSources);
       Module.radarCtl.debugMode = !!Module.debugRadar;
       Module.radarCtl.scale = Module.radarScale || 0.25;
       Module.radarCtl.opacity = 0.75;
@@ -11746,7 +11742,6 @@ var ASM_CONSTS = {
       Module.radarCtl.connections = Module.numConnections;
       Module.radarCtl.loadAllFrames = false;
       Module.radarCtl.snapToFrame = true;
-      Module.radarCtl.sources = Module.radarSources;
       if (Module.radarStartFrame !== undefined) {
         Module.radarCtl.startFrame = _processStartFrame(Module.radarStartFrame)
       }
@@ -11784,7 +11779,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Wind");
       }
-      Module.windCtl = new Module.TrrWindController(Module.service, rc, Module.tracker);
+      Module.windCtl = new Module.TrrWindController(Module.service, rc, Module.tracker, Module.windSources);
       Module.windCtl.debugMode = !!Module.debugWind;
       Module.windCtl.scale = Module.windScale || 0.25;
       Module.windCtl.opacity = 0.75;
@@ -11794,7 +11789,6 @@ var ASM_CONSTS = {
       Module.windCtl.connections = Module.numConnections;
       Module.windCtl.loadAllFrames = false;
       Module.windCtl.snapToFrame = false;
-      Module.windCtl.sources = Module.windSources;
       if (Module.windStartFrame !== undefined) {
         Module.windCtl.startFrame = _processStartFrame(Module.windStartFrame)
       }
@@ -12128,12 +12122,11 @@ var ASM_CONSTS = {
   
     Module.map = mapView.map;
   
-    Module.repaint = function() {
-      if (Module.controllers.length && Module.map) {
-        // Module.map.triggerRepaint();
-        // TODO: Trigger a repaint
-      }
-    };
+      Module.repaint = function() {
+        if (Module.arcGisCustomLayer) {
+          Module.arcGisCustomLayer.requestRender();
+        }
+      };
     _initUI(() => Module.animateFor(5000));
   
       // We'll check our own renderer periodically to see if it has changes to
@@ -12255,6 +12248,7 @@ var ASM_CONSTS = {
   
           // Called once a custom layer is removed from the map.layers collection and this layer view is destroyed.
           detach: function () {
+            Module.arcGisCustomLayer = null;
           },
   
           // Called by the map view or the popup view when hit testing is required.
@@ -12268,10 +12262,11 @@ var ASM_CONSTS = {
             // We only support MapView, so we only need to return a
             // custom layer view for the `2d` case.
             if (view.type === "2d") {
-              return new CustomLayerView2D({
+              Module.arcGisCustomLayer = new CustomLayerView2D({
                 view: view,
                 layer: this
               });
+              return Module.arcGisCustomLayer;
             }
           }
         });

@@ -74,6 +74,11 @@ class TerrierLayer {
         }
         let dataType = jsonSources[0].dataType
 
+        // Note: Need to line up the internal types with what Boxer is publishing
+        if (dataType == "velocity") {
+            dataType = "WindGust"
+        }
+
         // Convert to TrrDataSources
         var sources = []
         jsonSources.forEach(jsonSource => {
@@ -189,10 +194,8 @@ class TerrierLayer {
             // And the rest more generic
             // TODO: Pass in the colormap
             default:
-                // Look for the controller state 
-                if (this.name in globalThis.Module.controllerState) {
-                    foundState = globalThis.Module.controllerState[this.name]
-                }
+                // Look for the controller state
+                foundState = findControllerState(dataType)
                 if (!foundState) {
                     console.log("Failed to find layer named " + this.name)
                     return null
@@ -1006,10 +1009,10 @@ class TerrierModule {
     /**
      * The unique variable types for a given stack.  This is essentially all
      * the layerNames you might pass in when starting a new layer.
-     * @returns {Array.string} All the valid layer names for a stack.
+     * @returns {Dict} All the valid layer names for a stack with values that describe the variable.
      */
     variablesForStack() {
-        var variables = new Set([])
+        var variables = {}
         if (!this.stackContents) {
             return Array.from(variables)
         }
@@ -1017,13 +1020,13 @@ class TerrierModule {
             source.regions.forEach( region =>
                 region.products.forEach( product =>
                     product.variables.forEach( variable =>
-                        variables.add(variable.name)
+                        variables[variable.name] = variable
                     )
                 )
             )            
          )
 
-        return Array.from(variables)
+        return variables
     }
 
     /**

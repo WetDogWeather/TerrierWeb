@@ -218,151 +218,192 @@ function App() {
       [0x00666666,0xff666666]
     )
 
-    let radarSources = Terrier.sourcesForVariable({product: 'mbr',
-                                                  level: '500m',
-                                                  variable: 'reflectivity'})
-    let temperatureSources = Terrier.sourcesForVariable({level: '2m',
-                                                  variable: 'temperature'})
 
+    // let radarSources = Terrier.sourcesForVariable({product: 'mbr',
+    //   level: '500m',
+    //   variable: 'reflectivity'})
+    // let temperatureSources = Terrier.sourcesForVariable({level: '2m',
+    //   variable: 'temperature'})
 
-    // Set up the layers we know about and enable the first one
-    let newLayers = [
-                      new Layer(ovl,
-                      {'displayName': 'Temperature',
-                      'layerName': 'temperature',
-                      'icon': tempIcon,
-                      'levels': Terrier.variableLevelsForStack('temperature'),
-                      'units': 'C',
-                      'colorsGrey': Terrier.TEMP_COLORS_GREY,
-                      'colors': Terrier.TEMP_COLORS_NOT_GREY,
-                      'timeRange': [-1*24*60*60,1*24*60*60,32]
-                  }),
-                    new Layer(ovl, 
-                      {'displayName': 'Wind',
-                      'layerName': 'windUV',
-                      'icon': windIcon,
-                      'levels': Terrier.variableLevelsForStack('wind_uv'),
-                      'units': 'm/s',
-                      'colorsGrey': Terrier.WIND_COLORS_GREY,
-                      'colors': Terrier.WIND_COLORS_NOT_GREY,
-                      'timeRange': [-1*24*60*60,1*24*60*60,32]
-                      }),                              
-                    new Layer(ovl, 
-                      {'displayName': 'WindGust',
-                      'layerName': 'WindGust',
-                      'icon': windIcon,
-                      'levels': Terrier.variableLevelsForStack('wind_speed_gust'),
-                      'units': 'm/s',
-                      'colorsGrey': Terrier.WIND_COLORS_GREY,
-                      'colors': Terrier.WIND_COLORS_NOT_GREY,
-                      'timeRange': [-1*24*60*60,1*24*60*60,32]
-                      }),                              
-                      new Layer(ovl, 
-                      {'displayName': 'Radar',
-                      'layerName': 'radar',
-                      'icon': radarIcon,
-                      'sources': radarSources,
-                      // 'levels': Terrier.variableLevelsForStack('radar'),
-                      'units': 'dBz',
-                      'colorsGrey': Terrier.RADAR_COLORS_GREY,
-                      'colors': Terrier.RADAR_COLORS_NOT_GREY,
-                      'timeRange': [-4*60*60,0,64],
-                      // The load callback lets us insert some logic when the manifest for a
-                      //  given data source loads.  You'll see more than one data source, depending
-                      //  on what you're displaying.
-                      // In this case we want to snap the displayed time range to the available
-                      //  data (first and last frame of radar) and then we want to snap current
-                      //  time to the last frame.
-                      'loadCallback': (manifest) => {
-                        // Ignore everything but the biggest region
-                        if (manifest.region != 'conus') {
-                          return
-                        }
+    let variables = Terrier.variablesForStack()
+    var newLayers = []
+    for (let varName in variables) {
+      let variable = variables[varName]
+      var newLayer = null
+      let sources = Terrier.sourcesForVariable({variable: variable.name})
+      switch (variable.dataType) {
+        case 'temperature':
+        newLayer = new Layer(ovl,
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': tempIcon,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'sources': sources,
+          'units': 'C',
+          'colorsGrey': Terrier.TEMP_COLORS_GREY,
+          'colors': Terrier.TEMP_COLORS_NOT_GREY,
+          'timeRange': [-1*24*60*60,1*24*60*60,32]
+        })
+        break;
+      case 'wind_uv':
+        newLayer = new Layer(ovl, 
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': windIcon,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'sources': sources,
+          'units': variable.units,
+          'colorsGrey': Terrier.WIND_COLORS_GREY,
+          'colors': Terrier.WIND_COLORS_NOT_GREY,
+          'timeRange': [-1*24*60*60,1*24*60*60,32]
+          })                           
+        break;
+      case 'velocity':
+        newLayer = new Layer(ovl, 
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': windIcon,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'sources': sources,
+          'units': 'm/s',
+          'colorsGrey': Terrier.WIND_COLORS_GREY,
+          'colors': Terrier.WIND_COLORS_NOT_GREY,
+          'timeRange': [-1*24*60*60,1*24*60*60,32]
+          })                        
+        break;
+      case 'visibility':
+        newLayer = new Layer(ovl, 
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': windIcon,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'units': 'm',
+          'colorsGrey': visColorMap,
+          'colors': visColorMap,
+          'timeRange': [-1*24*60*60,1*24*60*60,64],
+          })         
+        break;
+      case 'cloudceiling':
+        newLayer = new Layer(ovl, 
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': windIcon,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'units': 'm',
+          'colorsGrey': cloudColorMap,
+          'colors': cloudColorMap,
+          'timeRange': [-1*24*60*60,1*24*60*60,64],
+          })                        
+        break;
+      case 'percentage':
+        newLayer = new Layer(ovl, 
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': windIcon,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'units': '%',
+          'colorsGrey': percentColorMap,
+          'colors': percentColorMap,
+          'timeRange': [-1*24*60*60,1*24*60*60,64],
+          })                            
+        break;
+      case 'probability':
+        break;
+      case 'reflectivity':
+        new Layer(ovl, 
+          {'displayName': variable.name,
+          'layerName': variable.name,
+          'icon': radarIcon,
+          'sources': sources,
+          'levels': Terrier.variableLevelsForStack(variable.name),
+          'units': 'dBz',
+          'colorsGrey': Terrier.RADAR_COLORS_GREY,
+          'colors': Terrier.RADAR_COLORS_NOT_GREY,
+          'timeRange': [-4*60*60,0,64],
+          // The load callback lets us insert some logic when the manifest for a
+          //  given data source loads.  You'll see more than one data source, depending
+          //  on what you're displaying.
+          // In this case we want to snap the displayed time range to the available
+          //  data (first and last frame of radar) and then we want to snap current
+          //  time to the last frame.
+          'loadCallback': (manifest) => {
+            // Ignore everything but the biggest region
+            if (manifest.region != 'conus') {
+              return
+            }
 
-                        // The manifest has a list of time slices which we can interrogate
-                        let firstSlice = manifest.timeSlices[0]
-                        let lastSlice = manifest.timeSlices.slice(-1)[0]
+            // The manifest has a list of time slices which we can interrogate
+            let firstSlice = manifest.timeSlices[0]
+            let lastSlice = manifest.timeSlices.slice(-1)[0]
 
-                        // Construct a new relative time range to display
-                        // Snap to the available time slices
-                        let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
-                        ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
-                        setTimeRange(newTimeRange)
+            // Construct a new relative time range to display
+            // Snap to the available time slices
+            let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
+            ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
+            setTimeRange(newTimeRange)
 
-                        // And snap to the end for the current time
-                        ovl.setCurrentTime(lastSlice.forecastEpoch)
-                      }
-                      }),
-                    new Layer(ovl, 
-                      {'displayName': 'Cloud Ceiling',
-                      'layerName': 'CloudCeiling',
-                      'icon': windIcon,
-                      'levels': Terrier.variableLevelsForStack('CloudCeiling'),
-                      'units': 'm',
-                      'colorsGrey': cloudColorMap,
-                      'colors': cloudColorMap,
-                      'timeRange': [-1*24*60*60,1*24*60*60,64],
-                      }),                              
-                    new Layer(ovl, 
-                      {'displayName': 'Cloud Cover',
-                      'layerName': 'CloudCover',
-                      'icon': windIcon,
-                      'levels': Terrier.variableLevelsForStack('CloudCover'),
-                      'units': '%',
-                      'colorsGrey': percentColorMap,
-                      'colors': percentColorMap,
-                      'timeRange': [-1*24*60*60,1*24*60*60,64],
-                      }),                              
-                    new Layer(ovl, 
-                    {'displayName': 'Visibility',
-                    'layerName': 'Visibility',
-                    'icon': windIcon,
-                    'levels': Terrier.variableLevelsForStack('Visibility'),
-                    'units': 'm',
-                    'colorsGrey': visColorMap,
-                    'colors': visColorMap,
-                    'timeRange': [-1*24*60*60,1*24*60*60,64],
-                    }),          
-                    new Layer(ovl, 
-                      {'displayName': 'Pressure',
-                      'layerName': 'Pressure',
-                      'icon': windIcon,
-                      'levels': Terrier.variableLevelsForStack('Pressure'),
-                      'units': 'Pa',
-                      'colorsGrey': pressureColorMap,
-                      'colors': pressureColorMap,
-                      'timeRange': [-1*24*60*60,1*24*60*60,64],
-                      }),          
-                    new Layer(ovl, 
-                      {'displayName': 'visual',
-                      'layerName': 'visual',
-                      'icon': radarIcon,
-                      'units': 'dBz',
-                      'importanceScale': 8.0,
-                      'source': {
-                        model: 'myradar',
-                        region: 'global',
-                        variable: 'reflectivity'
-                      },
-                      'loadCallback': (manifest) => {
-                        // The manifest has a list of time slices which we can interrogate
-                        let lastSlice = manifest.timeSlices.slice(-1)[0]
+            // And snap to the end for the current time
+            ovl.setCurrentTime(lastSlice.forecastEpoch)
+          }
+          })
+        break;
+        case 'preciptype':
+          break;
+        case 'rate':
+          break;
+        case 'severehailindex':
+          break;
+        case 'size':
+          break;
+        case 'pressure':
+          newLayer = new Layer(ovl, 
+            {'displayName': variable.name,
+            'layerName': variable.name,
+            'icon': windIcon,
+            'levels': Terrier.variableLevelsForStack(variable.name),
+            'units': 'Pa',
+            'colorsGrey': pressureColorMap,
+            'colors': pressureColorMap,
+            'timeRange': [-1*24*60*60,1*24*60*60,64],
+            })        
+          break;
+        case 'visible':
+          // new Layer(ovl, 
+          //   {'displayName': 'visual',
+          //   'layerName': 'visual',
+          //   'icon': radarIcon,
+          //   'units': 'dBz',
+          //   'importanceScale': 8.0,
+          //   'source': {
+          //     model: 'myradar',
+          //     region: 'global',
+          //     variable: 'reflectivity'
+          //   },
+          //   'loadCallback': (manifest) => {
+          //     // The manifest has a list of time slices which we can interrogate
+          //     let lastSlice = manifest.timeSlices.slice(-1)[0]
 
-                        // Construct a new relative time range to display
-                        // Snap to the current time and the last available time slice
-                        let now = Date.now()/1000
-                        let newTimeRange = [now,lastSlice.forecastEpoch]
-                        ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
-                        setTimeRange(newTimeRange)
+          //     // Construct a new relative time range to display
+          //     // Snap to the current time and the last available time slice
+          //     let now = Date.now()/1000
+          //     let newTimeRange = [now,lastSlice.forecastEpoch]
+          //     ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
+          //     setTimeRange(newTimeRange)
 
-                        // And snap to the end for the current time
-                        ovl.setCurrentTime(now)
-                      }
-                      })
-                    ]
+          //     // And snap to the end for the current time
+          //     ovl.setCurrentTime(now)
+          //   }
+          //   })
+        break;
+      }
+      if (newLayer) {
+        newLayers.push(newLayer);
+      }
+    }
+
     setLayers(newLayers)
-    setCurLayer(3)
-    _setUnits(newLayers[3].units)  
+    setCurLayer(0)
+    _setUnits(newLayers[0].units)  
     const now = Date.now() / 1000
     setCurTime(now)
   }

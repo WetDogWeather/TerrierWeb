@@ -1,0 +1,14 @@
+{
+  "name": "arcgismaps",
+  "version": "1.0.0",
+  "description": "Arc GIS Maps SDK Example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@arcgis/map-components": "^4.30.7"
+  }
+}

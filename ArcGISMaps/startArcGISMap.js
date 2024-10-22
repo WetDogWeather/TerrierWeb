@@ -16,10 +16,11 @@ require(["esri/Map",
   Terrier.startArcGIS("dev", mapView, (ovl) => {
     let tempLayer = ovl.startLayer('radar', {
         // colorMap: {}
+        sources: Terrier.sourcesForVariable('reflectivity'),
         interpMode: 'linear',
         opacity: 0.5,
         // Four hours worth of past radar, maximum of 64 frames
-        cadence: [-4*60*60,0,64]
+        cadence: [-4*60*60,0,32]
     })
 
     // Turn this on to animate over time

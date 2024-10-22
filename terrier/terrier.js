@@ -68,7 +68,7 @@ class TerrierLayer {
             params['sources'] = Terrier.sourcesFromLayerName(this.name,this.level)
         }
         let jsonSources = params['sources']
-        if (jsonSources.length == 0) {
+        if (jsonSources == undefined || jsonSources.length == 0) {
             console.log("TerrierLayer: No sources set.  Giving up.")
             return
         }
@@ -1040,6 +1040,8 @@ class TerrierModule {
      * 
      * The simplest example is to pass in {variable: 'temperature', level: '2m'} and you'll
      * get a list of 2m temperature for all sources.
+     * 
+     * You can also just pass in a string for params and we'll turn that into a proper search.
      *  
      * @param {Dictionary} params A dictionary optionally containing match parameters, but must have 'variable'
      * @returns A list of disambiguated sources to add to a display.
@@ -1048,6 +1050,9 @@ class TerrierModule {
         var sources = new Array()
         if (!this.stackContents) {
             return sources
+        }
+        if (typeof params == "string") {
+            params = {'variable': params}
         }
         if (!('variable' in params)) {
             console.log("Must at least match to variable name in sourcesForVariable.")

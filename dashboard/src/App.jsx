@@ -32,7 +32,7 @@ function App() {
   const [displayedTime, setDisplayedTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('http://ec2-35-94-175-139.us-west-2.compute.amazonaws.com:9009')
+  const [stackName, setStackName] = useState('dev')
 
   // React to stackName changes
   useEffect(() => {
@@ -310,7 +310,7 @@ function App() {
       case 'probability':
         break;
       case 'reflectivity':
-        new Layer(ovl, 
+        newLayer = new Layer(ovl, 
           {'displayName': variable.name,
           'layerName': variable.name,
           'icon': radarIcon,
@@ -319,6 +319,7 @@ function App() {
           'units': 'dBz',
           'colorsGrey': Terrier.RADAR_COLORS_GREY,
           'colors': Terrier.RADAR_COLORS_NOT_GREY,
+          'importanceScale': 16.0,
           'timeRange': [-4*60*60,0,64],
           // The load callback lets us insert some logic when the manifest for a
           //  given data source loads.  You'll see more than one data source, depending

@@ -295,6 +295,7 @@ class TerrierLayer {
                 globalThis.Module.enableTemp = false
                 break;
             case "radar":
+            case "reflectivity":
                 globalThis.Module.enableRadar = false
                 break;
             // And the rest more generic
@@ -1095,7 +1096,7 @@ class TerrierModule {
                     }
         
                     if (regionMatched) {
-                        region.products.forEach( product => {
+                        for (const product of region.products) {
                             var productMatched = true
                             if (productMatch) {  
                                 productMatched = false
@@ -1107,6 +1108,7 @@ class TerrierModule {
                             }    
 
                             if (productMatched) {
+                                var foundVariable = false
                                 product.variables.forEach( variable => {
                                     var variableMatched = true
                                     if (variableMatch) {  
@@ -1139,6 +1141,7 @@ class TerrierModule {
                                             })
                                         }
                                         if (levelMatched && intervalMatched) {
+                                            foundVariable = true
                                             sources.push({
                                                 source: source.name,
                                                 region: region.name,
@@ -1157,8 +1160,12 @@ class TerrierModule {
                                         }
                                     }
                                 })
+
+                                if (foundVariable) {
+                                    break
+                                }
                             }
-                        })
+                        }
                     }
                 })            
             }

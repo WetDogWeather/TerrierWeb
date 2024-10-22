@@ -14,7 +14,7 @@ require(["esri/Map",
   });
 
   Terrier.startArcGIS("dev", mapView, (ovl) => {
-    let tempLayer = ovl.startLayer('radar', {
+    let radarLayer = ovl.startLayer('radar', {
         // colorMap: {}
         sources: Terrier.sourcesForVariable('reflectivity'),
         interpMode: 'linear',

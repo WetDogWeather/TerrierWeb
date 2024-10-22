@@ -11173,21 +11173,19 @@ var ASM_CONSTS = {
         .addEventListener('change', updatePixelRatio, {once: true});
         GLFW.onWindowContentScaleChanged(_emscripten_get_device_pixel_ratio());
         })();
-      if ("canvas" in Module) {
-        Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
-        Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
-        Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
-        Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
-        Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
-        Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
-        Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
-        Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
-        Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
-        Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
-      }
+      // Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
+      // Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
+      // Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
+      // Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
+      // Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
+      // Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
+      // Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
+      // Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
+      // Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
+      // Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
+      // Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
+      // Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
+      // Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
   
       Browser.resizeListeners.push((width, height) => {
          GLFW.onCanvasResize(width, height);
@@ -12155,8 +12153,7 @@ var ASM_CONSTS = {
         }
       },100);
   
-      require(["esri/views/2d/layers/BaseLayerViewGL2D",
-               "esri/layers/GraphicsLayer"],(BaseLayerViewGL2D,GraphicsLayer) => {
+      {
         // Subclass the custom layer view from BaseLayerViewGL2D.
         const CustomLayerView2D = BaseLayerViewGL2D.createSubclass({
           constructor: function(mapView) {
@@ -12275,7 +12272,7 @@ var ASM_CONSTS = {
         
         const layer = new CustomLayer();
         mapView.map.layers.add(layer);
-      })
+      }
   }
   
   

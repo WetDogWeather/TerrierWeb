@@ -16,7 +16,7 @@ require(["esri/Map",
   Terrier.startArcGIS("dev", mapView, (ovl) => {
     let radarLayer = ovl.startLayer('radar', {
         // colorMap: {}
-        sources: Terrier.sourcesForVariable('reflectivity'),
+        sources: Terrier.sourcesForVariable( {region: "conus", product: "mcr", variable: "reflectivity"}),
         interpMode: 'linear',
         opacity: 0.5,
         // Four hours worth of past radar, maximum of 64 frames

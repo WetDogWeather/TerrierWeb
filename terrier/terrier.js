@@ -78,6 +78,10 @@ class TerrierLayer {
         if (dataType == "velocity") {
             dataType = "WindGust"
         }
+        // Note: Need to switch this to a slightly tweaked version
+        if (dataType == "preciptype") {
+            dataType = "WindGust"
+        }
 
         // Convert to TrrDataSources
         var sources = []
@@ -786,9 +790,18 @@ class TerrierModule {
             true, true, true, true, true, true, true, true
         ]);
         Terrier.PERCENT_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
-            [0, 100.0],
-            [0x00000000, 0xFFFFFFFF]);
-    }
+            [0, 1.0],
+            [0xFF0000FF, 0xFFFFFFFF]);
+        // A placeholder for an index value we haven't made a proper colormap for yet
+        Terrier.INDEXPLACE_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+            [0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 
+                0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
+                0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
+                0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
+                0xFFFFFFFF
+            ]);
+        }
 
     /**
      * We use a TrrShaderColorMap object to set and query colormaps, but
@@ -947,6 +960,9 @@ class TerrierModule {
             case "probability":
             case "percentage":
                 return Terrier.PERCENT_COLORS_NOT_GREY;
+                break;
+            default:
+                return Terrier.INDEXPLACE_COLORS_NOT_GREY
                 break;
         }
         // Don't know what it is.  Obviously not the best.

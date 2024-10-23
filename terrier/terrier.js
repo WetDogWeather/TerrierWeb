@@ -197,6 +197,9 @@ class TerrierLayer {
                 // Look for the controller state
                 foundState = findControllerState(dataType)
                 if (!foundState) {
+                    foundState = findControllerState("Visibility");
+                }
+                if (!foundState) {
                     console.log("Failed to find layer named " + this.name)
                     return null
                 }
@@ -782,6 +785,9 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
+        Terrier.PERCENT_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 100.0],
+            [0x00000000, 0xFFFFFFFF]);
     }
 
     /**
@@ -917,6 +923,34 @@ class TerrierModule {
             document.body.appendChild(s);            
             this.libraryLoaded = true
         }
+    }
+
+    /**
+     * Given a variable, usually returned from a call to Terrier,
+     * we will try to figure out what colormap might work for it.
+     * You can always substitute your own, these are just default.
+     * 
+     * @param {Dictionary} variable 
+     * @returns A trrColorMap you can pass to the Layer creation.
+     */
+    colorMapForVariable(variable) {
+        switch (variable.dataType.toLowerCase()) {
+            case "reflectivity":
+                return Terrier.RADAR_COLORS_NOT_GREY;
+                break;
+            case "temperature":
+                return Terrier.TEMP_COLORS_NOT_GREY;
+                break;
+            case "velocity":
+                return Terrier.WIND_COLORS_NOT_GREY;
+                break;
+            case "probability":
+            case "percentage":
+                return Terrier.PERCENT_COLORS_NOT_GREY;
+                break;
+        }
+        // Don't know what it is.  Obviously not the best.
+        return null
     }
 
     /**

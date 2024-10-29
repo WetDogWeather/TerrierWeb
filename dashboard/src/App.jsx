@@ -10,12 +10,80 @@ import Map from './components/map.jsx';
 import Layer from './Layers/Layer.jsx'
 
 import tempIcon from './assets/thermometer.png'
+import cloudIcon from './assets/cloud.png'
+import hailIcon from './assets/hail.png'
+import wideIcon from './assets/wide.png'
+import questionIcon from './assets/question.png'
+import percentIcon from './assets/percentage.png'
+import visibilityIcon from './assets/visibility.png'
 import windIcon from './assets/wind.png'
+import gustIcon from './assets/gusts.png'
 import radarIcon from './assets/radar.png'
+import roundIcon from './assets/round.png'
 import burgerIcon from './assets/menu-burger.png'
 import hideIcon from './assets/hide.png'
 
 export const AppContext = createContext()
+
+// Try to map an icon to the variable name
+function iconForVariable(variable) {
+  switch (variable.dataType.toLowerCase()) {
+    case "reflectivity":
+      return radarIcon;
+    case "temperature":
+      return tempIcon;
+    case "wind_uv":
+    case "velocity":
+      switch (variable.name.toLowerCase()) {
+        case "wind_speed_gust":
+          return gustIcon
+      }
+      return windIcon;
+    case "probability":
+    case "percentage":
+      return percentIcon;
+    case "visibility":
+      return visibilityIcon;
+    case "cloudceiling":
+      return cloudIcon;
+    case "preciptype":
+      return radarIcon;
+    case "none":
+      if (variable.name.includes("swath")) {
+        return wideIcon
+      } else if (variable.name.includes("size")) {
+        return roundIcon
+      } else if (variable.name.includes("hail")) {
+        return hailIcon
+      }
+    }
+
+  return questionIcon
+}
+
+// Come up with a good time range for a variable
+// This is mostly obvious except for a few weird cases
+function  timeRangeForVariable(variable) {
+  switch (variable.dataType) {
+    case "temperature":
+    case "wind_uv":
+    case "velocity":
+    case "visibility":
+    case "cloudceiling":
+      return [-1*24*60*60,1*24*60*60,32]
+  }
+  switch (variable.temporalType) {
+    // Just observed data
+    case "observed":
+      return [-4*60*60,0,64]
+    // Forecast and both we'll do the same
+    case "forecast":
+    case "both":
+      return [-1*24*60*60,1*24*60*60,32]
+  }
+
+  return [-1*24*60*60,1*24*60*60,32]
+}
 
 function App() {
   const [controlsVisible, setControlsVisible] = useState(true)
@@ -46,6 +114,7 @@ function App() {
       console.log("Stack name was invalid.  Terrier won't work.")
     })
   }, [stackName])
+
 
   // Turn on the layer when someone messes with curLayer
   useEffect(() => {
@@ -170,55 +239,6 @@ function App() {
       layer.enable(false)
     })
 
-    let feetToMeters = 1/3.28084
-    let cloudColorMap = Terrier.createColorMap(
-      [0.0*feetToMeters,500.0*feetToMeters,
-        500.0*feetToMeters,900.0*feetToMeters,
-        900.0*feetToMeters,1000.0*feetToMeters,
-        1000.0*feetToMeters,3000.0*feetToMeters,
-        3000.0*feetToMeters,4000.0*feetToMeters,
-        4000.0*feetToMeters,
-        5000.0*feetToMeters,6000.0*feetToMeters,
-        6000.0*feetToMeters
-      ],
-      [0xff800000,0xffE63222,
-        0xffFFFF55,0xffFFFF55,
-        0xffED702E,0xffED702E,
-        0xff01007B,0xff01007B,
-        0xff75FB4C,0xff75FB4C,
-        0xff75FB4C,
-        0xff2A6318,0xff2A6318,
-        0x00000000
-      ])
-    let statMileToMeters = 1609.34
-    let visColorMap = Terrier.createColorMap(
-      [0*statMileToMeters,1*statMileToMeters,
-       1*statMileToMeters,3*statMileToMeters,
-       3*statMileToMeters,5*statMileToMeters,
-       5*statMileToMeters,
-       7*statMileToMeters,
-       8*statMileToMeters,9*statMileToMeters,
-       9*statMileToMeters
-      ],
-      [0xff800000,0xff800000,
-        0xffE63222,0xffE63222,
-        0xffFFFF55,0xffFFFF55,
-        0xff75FB4C,
-        0xff3A8323,
-        0xff113208,0xff113208,
-        0x00000000
-      ])
-    let percentColorMap = Terrier.createColorMap(
-      [0.0,100.0],
-      [0x00666666,0xff666666]
-    )
-    let hgToPa = 3386.39
-    let pressureColorMap = Terrier.createColorMap(
-      [29.9*hgToPa,30.4*hgToPa],
-      [0x00666666,0xff666666]
-    )
-
-
     // let radarSources = Terrier.sourcesForVariable({product: 'mbr',
     //   level: '500m',
     //   variable: 'reflectivity'})
@@ -231,84 +251,14 @@ function App() {
       let variable = variables[varName]
       var newLayer = null
       let sources = Terrier.sourcesForVariable({variable: variable.name})
+      if (sources.length == 0) {
+        continue
+      }
+      let colorMap = Terrier.colorMapForVariable(sources[0])
+      let icon = iconForVariable(sources[0])
+      let timeRange = timeRangeForVariable(sources[0])
+      let levels = Terrier.variableLevelsForStack(sources[0].name)
       switch (variable.dataType) {
-        case 'temperature':
-        newLayer = new Layer(ovl,
-          {'displayName': variable.name,
-          'layerName': variable.name,
-          'icon': tempIcon,
-          'levels': Terrier.variableLevelsForStack(variable.name),
-          'sources': sources,
-          'units': 'C',
-          'colorsGrey': Terrier.TEMP_COLORS_GREY,
-          'colors': Terrier.TEMP_COLORS_NOT_GREY,
-          'timeRange': [-1*24*60*60,1*24*60*60,32]
-        })
-        break;
-      case 'wind_uv':
-        newLayer = new Layer(ovl, 
-          {'displayName': variable.name,
-          'layerName': variable.name,
-          'icon': windIcon,
-          'levels': Terrier.variableLevelsForStack(variable.name),
-          'sources': sources,
-          'units': variable.units,
-          'colorsGrey': Terrier.WIND_COLORS_GREY,
-          'colors': Terrier.WIND_COLORS_NOT_GREY,
-          'timeRange': [-1*24*60*60,1*24*60*60,32]
-          })                           
-        break;
-      case 'velocity':
-        newLayer = new Layer(ovl, 
-          {'displayName': variable.name,
-          'layerName': variable.name,
-          'icon': windIcon,
-          'levels': Terrier.variableLevelsForStack(variable.name),
-          'sources': sources,
-          'units': 'm/s',
-          'colorsGrey': Terrier.WIND_COLORS_GREY,
-          'colors': Terrier.WIND_COLORS_NOT_GREY,
-          'timeRange': [-1*24*60*60,1*24*60*60,32]
-          })                        
-        break;
-      case 'visibility':
-        newLayer = new Layer(ovl, 
-          {'displayName': variable.name,
-          'layerName': variable.name,
-          'icon': windIcon,
-          'levels': Terrier.variableLevelsForStack(variable.name),
-          'units': 'm',
-          'colorsGrey': visColorMap,
-          'colors': visColorMap,
-          'timeRange': [-1*24*60*60,1*24*60*60,64],
-          })         
-        break;
-      case 'cloudceiling':
-        newLayer = new Layer(ovl, 
-          {'displayName': variable.name,
-          'layerName': variable.name,
-          'icon': windIcon,
-          'levels': Terrier.variableLevelsForStack(variable.name),
-          'units': 'm',
-          'colorsGrey': cloudColorMap,
-          'colors': cloudColorMap,
-          'timeRange': [-1*24*60*60,1*24*60*60,64],
-          })                        
-        break;
-      case 'percentage':
-        newLayer = new Layer(ovl, 
-          {'displayName': variable.name,
-          'layerName': variable.name,
-          'icon': windIcon,
-          'levels': Terrier.variableLevelsForStack(variable.name),
-          'units': '%',
-          'colorsGrey': percentColorMap,
-          'colors': percentColorMap,
-          'timeRange': [-1*24*60*60,1*24*60*60,64],
-          })                            
-        break;
-      case 'probability':
-        break;
       case 'reflectivity':
         newLayer = new Layer(ovl, 
           {'displayName': variable.name,
@@ -317,8 +267,8 @@ function App() {
           'sources': sources,
           'levels': Terrier.variableLevelsForStack(variable.name),
           'units': 'dBz',
-          'colorsGrey': Terrier.RADAR_COLORS_GREY,
-          'colors': Terrier.RADAR_COLORS_NOT_GREY,
+          'colorsGrey': colorMap,
+          'colors': colorMap,
           'importanceScale': 16.0,
           'timeRange': [-4*60*60,0,64],
           // The load callback lets us insert some logic when the manifest for a
@@ -348,26 +298,6 @@ function App() {
           }
           })
         break;
-        case 'preciptype':
-          break;
-        case 'rate':
-          break;
-        case 'severehailindex':
-          break;
-        case 'size':
-          break;
-        case 'pressure':
-          newLayer = new Layer(ovl, 
-            {'displayName': variable.name,
-            'layerName': variable.name,
-            'icon': windIcon,
-            'levels': Terrier.variableLevelsForStack(variable.name),
-            'units': 'Pa',
-            'colorsGrey': pressureColorMap,
-            'colors': pressureColorMap,
-            'timeRange': [-1*24*60*60,1*24*60*60,64],
-            })        
-          break;
         case 'visible':
           // new Layer(ovl, 
           //   {'displayName': 'visual',
@@ -396,6 +326,19 @@ function App() {
           //   }
           //   })
         break;
+        default:
+          // We can use defaults in most cases to display these
+          newLayer = new Layer(ovl, 
+            {'displayName': variable.name,
+            'layerName': variable.name,
+            'icon': icon,
+            'levels': Terrier.variableLevelsForStack(variable.name),
+            'units': variable.units,
+            'colorsGrey': colorMap,
+            'colors': colorMap,
+            'timeRange': timeRange,
+            })                        
+            break;
       }
       if (newLayer) {
         newLayers.push(newLayer);

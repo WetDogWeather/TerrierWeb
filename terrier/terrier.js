@@ -789,9 +789,28 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
-        Terrier.PERCENT_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
-            [0, 1.0],
-            [0xFF0000FF, 0xFFFFFFFF]);
+        Terrier.SEVERE_HAIL_INDEX_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
+            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe55dc, 0xff7e32a7]);
+        Terrier.PROB_SEVERE_HAIL_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
+                0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
+        Terrier.HAIL_SIZE_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 1, 2, 4, 6, 8, 10, 15, 20, 30, 40, 50, 75, 100],
+            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe5, 0xff7e32a7]);                
+        Terrier.QPE_FFG_RATIO_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0.0, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.00, 2.25, 2.50, 2.75, 3.00, 3.50, 4.00, 5.00],
+            [0xffbebebe, 0xff8c8c8c, 0xff6e6e6e, 0xff505050, 0xff01b500, 0xff009b01, 
+                0xffffff04, 0xffffe102, 0xffffc802, 0xffffb400, 0xffffa100, 0xffb40100, 0xffc80200, 
+                0xffe20100, 0xffff0100, 0xffff01ff, 0xffd300d2, 0xffaa00ab, 0xff800080]);                
+        Terrier.PRECIP_FLAG_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 1, 3, 6, 7, 10, 91, 96],
+            [0x00000000, 0xFF0350a5, 0xFFffffff, 0xFFff3332, 0xFF960096, 0xFF6effff, 0xFF00fa00, 0xFF039700]);
+        
+
         // A placeholder for an index value we haven't made a proper colormap for yet
         Terrier.INDEXPLACE_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
@@ -799,9 +818,56 @@ class TerrierModule {
                 0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
                 0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
                 0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
-                0xFFFFFFFF
-            ]);
-        }
+                0xFFFFFFFF]);
+
+        let feetToMeters = 1/3.28084
+        Terrier.CLOUD_COLORS_NOT_GREY = Terrier.createColorMap(
+            [0.0*feetToMeters,500.0*feetToMeters,
+            500.0*feetToMeters,900.0*feetToMeters,
+            900.0*feetToMeters,1000.0*feetToMeters,
+            1000.0*feetToMeters,3000.0*feetToMeters,
+            3000.0*feetToMeters,4000.0*feetToMeters,
+            4000.0*feetToMeters,
+            5000.0*feetToMeters,6000.0*feetToMeters,
+            6000.0*feetToMeters
+            ],
+            [0xff800000,0xffE63222,
+            0xffFFFF55,0xffFFFF55,
+            0xffED702E,0xffED702E,
+            0xff01007B,0xff01007B,
+            0xff75FB4C,0xff75FB4C,
+            0xff75FB4C,
+            0xff2A6318,0xff2A6318,
+            0x00000000
+            ])
+        let statMileToMeters = 1609.34
+        Terrier.VISIBILITY_COLORS_NOT_GREY = Terrier.createColorMap(
+            [0*statMileToMeters,1*statMileToMeters,
+            1*statMileToMeters,3*statMileToMeters,
+            3*statMileToMeters,5*statMileToMeters,
+            5*statMileToMeters,
+            7*statMileToMeters,
+            8*statMileToMeters,9*statMileToMeters,
+            9*statMileToMeters
+            ],
+            [0xff800000,0xff800000,
+            0xffE63222,0xffE63222,
+            0xffFFFF55,0xffFFFF55,
+            0xff75FB4C,
+            0xff3A8323,
+            0xff113208,0xff113208,
+            0x00000000
+            ])
+        Terrier.PERCENT_COLORS_NOT_GREY = Terrier.createColorMap(
+            [0.0,100.0],
+            [0x00666666,0xff666666]
+        )
+        let hgToPa = 3386.39
+        Terrier.PRESSURE_COLORS_NOT_GREY = Terrier.createColorMap(
+            [29.9*hgToPa,30.4*hgToPa],
+            [0x00666666,0xff666666]
+        )
+    }
 
     /**
      * We use a TrrShaderColorMap object to set and query colormaps, but
@@ -950,17 +1016,35 @@ class TerrierModule {
         switch (variable.dataType.toLowerCase()) {
             case "reflectivity":
                 return Terrier.RADAR_COLORS_NOT_GREY;
-                break;
             case "temperature":
                 return Terrier.TEMP_COLORS_NOT_GREY;
-                break;
+            case "wind_uv":
             case "velocity":
                 return Terrier.WIND_COLORS_NOT_GREY;
-                break;
             case "probability":
+                if (variable.name == "probability_severe_hail") {
+                    return Terrier.PROB_SEVERE_HAIL_COLORS;
+                }
             case "percentage":
                 return Terrier.PERCENT_COLORS_NOT_GREY;
-                break;
+            case "visibility":
+                return Terrier.VISIBILITY_COLORS_NOT_GREY;
+            case "cloudceiling":
+                return Terrier.CLOUD_COLORS_NOT_GREY;
+            case "preciptype":
+                return Terrier.PRECIP_FLAG_COLORS;
+            case "severehailindex":
+                return Terrier.SEVERE_HAIL_INDEX_COLORS;
+            case "size":
+                return Terrier.HAIL_SIZE_COLORS;
+            case "none":
+                if (variable.name.includes("hail_swath")) {
+                    return Terrier.HAIL_SIZE_COLORS;
+                }
+                // The way dataType is set up isn't quite right.
+                if (variable.name.includes("qpe_ffg")) {
+                    return Terrier.QPE_FFG_RATIO_COLORS;
+                }
             default:
                 return Terrier.INDEXPLACE_COLORS_NOT_GREY
                 break;
@@ -1201,6 +1285,7 @@ class TerrierModule {
                                                 source: source.name,
                                                 region: region.name,
                                                 product: product.name,
+                                                name: variable.name,
                                                 variable: variable.name,
                                                 level: levelName,
                                                 interval: intervalName,

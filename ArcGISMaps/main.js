@@ -41,9 +41,9 @@ Terrier.startArcGIS("dev", view, (ovl) => {
   // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
   // let sources = Terrier.sourcesForVariable({variable: 'probability_severe_hail'})
   // let sources = Terrier.sourcesForVariable({variable: 'hail_swath_30min'})
-  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
+  let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
   // let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'})
-  let sources = Terrier.sourcesForVariable({variable: 'precipitation_rate'})
+  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_rate'})
   // let sources = Terrier.sourcesForVariable({variable: 'severe_hail_index'})
 
   // For the rest of these sources, let's look at yesterday through tomorrow
@@ -57,6 +57,7 @@ Terrier.startArcGIS("dev", view, (ovl) => {
 
   // 80m winds for every source and region
   // let sources = Terrier.sourcesForVariable({variable: 'wind_uv', level: '80m'})
+  // let sources = Terrier.sourcesForVariable({variable: 'wind_speed_gust'})
 
   if (sources.length == 0) {
     console.log("Failed to find any sources for variable")

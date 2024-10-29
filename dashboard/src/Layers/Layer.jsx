@@ -74,7 +74,7 @@ export default class Layer {
 
         // Default variables
         this.colored = true;
-        this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
+        this.dataSampleType = this._teaseOutParam(params,'interpMode',1);      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
 
         this.minImportance = this._teaseOutParam(params,'importanceScale',4)      // 5 - 100.

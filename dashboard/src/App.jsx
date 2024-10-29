@@ -61,6 +61,29 @@ function iconForVariable(variable) {
   return questionIcon
 }
 
+// Some variables shouldn't be interpolated.  Mostly types.
+function interpForVariable(variable) {
+  switch (variable.dataType.toLowerCase()) {
+    case "severehailindex":
+      return 0
+    case "preciptype":
+      return 0
+    case "none":
+      if (variable.name.includes("swath")) {
+        return 0
+      } else if (variable.name.includes("size")) {
+        return 0
+      } else if (variable.name.includes("hail")) {
+        return 0
+      }
+      if (variable.name.includes("qpe_ffg")) {
+        return 0;
+      }
+  }
+
+  return 1
+}
+
 // Come up with a good time range for a variable
 // This is mostly obvious except for a few weird cases
 function  timeRangeForVariable(variable) {
@@ -258,6 +281,7 @@ function App() {
       let icon = iconForVariable(sources[0])
       let timeRange = timeRangeForVariable(sources[0])
       let levels = Terrier.variableLevelsForStack(sources[0].name)
+      let interp = interpForVariable(sources[0])
       switch (variable.dataType) {
       case 'reflectivity':
         newLayer = new Layer(ovl, 
@@ -337,6 +361,7 @@ function App() {
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
+            'interpMode': interp
             })                        
             break;
       }

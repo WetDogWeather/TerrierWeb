@@ -32,6 +32,9 @@ Terrier.startArcGIS("dev", view, (ovl) => {
   // to see.  You can also just mess with the list yourself once it's been
   // returned.
 
+  // Some variables can be interpolated, but others won't look right
+  var interpMode = 'linear'
+
   // Show data for the last four hours. Appropriate to the radar data.
   let cadence = [-4*60*60,0,64]
 
@@ -40,9 +43,9 @@ Terrier.startArcGIS("dev", view, (ovl) => {
 
   // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
   // let sources = Terrier.sourcesForVariable({variable: 'probability_severe_hail'})
-  // let sources = Terrier.sourcesForVariable({variable: 'hail_swath_30min'})
-  let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
-  // let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'})
+  // let sources = Terrier.sourcesForVariable({variable: 'hail_swath_30min'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
+  let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'}); interpMode = 'nearest';
   // let sources = Terrier.sourcesForVariable({variable: 'precipitation_rate'})
   // let sources = Terrier.sourcesForVariable({variable: 'severe_hail_index'})
 
@@ -70,11 +73,11 @@ Terrier.startArcGIS("dev", view, (ovl) => {
   // Now start the layer
   let layer = ovl.startLayer('myLayer', {
       colorMap: colorMap,
-      interpMode: 'linear',
+      interpMode: interpMode,
       sources: sources,
       opacity: 0.5,
       // Four hours worth of past radar, maximum of 64 frames
-      cadence: cadence
+      cadence: cadence,
   })
 
   // This example turns off the layer and then adds another one

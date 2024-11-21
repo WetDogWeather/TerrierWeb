@@ -120,8 +120,8 @@ function App() {
   const [displayAllLayers,setDisplayAllLayers] = useState(false)
   const [sources,setSources] = useState(["All"])
   const [regions,setRegions] = useState(["All"])
-  const [source,setSource] = useState("All")
-  const [region,setRegion] = useState("All")
+  const [source,_setSource] = useState("All")
+  const [region,_setRegion] = useState("All")
   const [animSpeed, setAnimSpeed] = useState(4.0)
   const [timeRange,setTimeRange] = useState([0.0,0.0])
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
@@ -129,6 +129,16 @@ function App() {
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
   const [stackName, setStackName] = useState('dev')
+
+  function setRegion(newRegion) {
+    _setRegion(newRegion)
+    _setSource("All")
+  }
+
+  function setSource(newSource) {
+    _setSource(newSource)
+    _setRegion("All")
+  }
 
   // React to stackName changes
   useEffect(() => {

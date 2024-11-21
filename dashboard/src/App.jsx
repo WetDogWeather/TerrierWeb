@@ -117,13 +117,18 @@ function App() {
   const [layers, setLayers] = useState([])
   const [level, setLevel] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [displayAllLayers,setDisplayAllLayers] = useState(false)
+  const [sources,setSources] = useState(["All"])
+  const [regions,setRegions] = useState(["All"])
+  const [source,setSource] = useState("All")
+  const [region,setRegion] = useState("All")
   const [animSpeed, setAnimSpeed] = useState(4.0)
   const [timeRange,setTimeRange] = useState([0.0,0.0])
   const [curTime, setCurTime] = useState(Number.NEGATIVE_INFINITY)
   const [displayedTime, setDisplayedTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
-  const [stackName, setStackName] = useState('dev')
+  const [stackName, setStackName] = useState('truwx-exp')
 
   // React to stackName changes
   useEffect(() => {
@@ -180,7 +185,7 @@ function App() {
       _setUnits('')
       setLevel(null)
     }
-  },[curLayer])
+  },[curLayer, layers])
 
   // React to level changes
   useEffect(() => {
@@ -253,27 +258,45 @@ function App() {
     }
   }, [])
 
-  // Called by the map component when Terrier has been properly set up
-  let terrierReady = (ovl) => {
-    setTerrierOvl(ovl)
+  // Rerun this whenever the source, region, or visible layers changes
+  useEffect(() => {
+    if (terrierOvl === undefined) {
+      return
+    }
 
     // Clean up any existing layers
+    // Note: Should make this more intelligent
     layers.forEach( (layer) => {
       layer.enable(false)
     })
+    
+    // We can have a simple list of variables or absolutely everything
+    var variables = Terrier.variablesForStack()
+    if (!displayAllLayers) {
+      const toInclude = ["temperature", "wind_uv", "wind_speed_gust", "reflectivity", "visibility", "cloud_ceiling"]
+      var newVariables = {}
+      toInclude.forEach((variable) => {
+        if (variable in variables) {
+          newVariables[variable] = variables[variable]
+        }
+      })
+      variables = newVariables
+    }
 
-    // let radarSources = Terrier.sourcesForVariable({product: 'mbr',
-    //   level: '500m',
-    //   variable: 'reflectivity'})
-    // let temperatureSources = Terrier.sourcesForVariable({level: '2m',
-    //   variable: 'temperature'})
-
-    let variables = Terrier.variablesForStack()
     var newLayers = []
     for (let varName in variables) {
       let variable = variables[varName]
       var newLayer = null
-      let sources = Terrier.sourcesForVariable({variable: variable.name})
+      // We can filter by region or source, optionally
+      var searchParams = {variable: variable.name}
+      if (region != 'All') {
+        searchParams['region'] = region
+      }
+      if (source != 'All') {
+        searchParams['source'] = source
+      }
+      let sources = Terrier.sourcesForVariable(searchParams)
+      // This can happen if we're filtering other things
       if (sources.length == 0) {
         continue
       }
@@ -284,7 +307,7 @@ function App() {
       let interp = interpForVariable(sources[0])
       switch (variable.dataType) {
       case 'reflectivity':
-        newLayer = new Layer(ovl, 
+        newLayer = new Layer(terrierOvl, 
           {'displayName': variable.name,
           'layerName': variable.name,
           'icon': radarIcon,
@@ -314,11 +337,11 @@ function App() {
             // Construct a new relative time range to display
             // Snap to the available time slices
             let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
-            ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
+            terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
             setTimeRange(newTimeRange)
 
             // And snap to the end for the current time
-            ovl.setCurrentTime(lastSlice.forecastEpoch)
+            terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
           }
           })
         break;
@@ -352,10 +375,11 @@ function App() {
         break;
         default:
           // We can use defaults in most cases to display these
-          newLayer = new Layer(ovl, 
+          newLayer = new Layer(terrierOvl, 
             {'displayName': variable.name,
             'layerName': variable.name,
             'icon': icon,
+            'sources': sources,
             'levels': Terrier.variableLevelsForStack(variable.name),
             'units': variable.units,
             'colorsGrey': colorMap,
@@ -371,8 +395,30 @@ function App() {
     }
 
     setLayers(newLayers)
-    setCurLayer(0)
-    _setUnits(newLayers[0].units)  
+    if (newLayers.length > 0) {
+      setCurLayer(0)
+      _setUnits(newLayers[0].units)    
+    }
+  }, [displayAllLayers, source,sources,region,regions])
+
+  // Called by the map component when Terrier has been properly set up
+  let terrierReady = (ovl) => {
+    setTerrierOvl(ovl)
+
+    // Clean up any existing layers
+    layers.forEach( (layer) => {
+      layer.enable(false)
+    })
+
+    // let radarSources = Terrier.sourcesForVariable({product: 'mbr',
+    //   level: '500m',
+    //   variable: 'reflectivity'})
+    // let temperatureSources = Terrier.sourcesForVariable({level: '2m',
+    //   variable: 'temperature'})
+
+    setSources(["All"].concat(Terrier.sourcesForStack()))
+    setRegions(["All"].concat(Terrier.regionsForStack()))
+
     const now = Date.now() / 1000
     setCurTime(now)
   }
@@ -418,6 +464,9 @@ function App() {
                           legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                           snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
+                          displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}
+                          source={source} sources={sources} setSource={setSource}
+                          region={region} regions={regions} setRegion={setRegion}
                           stackName={stackName} setStackName={setStackName}
                           units={units} setUnits={setUnits} />
               </Burger>

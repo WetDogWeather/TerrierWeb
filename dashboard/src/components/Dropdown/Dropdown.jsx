@@ -21,6 +21,9 @@ function Dropdown({layers,
                     legendVisible, setLegendVisible,
                     snapFrame, setSnapFrame,
                     animSpeed, setAnimSpeed, 
+                    displayAllLayers, setDisplayAllLayers,
+                    source, sources, setSource,
+                    region, regions, setRegion,
                     stackName, setStackName,
                     units, setUnits}) {
     const [curSelection,_setCurSelection] = useState(curLayer)
@@ -90,6 +93,9 @@ function Dropdown({layers,
             <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                               snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                               animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
+                              displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}
+                              source={source} sources={sources} setSource={setSource}
+                              region={region} regions={regions} setRegion={setRegion}
                               stackName={stackName} setStackName={setStackName}
              />
         )    

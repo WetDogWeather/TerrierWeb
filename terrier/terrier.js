@@ -1165,6 +1165,38 @@ class TerrierModule {
     }
 
     /**
+     * Returns a list of region names available in the stack.
+     * These can be used to filter variables later.
+     */
+    regionsForStack() {
+        var regions = new Set([])
+        if (!this.stackContents) {
+            return Array.from(regions)
+        }
+        this.stackContents.sources.forEach( source =>
+            source.regions.forEach( region =>
+                regions.add(region.name)
+            )            
+         )        
+         return Array.from(regions)
+    }
+
+    /**
+     * Returns a list of sources available in the stack.  These can be
+     * used to filter in other query functions.
+     */
+    sourcesForStack() {
+        var sources = new Set([])
+        if (!this.stackContents) {
+            return Array.from(sources)
+        }
+        this.stackContents.sources.forEach( source =>
+            sources.add(source.name)
+         )        
+         return Array.from(sources)
+    }
+
+    /**
      * Construct a list of sources that match certain criteria.  These can be source,
      * region, or product which can take a list of string or one or no strings to match.
      * The variable entry must be set as this is the variable you'll match to from 

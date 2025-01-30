@@ -1144,6 +1144,7 @@ class TerrierModule {
     /**
      * The unique variable types for a given stack.  This is essentially all
      * the layerNames you might pass in when starting a new layer.
+     * For purely visual layers, we tack 'visual' on the front of the name.
      * @returns {Dict} All the valid layer names for a stack with values that describe the variable.
      */
     variablesForStack() {
@@ -1154,8 +1155,13 @@ class TerrierModule {
         this.stackContents.sources.forEach( source =>
             source.regions.forEach( region =>
                 region.products.forEach( product =>
-                    product.variables.forEach( variable =>
-                        variables[variable.name] = variable
+                    product.variables.forEach( variable => {
+                            if (variable.dataType == 'visual') {
+                                variables['visual ' + variable.name] = variable
+                            } else {
+                                variables[variable.name] = variable
+                            }
+                        }
                     )
                 )
             )            

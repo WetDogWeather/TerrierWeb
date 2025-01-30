@@ -1461,8 +1461,8 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  236916: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 237212: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  236820: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (v.product == "") { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 237116: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 
@@ -11353,6 +11353,7 @@ var ASM_CONSTS = {
       ctl.connections = state.connections;
       ctl.loadAllFrames = state.loadAllFrames;
       ctl.snapToFrame = state.snapToFrame;
+      ctl.sources = state.sources;
       if (state.startFrame !== undefined) {
         ctl.startFrame = _processStartFrame(state.startFrame)
       }
@@ -11390,7 +11391,7 @@ var ASM_CONSTS = {
         }
       const cadence = new Module.TrrSourceCadence(...cadenceArray)
       try {
-          Module.visualCtl = new Module.TrrVisualController(Module.service, cadence, rc, Module.tracker);
+          Module.visualCtl = new Module.TrrVisualController(Module.service, cadence, rc, Module.tracker, Module.visualSources);
           Module.visualCtl.debugMode = !!Module.debugVisual;
           Module.visualCtl.opacity = 1.0;
           Module.visualCtl.minImportanceFactor = 1.0;
@@ -11440,7 +11441,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Temperature");
       }
-      Module.tempCtl = new Module.TrrTemperatureController(Module.service, rc, Module.tracker);
+      Module.tempCtl = new Module.TrrTemperatureController(Module.service, rc, Module.tracker, Module.tempSources);
       Module.tempCtl.debugMode = !!Module.debugTemp;
       Module.tempCtl.scale = Module.tempScale || 0.25;
       Module.tempCtl.opacity = 0.75;
@@ -11501,7 +11502,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11534,7 +11535,7 @@ var ASM_CONSTS = {
       }
     try {
         const ctl = new Module.TrrOneChannelController(Type.Pressure, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11571,7 +11572,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.WindGust, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11604,7 +11605,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.PrecipRate, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11636,7 +11637,7 @@ var ASM_CONSTS = {
         cadence = new Module.TrrSourceCadence(0, 24*3600, 24)
       }
       try {
-        const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker);
+        const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11669,7 +11670,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCover, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11707,7 +11708,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCeiling, 16, Module.service,
-                                                       cadence, rc, Module.tracker);
+                                                       cadence, rc, Module.tracker, state.sources);
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11731,7 +11732,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Radar");
       }
-      Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker);
+      Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker, Module.radarSources);
       Module.radarCtl.debugMode = !!Module.debugRadar;
       Module.radarCtl.scale = Module.radarScale || 0.25;
       Module.radarCtl.opacity = 0.75;
@@ -11778,7 +11779,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Wind");
       }
-      Module.windCtl = new Module.TrrWindController(Module.service, rc, Module.tracker);
+      Module.windCtl = new Module.TrrWindController(Module.service, rc, Module.tracker, Module.windSources);
       Module.windCtl.debugMode = !!Module.debugWind;
       Module.windCtl.scale = Module.windScale || 0.25;
       Module.windCtl.opacity = 0.75;
@@ -12121,11 +12122,11 @@ var ASM_CONSTS = {
   
     Module.map = mapView.map;
   
-    Module.repaint = function() {
-      if (Module.arcGisCustomLayer) {
-        Module.arcGisCustomLayer.requestRender();
-      }
-    };
+      Module.repaint = function() {
+        if (Module.arcGisCustomLayer) {
+          Module.arcGisCustomLayer.requestRender();
+        }
+      };
     _initUI(() => Module.animateFor(5000));
   
       // We'll check our own renderer periodically to see if it has changes to

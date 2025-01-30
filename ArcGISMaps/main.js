@@ -20,19 +20,71 @@ const map = new Map({
 const view = new MapView({
   container: "viewDiv",
   map: map,
-  zoom: 8,
-  center: [0.1276, 51.5],
+  zoom: 4,
+  center: [-100, 40.5],
 });
 
 Terrier.startArcGIS("dev", view, (ovl) => {
-  let tempLayer = ovl.startLayer('temperature', {
-      // colorMap: {}
-      interpMode: 'linear',
+  // All the available variables sorted by source/region/product
+  console.log(Terrier.variablesForStack())
+
+  // Here are a few examples of how to filter out variables that you want
+  // to see.  You can also just mess with the list yourself once it's been
+  // returned.
+
+  // Some variables can be interpolated, but others won't look right
+  var interpMode = 'linear'
+
+  // Show data for the last four hours. Appropriate to the radar data.
+  let cadence = [-4*60*60,0,64]
+
+  // Composite (MCR) reflectivity from MRMS for all regions
+  // let sources = Terrier.sourcesForVariable({product: 'mcr', variable: 'reflectivity'})
+
+  // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
+  // let sources = Terrier.sourcesForVariable({variable: 'probability_severe_hail'})
+  // let sources = Terrier.sourcesForVariable({variable: 'hail_swath_30min'}); interpMode = 'nearest';
+  let sources = Terrier.sourcesForVariable({variable: 'hail_swath_120min'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
+  // let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_rate'})
+  // let sources = Terrier.sourcesForVariable({variable: 'severe_hail_index'})
+
+  // For the rest of these sources, let's look at yesterday through tomorrow
+  // let cadence = [-1*60*60*24,1*60*60*24,64]
+
+  // All the temperature available from all sources at 2m (default)
+  // let sources = Terrier.sourcesForVariable({variable: 'temperature'})
+
+  // Just the surface temperature, if available in a given product
+  // let sources = Terrier.sourcesForVariable({variable: 'temperature', level: 'sfc'})
+
+  // 80m winds for every source and region
+  // let sources = Terrier.sourcesForVariable({variable: 'wind_uv', level: '80m'})
+  // let sources = Terrier.sourcesForVariable({variable: 'wind_speed_gust'})
+
+  if (sources.length == 0) {
+    console.log("Failed to find any sources for variable")
+    return
+  }
+
+  // Colormaps can be applied separately (and changed later)
+  let colorMap = Terrier.colorMapForVariable(sources[0]);
+
+  // Now start the layer
+  let layer = ovl.startLayer('myLayer', {
+      colorMap: colorMap,
+      interpMode: interpMode,
+      sources: sources,
       opacity: 0.5,
+      importFactor: 16.0,
       // Four hours worth of past radar, maximum of 64 frames
-      cadence: [-4*60*60,0,64]
+      cadence: cadence,
   })
 
+  // This example turns off the layer and then adds another one
+  //  useful for testing with ArcGIS Web SDK
+  //
   // setTimeout(() => {
   //   ovl.stopLayer(tempLayer)
 
@@ -49,5 +101,5 @@ Terrier.startArcGIS("dev", view, (ovl) => {
 
 
   // Turn this on to animate over time
-  ovl.timePlay({period: 5.0})    
+  ovl.timePlay({period: 20.0})    
 })

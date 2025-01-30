@@ -1,5 +1,5 @@
 .dropdown {
-  height: 1000px;
+  height: 600px;
   width: 380px;
   border-radius: 20px;
   background-color: rgb(138, 141, 193);
@@ -13,6 +13,8 @@
 .dropdown-nav {
   justify-content: flex-start;
   margin: auto;
+  overflow-y: scroll;
+  height: 600px;
 }
 
 .dropdown-nav a {
@@ -20,14 +22,14 @@
 }
 
 .dropdown-button {
-  padding: 15px;
-  width: 50px;
+  padding: 10px;
+  width: 30px;
 }
 
 .dropdown-button-active {
   padding: 10px;
   padding-right: 15px;
-  width: 50px;
+  width: 30px;
 
   background-color: rgba(183, 185, 230);
   border-top-left-radius: 20px;
@@ -40,7 +42,7 @@
 .dropdown-content {
   background-color: rgba(183, 185, 230);
   position: absolute;
-  width: 270px;
+  width: 300px;
   height: 600px;
   top: 0;
   right: 0;

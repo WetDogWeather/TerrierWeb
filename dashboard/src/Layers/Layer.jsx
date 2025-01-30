@@ -74,7 +74,7 @@ export default class Layer {
 
         // Default variables
         this.colored = true;
-        this.dataSampleType = 1;      // 0 = Nearest, 1 = Linear, 2 = Cubic.
+        this.dataSampleType = this._teaseOutParam(params,'interpMode',1);      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
 
         this.minImportance = this._teaseOutParam(params,'importanceScale',4)      // 5 - 100.
@@ -83,6 +83,7 @@ export default class Layer {
         this.startFrame = this._teaseOutParam(params,'startFrame','current')
 
         this.source = this._teaseOutParam(params,'source',null)
+        this.sources = this._teaseOutParam(params,'sources',null)
         this.loadCallback = this._teaseOutParam(params,'loadCallback',null)
     }
 
@@ -100,9 +101,14 @@ export default class Layer {
                     params['loadCallback'] = this.loadCallback
                 }
                 if (this.source) {
+                    // Start with a hard defined visual layer
                     params['source'] = this.source
                     this.layer = this.terrierOvl.startLayer('visual', params)
                 } else {
+                    if (!this.sources) {
+                        this.sources = this.terrierOvl.terrierModule.sourcesFromLayerName(this.layerName)
+                    }
+                    params['sources'] = this.sources
                     this.layer = this.terrierOvl.startLayer(this.layerName, params)
                 }
             }

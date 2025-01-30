@@ -21,19 +21,13 @@ function Dropdown({layers,
                     legendVisible, setLegendVisible,
                     snapFrame, setSnapFrame,
                     animSpeed, setAnimSpeed, 
+                    displayAllLayers, setDisplayAllLayers,
+                    source, sources, setSource,
+                    region, regions, setRegion,
                     stackName, setStackName,
                     units, setUnits}) {
-    const [curSelection,_setCurSelection] = useState(curLayer)
+    const [settingsMode,setSettingsMode] = useState(0)
     const numLayers = layers.length
-
-    // We can select the available layers, but also a couple of other buttons (settings, attribution)
-    // TODO: throttle or debounce this so we don't let the user constantly change layers
-    const setCurSelection = (newId) => {
-        _setCurSelection(newId)
-        if (newId < layers.length) {
-            setCurLayer(newId)
-        }
-    }
 
     // Generating dropdown menu based on layers
     var dropdown
@@ -43,7 +37,9 @@ function Dropdown({layers,
         let content = (
             <>
                 <DropdownButton icon={layer.getIcon()} key={'button-'+layer.layerName} 
-                                layerName={layer.layerName} isActive={layerId == curSelection} setActive={() => setCurSelection(layerId)}>
+                                layerName={layer.layerName} isActive={settingsMode == 0 && layerId == curLayer} setActive={() => {
+                                    setCurLayer(layerId)
+                                    setSettingsMode(0) }}>
                 </DropdownButton>
             </>
         )
@@ -54,7 +50,7 @@ function Dropdown({layers,
     let settingsButton = (
         <>
             <DropdownButton icon={settingsIcon} key={'button-settings'} 
-                            layerName='settings' isActive={curSelection == numLayers} setActive={() => setCurSelection(numLayers)}>
+                            layerName='settings' isActive={settingsMode == 1} setActive={() => setSettingsMode(1)}>
             </DropdownButton>
         </>
     )
@@ -64,15 +60,15 @@ function Dropdown({layers,
     let attrButton = (
         <>
             <DropdownButton icon={attributionIcon} key={'button-attribution'} 
-                            layerName='attribution' isActive={curSelection == numLayers+1} setActive={() => setCurSelection(numLayers+1)}>
+                            layerName='attribution' isActive={settingsMode == 2} setActive={() => setSettingsMode(2)}>
             </DropdownButton>
         </>
     )
     dropdown = [dropdown, attrButton]
 
-    // Generate the content for settings of attribution if needed
-    if (curSelection >= 0 && curSelection < numLayers) {
-        let layer = layers[curSelection]
+    // Generate the content for settings or attribution if needed
+    if (settingsMode == 0) {
+        let layer = layers[curLayer]
         var layerContent
         if (layer.displayName.toLowerCase() == 'temperature') {
             layerContent = (
@@ -85,16 +81,19 @@ function Dropdown({layers,
         }
 
         dropdown = [dropdown, layerContent]
-    } else if (curSelection == numLayers) {
+    } else if (settingsMode == 1) {
         const settingsContent = (
             <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                               snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                               animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
+                              displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}
+                              source={source} sources={sources} setSource={setSource}
+                              region={region} regions={regions} setRegion={setRegion}
                               stackName={stackName} setStackName={setStackName}
              />
         )    
         dropdown = [dropdown, settingsContent]
-    } else if (curSelection == numLayers+1) {
+    } else if (settingsMode == 2) {
         const attrContent = (
             <>
                 <div className='dropdown-content' key={'attr-content'}>

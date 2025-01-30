@@ -64,6 +64,44 @@ class TerrierLayer {
                     return
                 }
         }
+        if (!('sources' in params)) {
+            params['sources'] = Terrier.sourcesFromLayerName(this.name,this.level)
+        }
+        let jsonSources = params['sources']
+        if (jsonSources == undefined || jsonSources.length == 0) {
+            console.log("TerrierLayer: No sources set.  Giving up.")
+            return
+        }
+        let dataType = jsonSources[0].dataType
+
+        // Note: Need to line up the internal types with what Boxer is publishing
+        if (dataType == "velocity") {
+            dataType = "WindGust"
+        }
+        // Note: Need to switch this to a slightly tweaked version
+        if (dataType == "preciptype") {
+            dataType = "WindGust"
+        }
+
+        // Convert to TrrDataSources
+        var sources = []
+        jsonSources.forEach(jsonSource => {
+            let source = new globalThis.Module.TrrDataSource(
+                jsonSource.source,
+                jsonSource.region,
+                jsonSource.product,
+                jsonSource.variable,
+                jsonSource.level,
+                jsonSource.interval,
+                jsonSource.temporalType,
+                jsonSource.dataType,
+                jsonSource.depth,
+                jsonSource.isGlobal,
+                jsonSource.hasMissingValues,
+                jsonSource.importanceScale
+            )
+            sources.push(source)
+        })
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -77,7 +115,7 @@ class TerrierLayer {
         var foundState = null
         // TODO: Switch to an a/b/c/d endpoint and set this high
         globalThis.Module.numConnections = Terrier.numConnections
-        switch (this.name) {
+        switch (dataType) {
             // Three of these are special
             case "wind_uv":
             case "windUV":
@@ -97,6 +135,7 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.windCallback = this.loadCallback
                 }
+                globalThis.Module.windSources = sources
                 foundState = findControllerState("winduv")
                 break;
             case "temperature":
@@ -115,9 +154,11 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.tempCallback = this.loadCallback
                 }
+                globalThis.Module.tempSources = sources
                 foundState = findControllerState("temperature")
                 break;
             case "radar":
+            case "reflectivity":
                 globalThis.Module.enableRadar = true
                 globalThis.Module.numConnections = 32
                 globalThis.Module.radarColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
@@ -137,6 +178,7 @@ class TerrierLayer {
                     globalThis.Module.radarCallback = this.loadCallback
                 }
                 globalThis.Module.radarScale = this.renderScale
+                globalThis.Module.radarSources = sources
                 foundState = findControllerState("radar")
                 break;
             case "visual":
@@ -150,14 +192,16 @@ class TerrierLayer {
                     globalThis.Module.visualCallback = this.loadCallback
                 }
                 // Note: Debugging
+                globalThis.Module.visualSources = sources
                 globalThis.Module.visualCadence = [0,30*60,6]
                 break;
             // And the rest more generic
             // TODO: Pass in the colormap
             default:
-                // Look for the controller state 
-                if (this.name in globalThis.Module.controllerState) {
-                    foundState = globalThis.Module.controllerState[this.name]
+                // Look for the controller state
+                foundState = findControllerState(dataType)
+                if (!foundState) {
+                    foundState = findControllerState("Visibility");
                 }
                 if (!foundState) {
                     console.log("Failed to find layer named " + this.name)
@@ -185,6 +229,7 @@ class TerrierLayer {
                 break;
         }
 
+        foundState.sources = sources
         this.state = foundState
 
         if (this.cadence) {
@@ -257,6 +302,7 @@ class TerrierLayer {
                 globalThis.Module.enableTemp = false
                 break;
             case "radar":
+            case "reflectivity":
                 globalThis.Module.enableRadar = false
                 break;
             // And the rest more generic
@@ -743,6 +789,84 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
+        Terrier.SEVERE_HAIL_INDEX_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
+            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe55dc, 0xff7e32a7]);
+        Terrier.PROB_SEVERE_HAIL_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
+                0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
+        Terrier.HAIL_SIZE_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 1, 2, 4, 6, 8, 10, 15, 20, 30, 40, 50, 75, 100],
+            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe5, 0xff7e32a7]);                
+        Terrier.QPE_FFG_RATIO_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0.0, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.00, 2.25, 2.50, 2.75, 3.00, 3.50, 4.00, 5.00],
+            [0xffbebebe, 0xff8c8c8c, 0xff6e6e6e, 0xff505050, 0xff01b500, 0xff009b01, 
+                0xffffff04, 0xffffe102, 0xffffc802, 0xffffb400, 0xffffa100, 0xffb40100, 0xffc80200, 
+                0xffe20100, 0xffff0100, 0xffff01ff, 0xffd300d2, 0xffaa00ab, 0xff800080]);                
+        Terrier.PRECIP_FLAG_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 1, 3, 6, 7, 10, 91, 96],
+            [0x00000000, 0xFF0350a5, 0xFFffffff, 0xFFff3332, 0xFF960096, 0xFF6effff, 0xFF00fa00, 0xFF039700]);
+        
+
+        // A placeholder for an index value we haven't made a proper colormap for yet
+        Terrier.INDEXPLACE_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+            [0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 
+                0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
+                0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
+                0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
+                0xFFFFFFFF]);
+
+        let feetToMeters = 1/3.28084
+        Terrier.CLOUD_COLORS_NOT_GREY = Terrier.createColorMap(
+            [0.0*feetToMeters,500.0*feetToMeters,
+            500.0*feetToMeters,900.0*feetToMeters,
+            900.0*feetToMeters,1000.0*feetToMeters,
+            1000.0*feetToMeters,3000.0*feetToMeters,
+            3000.0*feetToMeters,4000.0*feetToMeters,
+            4000.0*feetToMeters,
+            5000.0*feetToMeters,6000.0*feetToMeters,
+            6000.0*feetToMeters
+            ],
+            [0xff800000,0xffE63222,
+            0xffFFFF55,0xffFFFF55,
+            0xffED702E,0xffED702E,
+            0xff01007B,0xff01007B,
+            0xff75FB4C,0xff75FB4C,
+            0xff75FB4C,
+            0xff2A6318,0xff2A6318,
+            0x00000000
+            ])
+        let statMileToMeters = 1609.34
+        Terrier.VISIBILITY_COLORS_NOT_GREY = Terrier.createColorMap(
+            [0*statMileToMeters,1*statMileToMeters,
+            1*statMileToMeters,3*statMileToMeters,
+            3*statMileToMeters,5*statMileToMeters,
+            5*statMileToMeters,
+            7*statMileToMeters,
+            8*statMileToMeters,9*statMileToMeters,
+            9*statMileToMeters
+            ],
+            [0xff800000,0xff800000,
+            0xffE63222,0xffE63222,
+            0xffFFFF55,0xffFFFF55,
+            0xff75FB4C,
+            0xff3A8323,
+            0xff113208,0xff113208,
+            0x00000000
+            ])
+        Terrier.PERCENT_COLORS_NOT_GREY = Terrier.createColorMap(
+            [0.0,100.0],
+            [0x00666666,0xff666666]
+        )
+        let hgToPa = 3386.39
+        Terrier.PRESSURE_COLORS_NOT_GREY = Terrier.createColorMap(
+            [29.9*hgToPa,30.4*hgToPa],
+            [0x00666666,0xff666666]
+        )
     }
 
     /**
@@ -881,6 +1005,55 @@ class TerrierModule {
     }
 
     /**
+     * Given a variable, usually returned from a call to Terrier,
+     * we will try to figure out what colormap might work for it.
+     * You can always substitute your own, these are just default.
+     * 
+     * @param {Dictionary} variable 
+     * @returns A trrColorMap you can pass to the Layer creation.
+     */
+    colorMapForVariable(variable) {
+        switch (variable.dataType.toLowerCase()) {
+            case "reflectivity":
+                return Terrier.RADAR_COLORS_NOT_GREY;
+            case "temperature":
+                return Terrier.TEMP_COLORS_NOT_GREY;
+            case "wind_uv":
+            case "velocity":
+                return Terrier.WIND_COLORS_NOT_GREY;
+            case "probability":
+                if (variable.name == "probability_severe_hail") {
+                    return Terrier.PROB_SEVERE_HAIL_COLORS;
+                }
+            case "percentage":
+                return Terrier.PERCENT_COLORS_NOT_GREY;
+            case "visibility":
+                return Terrier.VISIBILITY_COLORS_NOT_GREY;
+            case "cloudceiling":
+                return Terrier.CLOUD_COLORS_NOT_GREY;
+            case "preciptype":
+                return Terrier.PRECIP_FLAG_COLORS;
+            case "severehailindex":
+                return Terrier.SEVERE_HAIL_INDEX_COLORS;
+            case "size":
+                return Terrier.HAIL_SIZE_COLORS;
+            case "none":
+                if (variable.name.includes("hail_swath")) {
+                    return Terrier.HAIL_SIZE_COLORS;
+                }
+                // The way dataType is set up isn't quite right.
+                if (variable.name.includes("qpe_ffg")) {
+                    return Terrier.QPE_FFG_RATIO_COLORS;
+                }
+            default:
+                return Terrier.INDEXPLACE_COLORS_NOT_GREY
+                break;
+        }
+        // Don't know what it is.  Obviously not the best.
+        return null
+    }
+
+    /**
      * Boxer stacks know what is in them and we can ask for that information to figure
      * out which layers to display and what levels they may have.  We don't get that
      * information by default, but if you ask for it, Terrier will fetch it and
@@ -914,10 +1087,14 @@ class TerrierModule {
         if (this.stackName.includes('localhost')) {
             endpoint = "http://" + this.stackName
         } else {
-            endpoint = "https://"+this.stackName+".api.wetdogweather.com"
+            if (this.stackName.includes('http')) {
+                endpoint = this.stackName
+            } else {
+                endpoint = "https://"+this.stackName+".api.wetdogweather.com"
+            }
         }
 
-        fetch(endpoint + "/manifest/v2/getvarkeys")
+        fetch(endpoint + "/manifest/v2/getvisualvarkeys")
             .then((response) =>  {
                 if (response.ok) {
                     return response.json()
@@ -944,21 +1121,22 @@ class TerrierModule {
     variableLevelsForStack(dataType) {
         var levels = new Set([])
         if (!this.stackContents) {
-            return levels
+            return Array.from(levels)
         }
-        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
-            for (const [ regionKey, region ] of Object.entries(model)) {
-                for (const [ typeKey, type ] of Object.entries(region)) {
-                    for (const [ _, variable ] of Object.entries(type)) {
-                        if (variable.dataType.toLowerCase() == dataType) {
-                            variable.levels.forEach( (level) => {
-                                levels.add(level)
-                            })
+        this.stackContents.sources.forEach( source =>
+            source.regions.forEach( region =>
+                region.products.forEach( product =>
+                    product.variables.forEach( variable => {
+                            if (variable.dataType.toLowerCase() == dataType) {
+                                variable.levels.forEach( (level) => {
+                                    levels.add(level)
+                                })
+                            }
                         }
-                    }
-                }
-            }
-        }
+                    )
+                )
+            )            
+         )
 
         return Array.from(levels)
     }
@@ -966,23 +1144,245 @@ class TerrierModule {
     /**
      * The unique variable types for a given stack.  This is essentially all
      * the layerNames you might pass in when starting a new layer.
-     * @returns {Array.string} All the valid layer names for a stack.
+     * For purely visual layers, we tack 'visual' on the front of the name.
+     * @returns {Dict} All the valid layer names for a stack with values that describe the variable.
      */
     variablesForStack() {
-        var variables = new Set([])
-        for (const [ modelKey, model ] of Object.entries(this.stackContents)) {
-            for (const [ regionKey, region ] of Object.entries(model)) {
-                for (const [ typeKey, type ] of Object.entries(region)) {
-                    for (const [ _, variable ] of Object.entries(type)) {
-                        variables.add(variable)
-                    }
-                }
-            }
+        var variables = {}
+        if (!this.stackContents) {
+            return Array.from(variables)
         }
+        this.stackContents.sources.forEach( source =>
+            source.regions.forEach( region =>
+                region.products.forEach( product =>
+                    product.variables.forEach( variable => {
+                            if (variable.dataType == 'visual') {
+                                variables['visual ' + variable.name] = variable
+                            } else {
+                                variables[variable.name] = variable
+                            }
+                        }
+                    )
+                )
+            )            
+         )
 
-        return Array.from(variables)
+        return variables
     }
 
+    /**
+     * Returns a list of region names available in the stack.
+     * These can be used to filter variables later.
+     */
+    regionsForStack() {
+        var regions = new Set([])
+        if (!this.stackContents) {
+            return Array.from(regions)
+        }
+        this.stackContents.sources.forEach( source =>
+            source.regions.forEach( region =>
+                regions.add(region.name)
+            )            
+         )        
+         return Array.from(regions)
+    }
+
+    /**
+     * Returns a list of sources available in the stack.  These can be
+     * used to filter in other query functions.
+     */
+    sourcesForStack() {
+        var sources = new Set([])
+        if (!this.stackContents) {
+            return Array.from(sources)
+        }
+        this.stackContents.sources.forEach( source =>
+            sources.add(source.name)
+         )        
+         return Array.from(sources)
+    }
+
+    /**
+     * Construct a list of sources that match certain criteria.  These can be source,
+     * region, or product which can take a list of string or one or no strings to match.
+     * The variable entry must be set as this is the variable you'll match to from 
+     * all available sources.
+     * level can be set, as can interval, but only to one string.  If none is provided
+     * and the source has multiple of those, we'll just pick the first.
+     * 
+     * The simplest example is to pass in {variable: 'temperature', level: '2m'} and you'll
+     * get a list of 2m temperature for all sources.
+     * 
+     * You can also just pass in a string for params and we'll turn that into a proper search.
+     *  
+     * @param {Dictionary} params A dictionary optionally containing match parameters, but must have 'variable'
+     * @returns A list of disambiguated sources to add to a display.
+     */
+    sourcesForVariable(params) {        
+        var sources = new Array()
+        if (!this.stackContents) {
+            return sources
+        }
+        if (typeof params == "string") {
+            params = {'variable': params}
+        }
+        if (!('variable' in params)) {
+            console.log("Must at least match to variable name in sourcesForVariable.")
+            return
+        }
+        var variableMatch = params['variable']
+        if (typeof variableMatch != "string") {
+            console.log("Must specify variable as single string.")
+            return
+        }
+        var sourceMatch = 'source' in params ? params['source'] : null
+        if (typeof sourceMatch == "string") {
+            sourceMatch = [sourceMatch]
+        }
+        var regionMatch = 'region' in params ? params['region'] : null
+        if (typeof regionMatch == "string") {
+            regionMatch = [regionMatch]
+        }
+        var productMatch = 'product' in params ? params['product'] : null
+        if (typeof productMatch == "string") {
+            productMatch = [productMatch]
+        }
+        var levelMatch = 'level' in params ? params['level'] : null
+        var intervalMatch = 'interval' in params ? params['interval'] : null
+        this.stackContents.sources.forEach( source => {
+            var sourceMatched = true
+            if (sourceMatch) {  
+                sourceMatched = false
+                sourceMatch.forEach( match => {
+                    if (match.toLowerCase() == source.name.toLowerCase()) {
+                        sourceMatched = true
+                    }
+                })              
+            }
+
+            if (sourceMatched) {
+                source.regions.forEach( region => {
+                    var regionMatched = true
+                    if (regionMatch) {  
+                        regionMatched = false
+                        regionMatch.forEach( match => {
+                            if (match.toLowerCase() == region.name.toLowerCase()) {
+                                regionMatched = true
+                            }
+                        })              
+                    }
+        
+                    if (regionMatched) {
+                        for (const product of region.products) {
+                            var productMatched = true
+                            if (productMatch) {  
+                                productMatched = false
+                                productMatch.forEach( match => {
+                                    if (match.toLowerCase() == product.name.toLowerCase()) {
+                                        productMatched = true
+                                    }
+                                })              
+                            }    
+
+                            if (productMatched) {
+                                var foundVariable = false
+                                product.variables.forEach( variable => {
+                                    var variableMatched = true
+                                    if (variableMatch) {  
+                                        variableMatched = false
+                                        if (variableMatch.toLowerCase() == variable.name.toLowerCase()) {
+                                            variableMatched = true
+                                        }
+                                    }    
+                                    if (variableMatched) {
+                                        var levelMatched = true
+                                        var levelName = variable.levels.length > 0 ? variable.levels[0] : "none"
+                                        if (levelMatch) {
+                                            levelMatched = false
+                                            variable.levels.forEach(level => {
+                                                if (levelMatch.toLowerCase() == level.toLowerCase()) {
+                                                    levelMatched = true
+                                                    levelName = levelMatch.toLowerCase()
+                                                }
+                                            })
+                                        }
+                                        var intervalMatched = true
+                                        var intervalName = variable.intervals.length > 0 ? variable.intervals[0] : "none"
+                                        if (intervalMatch) {
+                                            intervalMatched = false
+                                            variable.intervals.forEach(interval => {
+                                                if (intervalMatch.toLowerCase() == interval.toLowerCase()) {
+                                                    intervalMatched = true
+                                                    intervalName = intervalMatch.toLowerCase()
+                                                }
+                                            })
+                                        }
+                                        if (levelMatched && intervalMatched) {
+                                            foundVariable = true
+                                            sources.push({
+                                                source: source.name,
+                                                region: region.name,
+                                                product: product.name,
+                                                name: variable.name,
+                                                variable: variable.name,
+                                                level: levelName,
+                                                interval: intervalName,
+                                                temporalType: variable.temporalType,
+                                                dataType: variable.dataType,
+                                                depth: variable.bits,
+                                                isGlobal: region.isglobal,
+                                                hasMissingValues: variable.hasEmptyVals,
+                                                importanceScale: 1.0,
+                                                drawOrder: source.order
+                                            })
+                                        }
+                                    }
+                                })
+
+                                if (foundVariable) {
+                                    break
+                                }
+                            }
+                        }
+                    }
+                })            
+            }
+        })
+
+        return sources
+    }
+
+    /**
+     * Pass in a generic name like 'windUV' or 'temperature' and we'll pass back
+     * a direct list of sources to display.  These are the more generic names we
+     * used to use before we switched over to a list of sources from the stack.
+     * @param {string} layerName 
+     */
+    sourcesFromLayerName(layerName,level) {
+        var params = {}
+        if (level !== undefined) {
+            params['level'] = level
+        }
+        switch (layerName) {
+            case "wind_uv":
+            case "windUV":
+                params['variable'] = 'wind_uv'
+                break;
+            case "temperature":
+                params['variable'] = 'temperature'
+                break;
+            case "radar":
+                break;
+            case "visual":
+                // TODO: Fix this one
+                break;
+            default:
+                params['variable'] = layerName
+                break;
+        }
+        return this.sourcesForVariable(params)
+    }
+    
     /**
      * Normally you pass in the stack name on startup and then use just that
      * stack.  This will let you point to another stack.  As a developer, you

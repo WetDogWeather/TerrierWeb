@@ -5,7 +5,10 @@ import './dropdown.css'
 // Settings are a separate dropdown
 function SettingsDropdown({legendVisible, setLegendVisible, 
                             snapFrame, setSnapFrame,
-                            animSpeed, setAnimSpeed, 
+                            animSpeed, setAnimSpeed,
+                            displayAllLayers, setDisplayAllLayers,
+                            source, sources, setSource,
+                            region, regions, setRegion,
                             stackName, setStackName}) 
 {
     const [localStackName,setLocalStackName] = useState(stackName)
@@ -16,6 +19,32 @@ function SettingsDropdown({legendVisible, setLegendVisible,
         // Module.setPlayInterval(99 - e.target.value | 0 + 1) // 99 is the max value of the animation speed range
         setAnimSpeed(newSpeed)
     }
+
+    const sourceContent = (
+        <>
+            <label htmlFor="sources">Source: </label>
+
+            <select name="sources-select" key="sources-select" 
+                        selected={source} onChange={(e) => setSource(e.target.value)}>
+                {sources.map( (thisSource) => {
+                        return (<option selected={source == thisSource ? 'selected' : ''} value={thisSource}>{thisSource} </option>)
+                })}
+            </select>   
+            </>
+    )
+
+    const regionContent = (
+        <>
+            <label htmlFor="regions">Region: </label>
+
+            <select name="regions-select" key="regions-select" 
+                        selected={region} onChange={(e) => setRegion(e.target.value)}>
+            {regions.map( (region) => {
+                        return (<option value={region}>{region}</option>)
+            })}
+            </select>   
+            </>
+    )
 
     return (
         <>
@@ -28,12 +57,28 @@ function SettingsDropdown({legendVisible, setLegendVisible,
             Hide Legend
             </label>
             <br />
-            <br />
 
             <label>
                 <input type="checkbox" checked={snapFrame} onChange={() => setSnapFrame(!snapFrame)}/>
             Snap to Time Slices
             </label>
+            <br />
+            <label>
+                <input type="checkbox" checked={displayAllLayers} onChange={() => setDisplayAllLayers(!displayAllLayers)}/>
+            All Layers
+            </label>
+
+            <br />
+            <br />
+
+            {sourceContent}
+
+            <br />
+            <br />
+
+            {regionContent}
+
+            <br />
 
             <p>Animation Speed</p>
             <input type='range' id='animation-speed' min='1' max='100'

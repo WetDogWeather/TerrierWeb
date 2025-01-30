@@ -11,14 +11,14 @@ function startMap() {
     });
 
     // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre('prod', map, (ovl) => {
+    Terrier.startMapLibre('dev', map, (ovl) => {
         // Once successful, start up a temperature layer
-        let tempLayer = ovl.startLayer('temperature', {
+        let tempLayer = ovl.startLayer('reflectivity', {
             // colorMap: {}
             // level: 80
             interpMode: 'linear',
             opacity: 0.5,
-            importFactor: 4.0,
+            importFactor: 16.0,
         })
 
         // Animate the results

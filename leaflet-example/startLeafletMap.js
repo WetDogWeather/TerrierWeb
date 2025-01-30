@@ -14,7 +14,7 @@ function startMap() {
 	}).addTo(map);
 
     var canvasLayer = L.realtimeCanvasLayer()
-    Terrier.startLeaflet('prod', canvasLayer, (ovl) => {
+    Terrier.startLeaflet('dev', canvasLayer, (ovl) => {
         // Toss in country/state outlines
         // ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
         //     fetch("geojson/" + c + ".geojson").then(result =>
@@ -24,9 +24,11 @@ function startMap() {
         //         })))                
 
         // Turn on temperature as a layer
+        let tempColorMap = new globalThis.Module.TrrShaderColorMap(0, false,
+            [255.372, 260.928, 266.483, 272.039, 277.594, 283.15, 288.706, 294.261, 299.817, 305.372, 310.928, 316.483],
+            [0xFFFFBFFF, 0xFFD873DB, 0xFF913ABB, 0xFF372398, 0xFF00B6DC, 0xFF02D786, 0xFF40C604, 0xFFFFFF00, 0xFFFB7700, 0xFFD22402, 0xFFA20902, 0xFFEED9D8]);
         let tempLayer = ovl.startLayer('temperature', {
-            // colorMap: {}
-            // level: 80
+            colorMap: tempColorMap,
             interpMode: 'linear',
             opacity: 0.5,
             importFactor: 4.0,

@@ -20,8 +20,8 @@ const map = new Map({
 const view = new MapView({
   container: "viewDiv",
   map: map,
-  zoom: 8,
-  center: [0.1276, 51.5],
+  zoom: 4,
+  center: [-100, 40.5],
 });
 
 Terrier.startArcGIS("dev", view, (ovl) => {
@@ -44,8 +44,9 @@ Terrier.startArcGIS("dev", view, (ovl) => {
   // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
   // let sources = Terrier.sourcesForVariable({variable: 'probability_severe_hail'})
   // let sources = Terrier.sourcesForVariable({variable: 'hail_swath_30min'}); interpMode = 'nearest';
+  let sources = Terrier.sourcesForVariable({variable: 'hail_swath_120min'}); interpMode = 'nearest';
   // let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
-  let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'}); interpMode = 'nearest';
   // let sources = Terrier.sourcesForVariable({variable: 'precipitation_rate'})
   // let sources = Terrier.sourcesForVariable({variable: 'severe_hail_index'})
 
@@ -76,6 +77,7 @@ Terrier.startArcGIS("dev", view, (ovl) => {
       interpMode: interpMode,
       sources: sources,
       opacity: 0.5,
+      importFactor: 16.0,
       // Four hours worth of past radar, maximum of 64 frames
       cadence: cadence,
   })

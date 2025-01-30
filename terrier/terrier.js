@@ -391,7 +391,10 @@ class TerrierLayer {
      * this layer.
      **/
     getColorMap() {
-        return this.state.controller.colorMap
+        if (this.colorMap)
+            return this.colorMap;
+        if (this.state && this.state.controller)
+            return this.state.controller.colorMap;
     }
 
     /**

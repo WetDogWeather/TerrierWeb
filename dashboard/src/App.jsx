@@ -48,6 +48,8 @@ function iconForVariable(variable) {
       return cloudIcon;
     case "preciptype":
       return radarIcon;
+    case "visual":
+      return visibilityIcon;
     case "none":
       if (variable.name.includes("swath")) {
         return wideIcon
@@ -355,33 +357,20 @@ function App() {
           }
           })
         break;
-        case 'visible':
-          // new Layer(ovl, 
-          //   {'displayName': 'visual',
-          //   'layerName': 'visual',
-          //   'icon': radarIcon,
-          //   'units': 'dBz',
-          //   'importanceScale': 8.0,
-          //   'source': {
-          //     model: 'myradar',
-          //     region: 'global',
-          //     variable: 'reflectivity'
-          //   },
-          //   'loadCallback': (manifest) => {
-          //     // The manifest has a list of time slices which we can interrogate
-          //     let lastSlice = manifest.timeSlices.slice(-1)[0]
-
-          //     // Construct a new relative time range to display
-          //     // Snap to the current time and the last available time slice
-          //     let now = Date.now()/1000
-          //     let newTimeRange = [now,lastSlice.forecastEpoch]
-          //     ovl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
-          //     setTimeRange(newTimeRange)
-
-          //     // And snap to the end for the current time
-          //     ovl.setCurrentTime(now)
-          //   }
-          //   })
+        case 'visual':
+          // We can use defaults in most cases to display these
+          newLayer = new Layer(terrierOvl, 
+            {'displayName': variable.name,
+            'layerName': variable.name,
+            'icon': icon,
+            'sources': sources,
+            'levels': Terrier.variableLevelsForStack(variable.name),
+            'units': variable.units,
+            'colorsGrey': colorMap,
+            'colors': colorMap,
+            'timeRange': timeRange,
+            'interpMode': interp
+            })                        
         break;
         default:
           // We can use defaults in most cases to display these

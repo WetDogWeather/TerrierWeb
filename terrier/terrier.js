@@ -95,10 +95,11 @@ class TerrierLayer {
                 jsonSource.interval,
                 jsonSource.temporalType,
                 jsonSource.dataType,
+                jsonSource.projection,
                 jsonSource.depth,
                 jsonSource.isGlobal,
                 jsonSource.hasMissingValues,
-                jsonSource.importanceScale
+                jsonSource.importanceScale,
             )
             sources.push(source)
         })
@@ -183,7 +184,7 @@ class TerrierLayer {
                 break;
             case "visual":
                 globalThis.Module.enableVisual = true
-                globalThis.Module.visualSource = this.source
+                globalThis.Module.visualCadence = this.cadence
                 foundState = findControllerState("visual")
                 if (this.startFrame !== null && this.startFrame !== undefined) {
                     globalThis.Module.visualStartFrame = this.startFrame
@@ -191,9 +192,7 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.visualCallback = this.loadCallback
                 }
-                // Note: Debugging
                 globalThis.Module.visualSources = sources
-                globalThis.Module.visualCadence = [0,30*60,6]
                 break;
             // And the rest more generic
             // TODO: Pass in the colormap
@@ -522,7 +521,7 @@ class TerrierOverlay {
      * 'startFrame' will set the starting frame to either 'first' or 'last' or 'current.
      * 'current' just sets the current time where 'first' or 'last' will snap to the appropriate
      * frame time.  You would use 'last' for radar, for example to show the most recent radar.
-     * 
+     * s
      * @returns {TerrierLayer} The layer object you can interact with directly to make
      * real-time changes.
      */
@@ -1322,7 +1321,7 @@ class TerrierModule {
                                         }
                                         if (levelMatched && intervalMatched) {
                                             foundVariable = true
-                                            sources.push({
+                                            var newVar = {
                                                 source: source.name,
                                                 region: region.name,
                                                 product: product.name,
@@ -1337,7 +1336,13 @@ class TerrierModule {
                                                 hasMissingValues: variable.hasEmptyVals,
                                                 importanceScale: 1.0,
                                                 drawOrder: source.order
-                                            })
+                                            }
+                                            if (variable.projection) {
+                                                newVar.projection = variable.projection
+                                            } else {
+                                                newVar.projection = ""
+                                            }
+                                            sources.push(newVar)
                                         }
                                     }
                                 })

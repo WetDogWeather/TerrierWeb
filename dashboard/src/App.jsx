@@ -301,6 +301,23 @@ function App() {
       var newLayer = null
       // We can filter by region or source, optionally
       var searchParams = {variable: variable.name}
+      // Filter to only a familiar set of sources that work well together
+      var radarOnly = true
+      if (!displayAllLayers) {
+        if (varName == 'reflectivity') {
+          // Note: We can set radarOnly here to just see radar data
+          if (radarOnly) {
+            searchParams['source'] = ["mrms"]
+            searchParams['product'] = ["mbr"]
+          } else {
+            searchParams['source'] = ["gfs", "mrms", "hrrr"]
+            searchParams['product'] = ["mbr", "atmos"]
+          }
+        } else {
+          // Filtering down to these three sources will satisfy most people
+          searchParams['source'] = ["gfs", "rtma", "hrrr"]
+        }
+      }
       if (region != 'All') {
         searchParams['region'] = region
       }
@@ -319,6 +336,11 @@ function App() {
       let interp = interpForVariable(sources[0])
       switch (variable.dataType) {
       case 'reflectivity':
+        if (radarOnly) {
+          timeRange = [-4*60*60,0.0,64]
+        } else {
+          timeRange = [-4*60*60,4*60*60,64]
+        }
         newLayer = new Layer(terrierOvl, 
           {'displayName': variable.name,
           'layerName': variable.name,
@@ -329,7 +351,7 @@ function App() {
           'colorsGrey': colorMap,
           'colors': colorMap,
           'importanceScale': 16.0,
-          'timeRange': [-4*60*60,0,64],
+          'timeRange': timeRange,
           // The load callback lets us insert some logic when the manifest for a
           //  given data source loads.  You'll see more than one data source, depending
           //  on what you're displaying.
@@ -337,23 +359,25 @@ function App() {
           //  data (first and last frame of radar) and then we want to snap current
           //  time to the last frame.
           'loadCallback': (manifest) => {
-            // Ignore everything but the biggest region
-            if (manifest.region != 'conus') {
-              return
+            if (radarOnly) {
+              // Ignore everything but the biggest region
+              if (manifest.region != 'conus') {
+                return
+              }
+
+              // The manifest has a list of time slices which we can interrogate
+              let firstSlice = manifest.timeSlices[0]
+              let lastSlice = manifest.timeSlices.slice(-1)[0]
+
+              // Construct a new relative time range to display
+              // Snap to the available time slices
+              let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
+              terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
+              setTimeRange(newTimeRange)
+
+              // And snap to the end for the current time
+              terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
             }
-
-            // The manifest has a list of time slices which we can interrogate
-            let firstSlice = manifest.timeSlices[0]
-            let lastSlice = manifest.timeSlices.slice(-1)[0]
-
-            // Construct a new relative time range to display
-            // Snap to the available time slices
-            let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
-            terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
-            setTimeRange(newTimeRange)
-
-            // And snap to the end for the current time
-            terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
           }
           })
         break;

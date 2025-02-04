@@ -73,6 +73,7 @@ class TerrierLayer {
             return
         }
         let dataType = jsonSources[0].dataType
+        this.dataType = dataType
 
         // Note: Need to line up the internal types with what Boxer is publishing
         if (dataType == "velocity") {
@@ -291,7 +292,7 @@ class TerrierLayer {
 
     // Don't call this directly.  Use the TerrierOverlay
     stop() {
-        switch (this.name) {
+        switch (this.dataType) {
             // Three of these are special
             case "wind_uv":
             case "windUV":

@@ -1040,6 +1040,8 @@ class TerrierModule {
                 return Terrier.SEVERE_HAIL_INDEX_COLORS;
             case "size":
                 return Terrier.HAIL_SIZE_COLORS;
+            case "pressure":
+                return Terrier.PRESSURE_COLORS_NOT_GREY;
             case "none":
                 if (variable.name.includes("hail_swath")) {
                     return Terrier.HAIL_SIZE_COLORS;

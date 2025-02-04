@@ -36,32 +36,39 @@ Terrier.startArcGIS("dev", view, (ovl) => {
   var interpMode = 'linear'
 
   // Show data for the last four hours. Appropriate to the radar data.
-  let cadence = [-4*60*60,0,64]
+  // let cadence = [-4*60*60,0,64]
+
+  // Restrict to continental US or global, for GFS
+  let region = ['conus', 'global']
 
   // Composite (MCR) reflectivity from MRMS for all regions
-  // let sources = Terrier.sourcesForVariable({product: 'mcr', variable: 'reflectivity'})
+  // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', region: region, variable: 'reflectivity'})
 
   // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
-  // let sources = Terrier.sourcesForVariable({variable: 'probability_severe_hail'})
-  // let sources = Terrier.sourcesForVariable({variable: 'hail_swath_30min'}); interpMode = 'nearest';
-  let sources = Terrier.sourcesForVariable({variable: 'hail_swath_120min'}); interpMode = 'nearest';
-  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_type'})
-  // let sources = Terrier.sourcesForVariable({variable: 'max_size_hail'}); interpMode = 'nearest';
-  // let sources = Terrier.sourcesForVariable({variable: 'precipitation_rate'})
-  // let sources = Terrier.sourcesForVariable({variable: 'severe_hail_index'})
+  let radarSource = ["mrms"]
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'probability_severe_hail'})
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'hail_swath_30min'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'hail_swath_120min'}); interpMode = 'linear';
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'precipitation_type'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'max_size_hail'}); interpMode = 'nearest';
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'precipitation_rate'})
+  // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'severe_hail_index'})
 
   // For the rest of these sources, let's look at yesterday through tomorrow
-  // let cadence = [-1*60*60*24,1*60*60*24,64]
+  let cadence = [-1*60*60*24,1*60*60*24,64]
+
+  // Standard sources for north america
+  let normalSources = ['rtma', 'gfs', 'hrrr']
 
   // All the temperature available from all sources at 2m (default)
-  // let sources = Terrier.sourcesForVariable({variable: 'temperature'})
+  // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature'})
 
   // Just the surface temperature, if available in a given product
-  // let sources = Terrier.sourcesForVariable({variable: 'temperature', level: 'sfc'})
+  // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature', level: 'sfc'})
 
   // 80m winds for every source and region
-  // let sources = Terrier.sourcesForVariable({variable: 'wind_uv', level: '80m'})
-  // let sources = Terrier.sourcesForVariable({variable: 'wind_speed_gust'})
+  let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'wind_uv', level: '80m'})
+  // let sources = Terrier.sourcesForVariable({source: normalSources,region: region, variable: 'wind_speed_gust'})
 
   if (sources.length == 0) {
     console.log("Failed to find any sources for variable")
@@ -81,6 +88,8 @@ Terrier.startArcGIS("dev", view, (ovl) => {
       // Four hours worth of past radar, maximum of 64 frames
       cadence: cadence,
   })
+
+  console.log(layer.getColorMap());
 
   // This example turns off the layer and then adds another one
   //  useful for testing with ArcGIS Web SDK

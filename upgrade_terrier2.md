@@ -41,5 +41,3 @@ You can always supply your own, of course.
 
 ## What's Next for Terrier
 Stack contents were the big change for Boxer and Terrier.  That's likely to be the last breaking change we make for a while.
-
-s

@@ -285,7 +285,7 @@ function App() {
     // We can have a simple list of variables or absolutely everything
     var variables = Terrier.variablesForStack()
     if (!displayAllLayers) {
-      const toInclude = ["temperature", "wind_uv", "wind_speed_gust", "reflectivity", "visibility", "cloud_ceiling"]
+      const toInclude = ["temperature", "wind_uv", "wind_speed_gust", "reflectivity", "visibility", "cloud_ceiling", "visual radar"]
       var newVariables = {}
       toInclude.forEach((variable) => {
         if (variable in variables) {
@@ -304,18 +304,20 @@ function App() {
       // Filter to only a familiar set of sources that work well together
       var radarOnly = true
       if (!displayAllLayers) {
-        if (varName == 'reflectivity') {
-          // Note: We can set radarOnly here to just see radar data
-          if (radarOnly) {
-            searchParams['source'] = ["mrms"]
-            searchParams['product'] = ["mbr"]
+        if (variable.dataType != 'visual') {
+          if (varName == 'reflectivity') {
+            // Note: We can set radarOnly here to just see radar data
+            if (radarOnly) {
+              searchParams['source'] = ["mrms"]
+              searchParams['product'] = ["mbr"]
+            } else {
+              searchParams['source'] = ["gfs", "mrms", "hrrr"]
+              searchParams['product'] = ["mbr", "atmos"]
+            }
           } else {
-            searchParams['source'] = ["gfs", "mrms", "hrrr"]
-            searchParams['product'] = ["mbr", "atmos"]
+            // Filtering down to these three sources will satisfy most people
+            searchParams['source'] = ["gfs", "rtma", "hrrr"]
           }
-        } else {
-          // Filtering down to these three sources will satisfy most people
-          searchParams['source'] = ["gfs", "rtma", "hrrr"]
         }
       }
       if (region != 'All') {

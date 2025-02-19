@@ -395,7 +395,7 @@ function App() {
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
-            'interpMode': interp
+            // In this case we want to snap the displayed time range to the available
             })                        
         break;
         default:

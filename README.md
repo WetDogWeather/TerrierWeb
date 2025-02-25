@@ -28,7 +28,7 @@ If you're moving from version 1 to 2 of Terrier, be sure to read the [upgrade gu
 
 If you've paid for the static tile service add-on for Boxer, then you can access map tiles directly or through WMTS.  What follows is an Open Layers example for doing just that, but your favorite map toolkit will also have a way of doing this.  It just turns out Open Layers is one of the few to handle WMTS explicitly.
 
-[Open Layers example](open-layers-example/README.md) shows how to directly use WMTS and WMS endpoints through Open Layers.
+[Open Layers WMTS example](open-layers-wmts-example/README.md) shows how to directly use WMTS and WMS endpoints through Open Layers.
 
 There's also a WMS example in there... but WMS is kind of awful.  Please only use it if you absolutely have to.
 

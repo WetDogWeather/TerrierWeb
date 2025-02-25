@@ -1577,6 +1577,32 @@ class TerrierModule {
         })
     }
 
+    startOpenLayers(stackName, openLayersMap, canvas, readyFunc) {
+        this.stackName = stackName
+        if (openLayersMap == undefined) {
+            console.log('Need to pass the OpenLayers map into TerrierInit.  Not starting.')
+            return
+        }
+
+        // Already started, so just call them back
+        if (this.isReady) {
+            if (readyFunc !== undefined) {
+                readyFunc(this.ovl)
+            }
+            return
+        }
+
+        this.fetchStackContents( () => {
+            this.setupModule(() => {
+                _initOpenLayers(openLayersMap, canvas)
+            }, readyFunc)
+            this.loadLibrary()
+        },
+        () => {
+            console.log("Failed to fetch stack contents.  Terrier will not start.")
+        })
+    }
+
 
     /**
      * If you want Terrier completely stopped, this is what you can call.

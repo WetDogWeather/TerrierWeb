@@ -810,8 +810,8 @@ class TerrierModule {
                 0xffffff04, 0xffffe102, 0xffffc802, 0xffffb400, 0xffffa100, 0xffb40100, 0xffc80200, 
                 0xffe20100, 0xffff0100, 0xffff01ff, 0xffd300d2, 0xffaa00ab, 0xff800080]);                
         Terrier.PRECIP_FLAG_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
-            [0, 1, 3, 6, 7, 10, 91, 96],
-            [0x00000000, 0xFF0350a5, 0xFFffffff, 0xFFff3332, 0xFF960096, 0xFF6effff, 0xFF00fa00, 0xFF039700]);
+            [0, 1, 2, 3, 4, 5, 6, 7],
+            [0x00000000, 0xFFffffff, 0xFF960096, 0xFFff3332, 0xFF0350a5, 0xFF6effff, 0xff00ff00, 0xff00ff00]);
         
 
         // A placeholder for an index value we haven't made a proper colormap for yet

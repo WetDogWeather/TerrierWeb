@@ -396,7 +396,19 @@ function App() {
             'colors': colorMap,
             'timeRange': timeRange,
             // In this case we want to snap the displayed time range to the available
-            })                        
+            'loadCallback': (manifest) => {
+                // The manifest has a list of time slices which we can interrogate
+                let firstSlice = manifest.timeSlices[0]
+                let lastSlice = manifest.timeSlices.slice(-1)[0]
+                // Construct a new relative time range to display
+                // Snap to the available time slices
+                let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
+                terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
+                setTimeRange(newTimeRange)
+                // And snap to the end for the current time
+                terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
+            }
+          })                        
         break;
         default:
           // We can use defaults in most cases to display these

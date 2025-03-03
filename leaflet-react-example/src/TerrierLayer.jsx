@@ -29,76 +29,73 @@ function TerrierLayer() {
                 console.debug("Adding " + c + ".geojson")
                 ovl.addGeoJSON(t)
             })))                
+      // All the available variables sorted by source/region/product
+      console.log(Terrier.variablesForStack())
 
-      // let feetToMeters = 3.28084
-      // let cloudColorMap = Terrier.createColorMap(
-      //   [0.0*feetToMeters,500.0*feetToMeters,900.0*feetToMeters,1000.0*feetToMeters,300.0*feetToMeters,4000.0*feetToMeters,5000.0*feetToMeters],
-      //   [0xff800000,0xffff0000,0xffffff00,0xffff6600,0xff000080,0xff003300,0xff006400])
+      // Here are a few examples of how to filter out variables that you want
+      // to see.  You can also just mess with the list yourself once it's been
+      // returned.
 
-      // let cloudLayer = ovl.startLayer('CloudCeiling', {
-      //   // interpMode: 'nearest',
-      //   // colorMap: cloudColorMap,
-      //   interpMode: 'linear',
-      //   importFactor: 16.0,
-      //   opacity: 0.75,
-      // })
-      // cloudLayer.setColorMap(cloudColorMap)
+      // Some variables can be interpolated, but others won't look right
+      var interpMode = 'linear'
+      var importFactor = 4.0
 
-      // let cloudLayer = ovl.startLayer('CloudCover', {
-      //   // interpMode: 'nearest',
-      //   interpMode: 'linear',
-      //   opacity: 0.75,
-      // })
+      // Show data for the last four hours. Appropriate to the radar data.
+      // let cadence = [-4*60*60,0,64]
 
-      // let pressureLayer = ovl.startLayer('Pressure', {
-      //   interpMode: 'nearest',
-      //   // interpMode: 'linear',
-      //   opacity: 0.75,
-      // })
+      // Restrict to continental US or global, for GFS
+      let region = ['conus', 'global']
 
-      // let precipRateLayer = ovl.startLayer('PrecipRate', {
-      //   interpMode: 'nearest',
-      //   // interpMode: 'linear',
-      //   opacity: 0.75,
-      // })
+      // Composite (MCR) reflectivity from MRMS for all regions
+      // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', region: region, variable: 'reflectivity'})
 
-      // let radarLayer = ovl.startLayer('radar', {
-      //   // interpMode: 'nearest',
-      //   interpMode: 'linear',
-      //   opacity: 0.75,
-      //   importFactor: 16.0,
-      // })
+      // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
+      let radarSource = ["mrms"]
+      // importFactor = 16.0
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'probability_severe_hail'})
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'hail_swath_30min'}); interpMode = 'nearest';
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'hail_swath_120min'}); interpMode = 'linear';
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'precipitation_type'}); interpMode = 'nearest';
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'max_size_hail'}); interpMode = 'nearest';
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'precipitation_rate'})
+      // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'severe_hail_index'})
 
-      // Turn on a layer
-      let tempLayer = ovl.startLayer('temperature', {
-          level: "2m",
-          interpMode: 'nearest',
+      // Visual radar source (not available on all stacks)
+      // let sources = Terrier.sourcesForVariable({variable: 'radar', dataType: "visual"})
+
+      // For the rest of these sources, let's look at yesterday through tomorrow
+      let cadence = [-1*60*60*24,1*60*60*24,64]
+
+      // Standard sources for north america
+      let normalSources = ['rtma', 'gfs', 'hrrr']
+
+      // All the temperature available from all sources at 2m (default)
+      let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature'})
+
+      // Just the surface temperature, if available in a given product
+      // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature', level: 'sfc'})
+
+      // 80m winds for every source and region
+      // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'wind_uv', level: '80m'})
+      // let sources = Terrier.sourcesForVariable({source: normalSources,region: region, variable: 'wind_speed_gust'})
+
+      if (sources.length == 0) {
+        console.log("Failed to find any sources for variable")
+        return
+      }
+
+      // Colormaps can be applied separately (and changed later)
+      let colorMap = Terrier.colorMapForVariable(sources[0]);
+
+      // Now start the layer
+      let layer = ovl.startLayer('myLayer', {
+          colorMap: colorMap,
+          interpMode: interpMode,
+          sources: sources,
           opacity: 0.5,
+          importFactor: importFactor,
+          cadence: cadence,
       })
-
-      // let windLayer = ovl.startLayer('WindGust', {
-      //     level: "sfc",
-      //     // interpMode: 'nearest',
-      //     interpMode: 'linear',
-      //     opacity: 0.75,
-      // })
-
-      // let windLayer = ovl.startLayer('windUV', {
-      //     level: "80m",
-      //     interpMode: 'nearest',
-      //     // interpMode: 'linear',
-      //     opacity: 0.75,
-      // })
-
-      // let milesToM = 1609.34
-      // let visColorMap = Terrier.createColorMap(
-      //   [0.0*milesToM,1.0*milesToM,3.0*milesToM,5.0*milesToM,7.0*milesToM,8.0*milesToM,100.0*milesToM],
-      //   [0xFF800000,0xFFda0000,0xFFffff00,0xFF00ff00,0xFF008000,0xFF003300,0x00003300])
-      // let visLayer = ovl.startLayer('Visibility', {
-      //   colorMap: visColorMap,
-      //   interpMode: 'linear',
-      //   opacity: 0.75,
-      // })
 
       // setTimeout(() => {
       //   ovl.stopLayer(visLayer)

@@ -1,5 +1,29 @@
 var Module
 
+// Inside a bounding box check
+function TerrierInside(ll,ur,x,y) {
+    return ll[0] < x && ll[1] < y && x < ur[0] && y < ur[1];
+}
+
+// Test if inside or on edge
+function TerrierInsideOrOnEdge(ll,ur,x,y) {
+    return ll[0] <= x && ll[1] <= y && x <= ur[0] && y <= ur[1];
+}
+
+// Bounding box check
+function TerrierInsideOrOnEdgeOneWay(bbA,bbB) {
+    return TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], [bbB[0],bbB[1]]) ||
+            TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], [bbB[2],bbB[3]]) ||
+            TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], bbB[0], bbB[3]) ||
+            TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], bbB[2], bbB[1]);
+}
+
+// Bounding box check
+function TerrierOverlapOneWay(bbA,bbB) {
+    return (bbB[0] <= bbA[0] && bbA[2] <= bbB[2] &&
+    bbA[1] <= bbB[1] && bbB[3] <= bbA[3]);
+}
+
 /** 
  * The Terrier Layer represents a single data layer, like temperature or
  * wind.  Don't create one of these directly, have the TerrierOverlay do it
@@ -1214,6 +1238,8 @@ class TerrierModule {
      * all available sources.
      * level can be set, as can interval, but only to one string.  If none is provided
      * and the source has multiple of those, we'll just pick the first.
+     * You can also pass in an optional 'bounds' which is a bounding box of four floats
+     * of the form [lon, lat, lon lat].  Only overlapping regions will be returned.
      * 
      * The simplest example is to pass in {variable: 'temperature', level: '2m'} and you'll
      * get a list of 2m temperature for all sources.
@@ -1248,6 +1274,7 @@ class TerrierModule {
         if (typeof regionMatch == "string") {
             regionMatch = [regionMatch]
         }
+        var boundsMatch = 'bounds' in params ? params['bounds'] : null
         var productMatch = 'product' in params ? params['product'] : null
         if (typeof productMatch == "string") {
             productMatch = [productMatch]
@@ -1276,8 +1303,15 @@ class TerrierModule {
                             }
                         })              
                     }
-        
-                    if (regionMatched) {
+                    
+                    var boundsMatched = true
+                    if (boundsMatch) {
+                        boundsMatched = TerrierInsideOrOnEdgeOneWay(region.geobounds, boundsMatch) ||
+                                        TerrierInsideOrOnEdgeOneWay(boundsMatch, region.geobounds) ||
+                                        TerrierOverlapOneWay(region.geobounds, boundsMatch) ||
+                                        TerrierOverlapOneWay(boundsMatch, region.geobounds)
+                    }
+                    if (regionMatched && boundsMatched) {
                         for (const product of region.products) {
                             var productMatched = true
                             if (productMatch) {  

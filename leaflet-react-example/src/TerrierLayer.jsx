@@ -44,10 +44,12 @@ function TerrierLayer() {
       // let cadence = [-4*60*60,0,64]
 
       // Restrict to continental US or global, for GFS
-      let region = ['conus', 'global']
+      // let region = ['conus', 'global']
 
       // Composite (MCR) reflectivity from MRMS for all regions
       // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', region: region, variable: 'reflectivity'})
+      let alaskaBounds = [-149.893611, 61.216667, -140, 63]
+      let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', bounds: alaskaBounds, variable: 'reflectivity'})
 
       // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
       let radarSource = ["mrms"]
@@ -70,7 +72,7 @@ function TerrierLayer() {
       let normalSources = ['rtma', 'gfs', 'hrrr']
 
       // All the temperature available from all sources at 2m (default)
-      let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature'})
+      // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature'})
 
       // Just the surface temperature, if available in a given product
       // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature', level: 'sfc'})

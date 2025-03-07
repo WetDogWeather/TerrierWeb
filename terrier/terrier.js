@@ -1185,8 +1185,9 @@ class TerrierModule {
             source.regions.forEach( region =>
                 region.products.forEach( product =>
                     product.variables.forEach( variable => {
+                            variable.source = source
                             if (variable.dataType == 'visual') {
-                                variables['visual ' + variable.name] = variable
+                                variables['visual ' + variable.name + ' ' + source.name] = variable
                             } else {
                                 variables[variable.name] = variable
                             }

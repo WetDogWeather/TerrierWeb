@@ -48,11 +48,11 @@ function TerrierLayer() {
 
       // Composite (MCR) reflectivity from MRMS for all regions
       // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', region: region, variable: 'reflectivity'})
-      let alaskaBounds = [-149.893611, 61.216667, -140, 63]
-      let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', bounds: alaskaBounds, variable: 'reflectivity'})
+      // let alaskaBounds = [-149.893611, 61.216667, -140, 63]
+      // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', bounds: alaskaBounds, variable: 'reflectivity'})
 
       // Most of these show nothing most of the time, but precipitation_type and precipitation_rate are visible
-      let radarSource = ["mrms"]
+      // let radarSource = ["mrms"]
       // importFactor = 16.0
       // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'probability_severe_hail'})
       // let sources = Terrier.sourcesForVariable({source: radarSource, region: region, variable: 'hail_swath_30min'}); interpMode = 'nearest';
@@ -66,7 +66,7 @@ function TerrierLayer() {
       // let sources = Terrier.sourcesForVariable({variable: 'radar', dataType: "visual"})
 
       // For the rest of these sources, let's look at yesterday through tomorrow
-      let cadence = [-1*60*60*24,1*60*60*24,64]
+      // let cadence = [-1*60*60*24,1*60*60*24,64]
 
       // Standard sources for north america
       let normalSources = ['rtma', 'gfs', 'hrrr']
@@ -81,23 +81,37 @@ function TerrierLayer() {
       // let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'wind_uv', level: '80m'})
       // let sources = Terrier.sourcesForVariable({source: normalSources,region: region, variable: 'wind_speed_gust'})
 
+      // Take xweather radar and overlay MRMS
+      // let sources = Terrier.sourcesForVariable({variable: 'radar', source: 'xweather', dataType: "visual"})
+      let mrms = Terrier.sourcesForVariable({variable: 'reflectivity', source: 'mrms', region: 'conus', product: 'mbr'})
+      let cadence = [-24*60*60,0,48]
+
+      // Colormaps can be applied separately (and changed later)
+      let colorMap = Terrier.colorMapForVariable(mrms[0]);
+
       if (sources.length == 0) {
         console.log("Failed to find any sources for variable")
         return
       }
 
-      // Colormaps can be applied separately (and changed later)
-      let colorMap = Terrier.colorMapForVariable(sources[0]);
-
-      // Now start the layer
-      let layer = ovl.startLayer('myLayer', {
-          colorMap: colorMap,
-          interpMode: interpMode,
-          sources: sources,
-          opacity: 0.5,
-          importFactor: importFactor,
-          cadence: cadence,
-      })
+      // // Start the xweather layer
+      // let xweatherLayer = ovl.startLayer('xweatherLayer', {
+      //     colorMap: colorMap,
+      //     interpMode: interpMode,
+      //     sources: sources,
+      //     opacity: 1.0,
+      //     importFactor: 32.0,
+      //     cadence: cadence,
+      // })
+      // Start the MRMS layer
+      let mrmsLayer = ovl.startLayer('mrmsLayer', {
+        colorMap: colorMap,
+        interpMode: interpMode,
+        sources: mrms,
+        opacity: 1.0,
+        importFactor: 32.0,
+        cadence: cadence,
+    })
 
       // setTimeout(() => {
       //   ovl.stopLayer(visLayer)

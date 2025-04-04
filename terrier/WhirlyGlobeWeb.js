@@ -11340,7 +11340,7 @@ var ASM_CONSTS = {
       // watch for devicePixelRatio changes
       GLFW.devicePixelRatioMQL = window.matchMedia('(resolution: ' + GLFW.getDevicePixelRatio() + 'dppx)');
       GLFW.devicePixelRatioMQL.addEventListener('change', GLFW.onDevicePixelRatioChange);
-      
+  
       if ("canvas" in Module) {
         Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
         Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);

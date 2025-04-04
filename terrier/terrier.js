@@ -1067,9 +1067,6 @@ class TerrierModule {
             case "pressure":
                 return Terrier.PRESSURE_COLORS_NOT_GREY;
             case "none":
-                if (variable.units == "%") {
-                    return Terrier.PERCENT_COLORS_NOT_GREY;
-                }
                 if (variable.name.includes("hail_swath")) {
                     return Terrier.HAIL_SIZE_COLORS;
                 }
@@ -1372,12 +1369,11 @@ class TerrierModule {
                                                 interval: intervalName,
                                                 temporalType: variable.temporalType,
                                                 dataType: variable.dataType,
-                                                units: variable.units,
                                                 depth: variable.bits,
                                                 isGlobal: region.isglobal,
                                                 hasMissingValues: variable.hasEmptyVals,
                                                 importanceScale: 1.0,
-                                                drawOrder: source.order,
+                                                drawOrder: source.order
                                             }
                                             if (variable.projection) {
                                                 newVar.projection = variable.projection

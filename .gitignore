@@ -26,3 +26,4 @@ dist-ssr
 build*/
 .vite/
 .eslintrc*
+.github

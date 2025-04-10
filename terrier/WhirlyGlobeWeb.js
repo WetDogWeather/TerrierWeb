@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  239380: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 239780: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  239444: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 239888: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
 };
 
 // end include: preamble.js
@@ -11340,7 +11340,7 @@ var ASM_CONSTS = {
       // watch for devicePixelRatio changes
       GLFW.devicePixelRatioMQL = window.matchMedia('(resolution: ' + GLFW.getDevicePixelRatio() + 'dppx)');
       GLFW.devicePixelRatioMQL.addEventListener('change', GLFW.onDevicePixelRatioChange);
-  
+      
       if ("canvas" in Module) {
         Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
         Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
@@ -12255,11 +12255,22 @@ var ASM_CONSTS = {
             const zoom = Module.map.getZoom();
             const fieldOfView = Module.map._fov * 180 / Math.PI;
             const tileSize = 256; //Module.map.transform.tileSize;
-            Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom, 0.0,
-              Module.map.transform.projMatrix, true);
+            projMatrix = null
+            if (Module.map.transform.projMatrix != undefined) {
+              projMatrix = Module.map.transform.projMatrix;
+            } else {
+              if (Module.map.transform.modelViewProjectionMatrix != undefined) {
+                projMatrix = Module.map.transform.modelViewProjectionMatrix;
+              }
+            }
+            if (projMatrix == undefined) {
+              console.log("Unable to find projection matrix for MapLibre.  No rendering.")
+              return
+            }
+            Module.overlay.render(width, height, tileSize, center.lng, center.lat, zoom, 0.0, projMatrix, true);
   
             Module.lastRenderTime = new Date().getTime();
-          }
+        }
           stack.pop();
         }
       } // render

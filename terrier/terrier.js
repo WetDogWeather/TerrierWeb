@@ -1,5 +1,29 @@
 var Module
 
+// Inside a bounding box check
+function TerrierInside(ll,ur,x,y) {
+    return ll[0] < x && ll[1] < y && x < ur[0] && y < ur[1];
+}
+
+// Test if inside or on edge
+function TerrierInsideOrOnEdge(ll,ur,x,y) {
+    return ll[0] <= x && ll[1] <= y && x <= ur[0] && y <= ur[1];
+}
+
+// Bounding box check
+function TerrierInsideOrOnEdgeOneWay(bbA,bbB) {
+    return TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], [bbB[0],bbB[1]]) ||
+            TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], [bbB[2],bbB[3]]) ||
+            TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], bbB[0], bbB[3]) ||
+            TerrierInsideOrOnEdge([bbA[0],bbA[1]], [bbA[2],bbA[3]], bbB[2], bbB[1]);
+}
+
+// Bounding box check
+function TerrierOverlapOneWay(bbA,bbB) {
+    return (bbB[0] <= bbA[0] && bbA[2] <= bbB[2] &&
+    bbA[1] <= bbB[1] && bbB[3] <= bbA[3]);
+}
+
 /** 
  * The Terrier Layer represents a single data layer, like temperature or
  * wind.  Don't create one of these directly, have the TerrierOverlay do it
@@ -810,8 +834,8 @@ class TerrierModule {
                 0xffffff04, 0xffffe102, 0xffffc802, 0xffffb400, 0xffffa100, 0xffb40100, 0xffc80200, 
                 0xffe20100, 0xffff0100, 0xffff01ff, 0xffd300d2, 0xffaa00ab, 0xff800080]);                
         Terrier.PRECIP_FLAG_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
-            [0, 1, 3, 6, 7, 10, 91, 96],
-            [0x00000000, 0xFF0350a5, 0xFFffffff, 0xFFff3332, 0xFF960096, 0xFF6effff, 0xFF00fa00, 0xFF039700]);
+            [0, 1, 2, 3, 4, 5, 6, 7],
+            [0x00000000, 0xFFffffff, 0xFF960096, 0xFFff3332, 0xFF0350a5, 0xFF6effff, 0xff00ff00, 0xff00ff00]);
         
 
         // A placeholder for an index value we haven't made a proper colormap for yet
@@ -1161,8 +1185,9 @@ class TerrierModule {
             source.regions.forEach( region =>
                 region.products.forEach( product =>
                     product.variables.forEach( variable => {
+                            variable.source = source
                             if (variable.dataType == 'visual') {
-                                variables['visual ' + variable.name] = variable
+                                variables['visual ' + variable.name + ' ' + source.name] = variable
                             } else {
                                 variables[variable.name] = variable
                             }
@@ -1214,6 +1239,8 @@ class TerrierModule {
      * all available sources.
      * level can be set, as can interval, but only to one string.  If none is provided
      * and the source has multiple of those, we'll just pick the first.
+     * You can also pass in an optional 'bounds' which is a bounding box of four floats
+     * of the form [lon, lat, lon lat].  Only overlapping regions will be returned.
      * 
      * The simplest example is to pass in {variable: 'temperature', level: '2m'} and you'll
      * get a list of 2m temperature for all sources.
@@ -1248,6 +1275,7 @@ class TerrierModule {
         if (typeof regionMatch == "string") {
             regionMatch = [regionMatch]
         }
+        var boundsMatch = 'bounds' in params ? params['bounds'] : null
         var productMatch = 'product' in params ? params['product'] : null
         if (typeof productMatch == "string") {
             productMatch = [productMatch]
@@ -1276,8 +1304,15 @@ class TerrierModule {
                             }
                         })              
                     }
-        
-                    if (regionMatched) {
+                    
+                    var boundsMatched = true
+                    if (boundsMatch) {
+                        boundsMatched = TerrierInsideOrOnEdgeOneWay(region.geobounds, boundsMatch) ||
+                                        TerrierInsideOrOnEdgeOneWay(boundsMatch, region.geobounds) ||
+                                        TerrierOverlapOneWay(region.geobounds, boundsMatch) ||
+                                        TerrierOverlapOneWay(boundsMatch, region.geobounds)
+                    }
+                    if (regionMatched && boundsMatched) {
                         for (const product of region.products) {
                             var productMatched = true
                             if (productMatch) {  

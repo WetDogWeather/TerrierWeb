@@ -96,6 +96,8 @@ function  timeRangeForVariable(variable) {
     case "visibility":
     case "cloudceiling":
       return [-1*24*60*60,1*24*60*60,32]
+    case "visual":
+      return [-2*60*60,1*2*60*60,32]
   }
   switch (variable.temporalType) {
     // Just observed data
@@ -287,11 +289,13 @@ function App() {
     if (!displayAllLayers) {
       const toInclude = ["temperature", "wind_uv", "wind_speed_gust", "reflectivity", "visibility", "cloud_ceiling", "visual radar"]
       var newVariables = {}
-      toInclude.forEach((variable) => {
-        if (variable in variables) {
-          newVariables[variable] = variables[variable]
-        }
-      })
+      for (const [name, variable] of Object.entries(variables)) {
+        toInclude.forEach((match) => {
+          if (name.includes(match)) {
+            newVariables[name] = variable
+          }
+        })
+      }
       variables = newVariables
     }
 
@@ -326,7 +330,14 @@ function App() {
       if (source != 'All') {
         searchParams['source'] = source
       }
+
+      // We treat these variables as individual sources
+      if (varName.includes('visual radar')) {
+        searchParams['variable'] = 'radar'
+        searchParams['source'] = variable.source.name
+      }
       let sources = Terrier.sourcesForVariable(searchParams)
+
       // This can happen if we're filtering other things
       if (sources.length == 0) {
         continue
@@ -400,23 +411,19 @@ function App() {
             //  given data source loads.  You'll see more than one data source, depending
             //  on what you're displaying.
             // In this case we want to snap the displayed time range to the available
-            //  data (first and last frame of radar) and then we want to snap current
-            //  time to the last frame.
             'loadCallback': (manifest) => {
                 // The manifest has a list of time slices which we can interrogate
                 let firstSlice = manifest.timeSlices[0]
                 let lastSlice = manifest.timeSlices.slice(-1)[0]
-
                 // Construct a new relative time range to display
                 // Snap to the available time slices
                 let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
                 terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
                 setTimeRange(newTimeRange)
-
                 // And snap to the end for the current time
                 terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
             }
-            })                        
+          })                        
         break;
         default:
           // We can use defaults in most cases to display these

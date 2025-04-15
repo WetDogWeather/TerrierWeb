@@ -7,23 +7,25 @@ import Source from 'ol/source/Source.js';
 globalThis.OpenLayersSource = Source
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
+import olRealtimeCanvasLayer from "./OLRealtimeCanvasLayer.js"
 
+var canvasLayer = olRealtimeCanvasLayer({})
 const map = new Map({
   target: 'map',
   layers: [
     new TileLayer({
       source: new OSM()
-    })
+    }),
+    canvasLayer
   ],
   view: new View({
     center: [0, 0],
     zoom: 2
   })
 });
+canvasLayer.setZIndex(99)
 
-const canvas = document.getElementById('canvas');
-
-Terrier.startOpenLayers("dev", map, canvas, (ovl) => {
+Terrier.startOpenLayers("dev", map, canvasLayer, (ovl) => {
   // Standard sources for north america
   let normalSources = ['rtma', 'gfs', 'hrrr']
 
@@ -31,7 +33,8 @@ Terrier.startOpenLayers("dev", map, canvas, (ovl) => {
   let region = ['conus']
 
   // 80m winds for every source and region
-  let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'wind_uv', level: '80m'})
+  let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature', level: '2m'})
+  // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', variable: 'reflectivity'})
 
   // Colormaps can be applied separately (and changed later)
   let colorMap = Terrier.colorMapForVariable(sources[0]);

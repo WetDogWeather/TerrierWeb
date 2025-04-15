@@ -739,13 +739,14 @@ class TerrierOverlay {
     // Update the transform used to move the map around
     // Don't call this unless you know you should, as
     //  it's pretty different between toolkits
-    updateTransform(lon, lat, zoom, transMat) {
+    updateTransform(lon, lat, zoom, worldSize, transMat) {
         if (globalThis.Module == undefined) { return }
         globalThis.Module.transform = {
             centerLng: lon,
             centerLat: lat,
             zoom: zoom,
-            scale: zoom, 
+            scale: zoom,
+            worldSize: worldSize, 
             projMatrix: transMat
         }
         // console.log("lon = " + lon)
@@ -1478,6 +1479,7 @@ class TerrierModule {
         this.stackName = stackName
 
         // Already started, so just call them back
+        this.shuttingDown = false;
         if (this.isReady) {
             if (readyFunc !== undefined) {
                 readyFunc(this.ovl)
@@ -1520,7 +1522,7 @@ class TerrierModule {
                                 0.0, 0.0, -2.0/(far-near), 0.0,
                                 -(px.max.x+px.min.x)/(px.max.x-px.min.x), (px.max.y+px.min.y)/(px.max.y-px.min.y), -(far+near)/(far-near), 1.0]
                 var geoCenter = canvasLayer._map.getCenter()
-                Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, transform)
+                Terrier.ovl.updateTransform(geoCenter.lng, geoCenter.lat, info.zoom, 0.0, transform)
             }
         })        
     }
@@ -1612,30 +1614,70 @@ class TerrierModule {
         })
     }
 
-    startOpenLayers(stackName, openLayersMap, canvas, readyFunc) {
+    startOpenLayers(stackName, openLayersMap, canvasLayer, readyFunc) {
         this.stackName = stackName
-        if (openLayersMap == undefined) {
-            console.log('Need to pass the OpenLayers map into TerrierInit.  Not starting.')
+        if (openLayersMap == undefined || canvasLayer == undefined) {
+            console.log('Need to pass the OpenLayers map and the canvasLayer into TerrierInit.  Not starting.')
             return
         }
 
         // Already started, so just call them back
+        this.shuttingDown = false;
         if (this.isReady) {
             if (readyFunc !== undefined) {
                 readyFunc(this.ovl)
             }
             return
         }
+        this.webglCanvasMode = true
 
-        this.fetchStackContents( () => {
-            this.setupModule(() => {
-                _initOpenLayers(openLayersMap, canvas)
+        let outie = this;
+        Terrier.fetchStackContents( () => {
+            Terrier.setupModule(() => {
+                if (!canvasLayer._canvas || !_initMap) {
+                    console.log("Failed to start on OpenLayers canvas.  Skipping.")
+                    return
+                }
+                _initMap("webglcanvas", canvasLayer._canvas)
             }, readyFunc)
-            this.loadLibrary()
-        },
+            globalThis.Module.canvas = canvasLayer._canvas;
+
+            // We want the option to draw every frame even if we don't need it
+            let triggerRedraw = function() {
+                if (globalThis.Module && globalThis.Module.overlay && globalThis.Module.overlay.hasChanges()) {
+                    openLayersMap.render();
+                }
+                if (!outie.shuttingDown) {
+                    requestAnimationFrame(triggerRedraw);
+                }
+            };
+            requestAnimationFrame(triggerRedraw);
+
+            Terrier.loadLibrary()
+        }, 
         () => {
             console.log("Failed to fetch stack contents.  Terrier will not start.")
-        })
+        })        
+
+        // Wire ourselves into the canvas layer delegate
+        canvasLayer.delegate({
+            onRender(frameState) {
+                let extents = openLayersMap.getView().calculateExtent(openLayersMap.getSize());
+                let worldExtents = openLayersMap.getView().getProjection().getExtent()
+                let worldWidth = worldExtents[2] - worldExtents[0]
+                let scale = 1.0
+
+                let far = 10.0
+                let near = -10.0
+                var transform = [2.0/(scale*(extents[2]-extents[0])), 0.0, 0.0, 0.0,  
+                                0.0, 2.0/(scale*(extents[3]-extents[1])), 0.0, 0.0,  
+                                0.0, 0.0, -2.0/(far-near), 0.0,
+                                -(scale*(extents[2]+extents[0]))/(scale*(extents[2]-extents[0])), -(scale*(extents[3]+extents[1]))/(scale*(extents[3]-extents[1])), -(far+near)/(far-near), 1.0]
+                var geoCenter = frameState.centerLonLat
+                
+                Terrier.ovl.updateTransform(geoCenter[0], geoCenter[1], openLayersMap.getView().getZoom(), worldWidth, transform)
+            }
+        })        
     }
 
 
@@ -1645,6 +1687,7 @@ class TerrierModule {
      * on the TerrierOverlay.
      */
     stop() {
+        this.shuttingDown = false
         if (this.webglCanvasMode) {
             _shutdownWebglCanvas()
         }

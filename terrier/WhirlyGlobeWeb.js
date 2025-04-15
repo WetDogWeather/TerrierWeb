@@ -12539,7 +12539,7 @@ var ASM_CONSTS = {
           const height = Module.canvas.height;
           const tileSize = 128;
           Module.overlay.render(width, height, tileSize, 
-            transform.centerLng, transform.centerLat, transform.zoom, 0.0,
+            transform.centerLng, transform.centerLat, transform.zoom, transform.worldSize,
             transform.projMatrix, false);
   
           Module.lastRenderTime = new Date().getTime();

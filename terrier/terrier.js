@@ -1582,7 +1582,7 @@ class TerrierModule {
      * @param {string} stackName Name of the Boxer stack you're communicating with.
      * You'll typically have one production and one development stack as an enterprise
      * user.
-     * @param {Map} arcgisMAp The main Map object.  See the ArcGISMaps example
+     * @param {Map} arcgisMap The main Map object.  See the ArcGISMaps example
      * for details.
      * @param {function(TerrierOverlay): void} readyFunc When Terrier is properly initialized it will
      * call this function back with the TerrierOverlay you can use to start new
@@ -1614,6 +1614,24 @@ class TerrierModule {
         })
     }
 
+    /**
+     * If you're using OpenLayer to display your map, this is the method
+     * to call to kick off Terrier.  The system does a lot on initialization,
+     * including load its WebAssembly.  
+     * 
+     * @param {string} stackName Name of the Boxer stack you're communicating with.
+     * You'll typically have one production and one development stack as an enterprise
+     * user.
+     * 
+     * @param {*} openLayersMap The main OpenLayer Map object.  See the OpenLayers example for details.
+     * 
+     * @param {*} canvasLayer You'll need to create a RealtimeCanvasLayer and pass it in.  This is the shim
+     * we use to insert ourselves into OpenLayers.  Consult the example to see how to create one.
+     * 
+     * @param {*} readyFunc When Terrier is properly initialized it will
+     * call this function back with the TerrierOverlay you can use to start new
+     * layer displays.
+     */
     startOpenLayers(stackName, openLayersMap, canvasLayer, readyFunc) {
         this.stackName = stackName
         if (openLayersMap == undefined || canvasLayer == undefined) {

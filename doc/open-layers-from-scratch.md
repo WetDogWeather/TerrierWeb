@@ -1,102 +1,105 @@
-### OpenLayers Example From Scratch
+### Integrating Terrier for Web into OpenLayers
 
-This example uses OpenLayers.  Why?  It turns out OpenLayers has a decent WMTS implemention where few other web mapping toolkits do.  But not to worry, it's actually pretty easy to use OpenLayers and you can discard it when you've incorporated the WMTS endpoint into your own apps.
+This is a minimal example for integrating Terrier's data display with OpenLayers.  Here's how you create the example from scratch.
 
-Let's start with the basics.  Go run the [OpenLayers quick start](https://openlayers.org/doc/quickstart.html).  Make sure you see the map and then continue on here.
+## Getting Started
 
-Now that's done, we'll just add to the main.js file and discuss what each piece does.
+Install OpenLayers first, we recommend the [quick start](https://openlayers.org/doc/quickstart.html).  In fact, that's what we used to create our example.
 
-For the OpenLayers imports we'll want at least these.  The example should load some of these, but make sure you've got them all.
+You'll also need the Terrier library [distribution](terrier-distribution.md) which is described there.
 
-    import {Map, View} from 'ol';
-    import TileLayer from 'ol/layer/Tile';
-    import OSM from 'ol/source/OSM';
-    import {Image as ImageLayer } from 'ol/layer.js'
+## OpenLayers Files
 
-In addition to those standard pieces, we have some utility JS to aid in parsing the Capabilities.
+In addition to the Terrier files, you'll need a specialized OpenLayers Layer class.
 
-    import WMTSData from './WMTSData.js';
-    import WMSData from './WMSData.js'
+        OLRealtimeCanvasLayer.js
 
-Let's start with the base layer.  This will be the OSM layer we put underneath everything.
+The Realtime Canvas layer is an extremely simple OL layer that acts as a bridge between Terrier and a normal OL layer that emits a canvas.
 
-    const osmTileLayer = new TileLayer({source: new OSM()});
-    let layers = [osmTileLayer]
+We make extensive use of WebGL, so Terrier is essentially drawing into WebGL on its own and translating the view logic from OL to something it understands.
 
-Then we decide if we're doing WMS or WMTS.  It's displaying the same data in different ways, so we have to choose.
+## Example Files
 
-    let service='WMS'
-    // let service='WMTS'
+The index.html is largely unchanged from the OL example.  It will set up a simple page and then call into main.js where the action is.
 
-Now we construct the capabilities URL.  This will tell us what's in the stack.  If you have  your own stack, substitute that in here.
+The main.js file does the real work and is well documented itself, but let's look at some pieces.
 
-    const stackName = "dev"
-    const tileServer = "https://" + stackName + ".api.wetdogweather.com/"
-    const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SERVICE=" + service
+At the top we have the standard OpenLayers pieces to import:
 
-Next up is the WMS fetch and display logic.  We create a WMSData object to tease out the layers in a useful way and then find the appropriate layer when the capabilities have returned.  We display it with an available style.
+        import './style.css';
+        import {Map, View} from 'ol';
+        import TileLayer from 'ol/layer/Tile';
+        import OSM from 'ol/source/OSM';
 
-    if (service == 'WMS') {
-      // Create a layer from WMS data
-      let data = new WMSData(capURL);
-      let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected', 'mp_jet');
-      let bbox = data.getBBox();
+Then we'll import Terrier and the Realtime Canvas Layer
 
-      const imgLayer = new ImageLayer({
-        source: dataLayer,
-        extent: bbox
-        
-      });
-      layers.push(imgLayer);
-    }
+        import Terrier from "./terrier.js"
+        import olRealtimeCanvasLayer from "./OLRealtimeCanvasLayer.js"
 
-If we're doing the WMTS example, this is the relevant code.  Same idea, we have a WMTSData object tease the specifics out of the capabilities return.
+Next we create that Canvas Layer, which acts as a shim to get Terrier into OpenLayers.
 
-    else {
-      // Create a layer from WMTS data
-      let data = new WMTSData(capURL);
-      let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected')
-      
-      const dataTileLayer =  new TileLayer({opacity: 1.0, source: dataLayer});
-      layers.push(dataTileLayer);
-    }
+        // Create the realtime canvas layer to interface to Terrier
+        var canvasLayer = olRealtimeCanvasLayer({})
 
-Lastly, we stand up the map with the layers we've defined.
+Next up is the map, which is pretty simple.
 
-    const map = new Map({
-      target: 'map',
-      layers: layers,
-      view: new View({
-        center: [0, 0],
-        zoom: 2
-      })
-    });
+        // The OpenLayers map with a simple OSM layer and our canvas layer on top
+        const map = new Map({
+        target: 'map',
+        layers: [
+            new TileLayer({
+            source: new OSM()
+            }),
+            canvasLayer
+        ],
+        view: new View({
+            center: [0, 0],
+            zoom: 2
+        })
+        });
 
-If your WMTS layer has time available it will expose that as a dimension and you can iterate through the relevant 
+We want our weather layer on top, so we set the zIndex explicitly.  There may be better ways to do this.
 
-Speaking of time, we want to iterate over time slices, so we have to rummage through the original capabilities return to get the list of available times.
+        // Ordering doesn't necessarily imply... order.  So we set that explicitly.
+        canvasLayer.setZIndex(99)
 
-    timeDim = capb.Contents.Layer.find((el) => el.Identifier == selLayer.layer).Dimension[0]
+Lastly, we kick of Terrier with OpenLayers.  
 
+We need to pass in the stack we're using.  You'll get your own stack if you're one of our customers, but you're welcome to use 'dev' to get started.  Don't deploy with that, we mess with dev at our convenience.
 
-Lastly, we might want to mess with the time dimension of the layer source every couple of seconds.  This gives us a slow animation of the available time slices.  The curTimeDim and timeDim fields are something we stuck on the WMTS.
+You'll also pass in a working OpenLayers map, the CanvasLayer you created earlier and a callback function that displays whatever weather you're interested in.
 
-    setInterval(()=> {
-      let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
-      console.log("Switching time to " + newDim)
-      dataLayer.updateDimensions({'time': newDim});
-      dataLayer.curTimeDim = dataLayer.curTimeDim + 1
-      if (dataLayer.curTimeDim >= dataLayer.timeDim.Value.length) {
-        dataLayer.curTimeDim = 0
-      }
-    }, 2000)
-    
-Ideally you'll seem something like this.
+        // Call into Terrier with our interface layer and OpenLayers map
+        // Terrier will get set up and then call us back for the rest
+        Terrier.startOpenLayers("dev", map, canvasLayer, (ovl) => {
+            // Standard sources for north america
+            let normalSources = ['rtma', 'gfs', 'hrrr']
 
-![image](https://user-images.githubusercontent.com/101820560/262808345-29930c15-5bd8-4165-b878-4881902df1b7.png)
+            // Restrict to continental US
+            let region = ['conus']
 
-There's some helper code in WMTSData.js and WMSData.js.  If you're going to work with OpenLayers it may be worth a look.  If you're just testing out the WMS and WTMS capabilities, then no need.
+            // Temperature for just the US
+            let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature', level: '2m'})
+            // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', variable: 'reflectivity'})
 
-That's basically it.  All these web mapping toolkits are designed to display a TMS layer pretty simply.  The complexity here is in the time dimension and poking around to figure out the layer names.  In fact, a lot of toolkits don't even explicitly support WMTS and leave it up to the developer to just find the appropriate URL.
+            // Colormaps can be applied separately (and changed later)
+            let colorMap = Terrier.colorMapForVariable(sources[0]);
 
-The source code in [main.js](main.js) contains much of this information in the comments as well.
+            // For this source, let's look at yesterday through tomorrow
+            let cadence = [-1*60*60*24,1*60*60*24,64]
+
+            // Turn on temperature as a layer
+            let tempLayer = ovl.startLayer('myLayer', {
+                colorMap: colorMap,
+                interpMode: 'linear',
+                sources: sources,
+                opacity: 0.5,
+                importFactor: 8.0,
+                renderScale: 4.0,
+                cadence: cadence
+            })
+
+            ovl.timePlay({period: 10.0})
+        })
+
+Once you have a working TerrierOverlay (ovl) you can call all the various Terrier methods you find in these examples.  They work exactly the same between the maps we support.

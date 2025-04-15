@@ -12461,6 +12461,10 @@ var ASM_CONSTS = {
       console.log("Initializing WebGL Canvas Overlay");
   
       const gl = canvas.getContext("webgl2");
+      if (!gl) {
+        console.log("Failed to getContext() for webgl2 from Canvas.");        
+        return;
+      }
   
       // Already initialized once, so just hook up what we need
       if (Module.ctx != null) {

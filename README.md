@@ -22,6 +22,8 @@ We prefer you use Terrier to access data in your Boxer stack.  That's the defaul
 
 [ArcGIS Maps Example](ArcGISMaps/README.md) integrates Terrier directly into ArcGIS Maps SDK for JavaScript, purely with Javascript.
 
+[OpenLayers Example](open-layers/README.md) integrates Terrier directly into OpenLayers for JavaScript, purely with Javascript.
+
 If you're moving from version 1 to 2 of Terrier, be sure to read the [upgrade guide](upgrade_terrier2.md).
 
 #### Tutorial for Static Map Tiles

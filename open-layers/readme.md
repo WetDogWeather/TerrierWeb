@@ -1,4 +1,4 @@
-### README for OpenLayers eamples
+### README for OpenLayers examples
 
 To run this example in the directory.
 

@@ -1187,6 +1187,14 @@ class TerrierModule {
                 region.products.forEach( product =>
                     product.variables.forEach( variable => {
                             variable.source = source
+                            // Note: We can get rid of these hacks once the stacks are updated
+                            if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
+                                variable.hasEmptyVals = true
+                            }
+                            // Note: This one too
+                            if (variable.temporalType == '') {
+                                variable.temporalType = 'forecast'
+                            }
                             if (variable.dataType == 'visual') {
                                 variables['visual ' + variable.name + ' ' + source.name] = variable
                             } else {

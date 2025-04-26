@@ -254,6 +254,7 @@ class TerrierLayer {
         }
 
         foundState.sources = sources
+        this.sources = sources
         this.state = foundState
 
         if (this.cadence) {
@@ -316,6 +317,12 @@ class TerrierLayer {
 
     // Don't call this directly.  Use the TerrierOverlay
     stop() {
+        if (this.sources) {
+            this.sources.forEach(source => {
+                source.delete()
+            });
+            this.sources = undefined
+        }
         switch (this.dataType) {
             // Three of these are special
             case "wind_uv":
@@ -530,7 +537,8 @@ class TerrierOverlay {
      * downsample the rendering target.  It's 0.25 by default and you can probably leave
      * it alone.  
      * 
-     * 'cadence' is an array of 3 values defining the min and max time offsets from now to
+     * 'cadence' is an array of 3 values defining the time extents and how many slices of
+     * data to load.  The first two arguments are min and max time offsets from now to
      * load for a layer.  The third argument is the number of time slices.  The defaults
      * will be picked up from the stack, so you don't really need to set this, but it
      * can be useful to cut down on loading.  For instance, if you only need the next

@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  239444: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 239888: ($0, $1) => { _jsAsyncFetchJSON(Emval.toValue($0), $1); }
+  240500: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 240944: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -11560,6 +11560,7 @@ var ASM_CONSTS = {
         if (Module.debugLayers) {
           console.log("Stop Visual");
         }
+        _removeControllerId(Module.visualCtl.getId());
         Module.visualCtl.removeOnFrameChange(Module.visualCtlFrameChange|0);
         Module.visualCtl.stop(null);
         Module.visualCtl.delete();
@@ -11570,6 +11571,7 @@ var ASM_CONSTS = {
           console.log("Start Visual");
         }
         Module.visualCtl = new Module.TrrVisualController(Module.service, rc, Module.tracker, Module.visualSources);
+        _addControllerId(Module.visualCtl.getId());
         Module.visualCtl.debugMode = !!Module.debugVisual;
         Module.visualCtl.opacity = 1.0;
         Module.visualCtl.minImportanceFactor = 1.0;
@@ -11596,6 +11598,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop Temperature");
       }
+      _removeControllerId(Module.tempCtl.getId());
       Module.tempCtl.removeOnFrameChange(Module.tempCtlFrameChange|0);
       Module.tempCtl.stop(null);
       Module.tempCtl.delete();
@@ -11606,6 +11609,7 @@ var ASM_CONSTS = {
         console.log("Start Temperature");
       }
       Module.tempCtl = new Module.TrrTemperatureController(Module.service, rc, Module.tracker, Module.tempSources);
+      _addControllerId(Module.tempCtl.getId());
       Module.tempCtl.debugMode = !!Module.debugTemp;
       Module.tempCtl.scale = Module.tempScale || 0.25;
       Module.tempCtl.opacity = 0.75;
@@ -11643,6 +11647,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11667,6 +11672,7 @@ var ASM_CONSTS = {
       try {
         const ctl = new Module.TrrOneChannelController(Type.Visibility, 16, Module.service,
                                                        cadence, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11681,6 +11687,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11700,6 +11707,7 @@ var ASM_CONSTS = {
     try {
         const ctl = new Module.TrrOneChannelController(Type.Pressure, 16, Module.service,
                                                        cadence, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11714,6 +11722,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11737,6 +11746,7 @@ var ASM_CONSTS = {
       try {
         const ctl = new Module.TrrOneChannelController(Type.WindGust, 16, Module.service,
                                                        cadence, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11751,6 +11761,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11770,6 +11781,7 @@ var ASM_CONSTS = {
       try {
         const ctl = new Module.TrrOneChannelController(Type.PrecipRate, 16, Module.service,
                                                        cadence, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11784,6 +11796,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11802,6 +11815,7 @@ var ASM_CONSTS = {
       }
       try {
         const ctl = new Module.TrrPrecipTypeController(Module.service, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11816,6 +11830,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11835,6 +11850,7 @@ var ASM_CONSTS = {
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCover, 16, Module.service,
                                                        cadence, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11849,6 +11865,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop " + state.name);
       }
+      _removeControllerId(state.controller.getId());
       state.controller.removeOnFrameChange(state.frameChange|0);
       state.controller.stop(null);
       state.controller.delete();
@@ -11873,6 +11890,7 @@ var ASM_CONSTS = {
       try {
         const ctl = new Module.TrrOneChannelController(Type.CloudCeiling, 16, Module.service,
                                                        cadence, rc, Module.tracker, state.sources);
+        _addControllerId(ctl.getId());
         applyCtlState(ctl, state, colorMap);
         ctl.start(null);
         state.controller = ctl;
@@ -11887,6 +11905,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop Radar");
       }
+      _removeControllerId(Module.radarCtl.getId());
       Module.radarCtl.removeOnFrameChange(Module.radarCtlFrameChange|0);
       Module.radarCtl.stop(null);
       Module.radarCtl.delete();
@@ -11897,6 +11916,7 @@ var ASM_CONSTS = {
         console.log("Start Radar");
       }
       Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker, Module.radarSources);
+      _addControllerId(Module.radarCtl.getId());
       Module.radarCtl.debugMode = !!Module.debugRadar;
       Module.radarCtl.scale = Module.radarScale || 0.25;
       Module.radarCtl.opacity = 0.75;
@@ -11934,6 +11954,7 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Stop Wind");
       }
+      _removeControllerId(Module.windCtl.getId());
       Module.windCtl.removeOnFrameChange(Module.windCtlFrameChange|0);
       Module.windCtl.stop(null);
       Module.windCtl.delete();
@@ -11944,6 +11965,7 @@ var ASM_CONSTS = {
         console.log("Start Wind");
       }
       Module.windCtl = new Module.TrrWindController(Module.service, rc, Module.tracker, Module.windSources);
+      _addControllerId(Module.windCtl.getId());
       Module.windCtl.debugMode = !!Module.debugWind;
       Module.windCtl.scale = Module.windScale || 0.25;
       Module.windCtl.opacity = 0.75;
@@ -11985,6 +12007,17 @@ var ASM_CONSTS = {
       setTimeout(updateFunction, 1000);
     }
   };
+  
+  function _addControllerId(newId) {
+    if (!('controllerIds' in Module)) {
+      Module.controllerIds = new Set()
+    }
+    Module.controllerIds.add(newId)
+  }
+  
+  function _removeControllerId(oldId) {
+    Module.controllerIds.delete(oldId)
+  }
   function _initGoogleMap() {
     if (!Module.emInitialized) {
       if (Module.debugOverlay) {
@@ -12140,6 +12173,8 @@ var ASM_CONSTS = {
   
     return 0;
   }
+  
+  
   function _initMapLibre(map) {
     if (!Module.emInitialized) {
       console.log("Deferring Map Init");
@@ -12283,6 +12318,8 @@ var ASM_CONSTS = {
       });
     }
   }
+  
+  
   
   
   
@@ -12449,6 +12486,8 @@ var ASM_CONSTS = {
       }
   
   
+  
+  
   function _initWebglCanvas(canvas) {
       if (!Module.emInitialized) {
         console.log("Deferring Map Init");
@@ -12569,27 +12608,37 @@ var ASM_CONSTS = {
   }
   Module['_initMap'] = _initMap;
 
-  function _jsAsyncFetchJSON(url,ctx) {
+  function _jsAsyncFetchJSON(url,controllerId,ctx) {
           fetch(url).then(  // async fetch, attach handler to the resulting promise
               function(fetchResult) { // Got a result, see if it's valid...
+                if (Module.controllerIds.has(controllerId)) {
                   if (fetchResult.status == 200) {
                       fetchResult.json().then(    // async parse, attach handlers
                           function(parseResult) { // it worked!
+                            if (Module.controllerIds.has(controllerId)) {
                               if (Module.debugJSFetch) console.log("parse success", parseResult);
                               _fetchJSCallback(Emval.toHandle(parseResult), true, ctx);
+                            }
                           },
                           function(parseError) {  // JSON parsing failed
-                            if (Module.debugJSFetch) console.log("parse fail", parseResult);
-                            _fetchJSCallback(Emval.toHandle(parseError.toString()), false, ctx)
+                            if (Module.controllerIds.has(controllerId)) {
+                              if (Module.debugJSFetch) console.log("parse fail", parseResult);
+                              _fetchJSCallback(Emval.toHandle(parseError.toString()), false, ctx)
+                            }
                           }); // then()
                   } else { // Fetch failed with an HTTP result (401, 404, 500, ...)
+                    if (Module.controllerIds.has(controllerId)) {
                       const msg = fetchResult.status + " " + fetchResult.statusText;
                       if (Module.debugJSFetch) console.log("fetch fail", fetchResult);
                       _fetchJSCallback(Emval.toHandle(msg), false, ctx)
+                    }
                   }
+                }
               }, function(fetchError) {   // Fetch failed with exception (not 404, etc.)
-                if (Module.debugJSFetch) console.log("fetch fail", fetchError);
-                _fetchJSCallback(Emval.toHandle(fetchError.toString()), false, ctx)
+                if (controllerId in Module.controllerIds) {
+                  if (Module.debugJSFetch) console.log("fetch fail", fetchError);
+                  _fetchJSCallback(Emval.toHandle(fetchError.toString()), false, ctx)
+                }
               }); // then()
       }
   Module['_jsAsyncFetchJSON'] = _jsAsyncFetchJSON;

@@ -1199,6 +1199,9 @@ class TerrierModule {
                             if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
                                 variable.hasEmptyVals = true
                             }
+                            if (variable.source.name == 'mrms') {
+                                variable.hasEmptyVals = true
+                            }
                             // Note: This one too
                             if (variable.temporalType == '') {
                                 variable.temporalType = 'forecast'

@@ -554,7 +554,16 @@ class TerrierOverlay {
      * 'startFrame' will set the starting frame to either 'first' or 'last' or 'current.
      * 'current' just sets the current time where 'first' or 'last' will snap to the appropriate
      * frame time.  You would use 'last' for radar, for example to show the most recent radar.
-     * s
+     * 
+     * 'loadCallback' is a Javascript function you pass in that will be called as soon as the 
+     * layer has loaded its manifest.  Your function's only argument is the manifest object.
+     * The manifest is a JSON return from the Boxer service and it contains everything you
+     * might want to know about the data layer you just started.  Of particular use are the
+     * timeSlices array which describe the individual time slices the layer can display.
+     * From that you can select the forecastEpoch of the first and last slice, for example
+     * to set your scrubber to cover only the exact time range available.  This is very useful
+     * for radar.
+     * 
      * @returns {TerrierLayer} The layer object you can interact with directly to make
      * real-time changes.
      */
@@ -576,6 +585,10 @@ class TerrierOverlay {
      * @param {TerrierLayer} layer The layer to stop displaying.
      */
     stopLayer(layer) {
+        if (!this.activeLayers.has(layer)) {
+            console.log("Terrier: Tried to delete layer more than once.  Ignoring.");
+            return;
+        }
         layer.stop()
 
         this.activeLayers.delete(layer)

@@ -842,6 +842,22 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
+        Terrier.REFLECTIVITY_HRRR_COMPATIBLE = new globalThis.Module.TrrShaderColorMap(0, false, [
+            -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+            ], [
+                0x00000000,   // Not actually present in the data
+                0x00000000,   // "
+                0x00FFFFFF,   // Data present but no returns
+                0x0010E6E7, 0x0010E6E7, 0xBB10E6E7, // Not visible either
+                0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
+                0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA,
+            ], [
+                false, false, false,
+                false, false, false,
+                true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true
+            ]);
         Terrier.SEVERE_HAIL_INDEX_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
             [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
             [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
@@ -850,10 +866,12 @@ class TerrierModule {
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
                 0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
+        let feetToMm = 304.8;
         Terrier.HAIL_SIZE_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
-            [0, 1, 2, 4, 6, 8, 10, 15, 20, 30, 40, 50, 75, 100],
-            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
-                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe5, 0xff7e32a7]);                
+            [0.0*feetToMm, 0.05*feetToMm, 0.1*feetToMm, 0.15*feetToMm, 0.20*feetToMm, 0.25*feetToMm, 0.40*feetToMm, 
+                0.5*feetToMm, 0.6*feetToMm, 0.75*feetToMm, 1.0*feetToMm, 1.5*feetToMm, 2.0*feetToMm, 3.0*feetToMm, 4.0*feetToMm],
+            [0x0006ecec, 0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffffbe5, 0xff7e32a7]);                
         Terrier.QPE_FFG_RATIO_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
             [0.0, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.00, 2.25, 2.50, 2.75, 3.00, 3.50, 4.00, 5.00],
             [0xffbebebe, 0xff8c8c8c, 0xff6e6e6e, 0xff505050, 0xff01b500, 0xff009b01, 
@@ -1068,7 +1086,7 @@ class TerrierModule {
     colorMapForVariable(variable) {
         switch (variable.dataType.toLowerCase()) {
             case "reflectivity":
-                return Terrier.RADAR_COLORS_NOT_GREY;
+                return Terrier.REFLECTIVITY_HRRR_COMPATIBLE;
             case "temperature":
                 return Terrier.TEMP_COLORS_NOT_GREY;
             case "wind_uv":
@@ -1158,6 +1176,25 @@ class TerrierModule {
                 }
             })
             .then((data) => {
+                // Note: We're going to do a little hacking here to fix some older stacks
+                data.sources.forEach( source =>
+                    source.regions.forEach( region =>
+                        region.products.forEach( product =>
+                            product.variables.forEach( variable => {
+                                if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
+                                    variable.hasEmptyVals = true
+                                }
+                                if (source.name == 'mrms') {
+                                    variable.hasEmptyVals = true
+                                }
+                                if (variable.temporalType == '') {
+                                    variable.temporalType = 'forecast'
+                                }
+                            }
+                            )
+                        )
+                    )            
+                    )
                 Terrier.stackContents = data
                 fetchFunc(Terrier.stackContents)
             })
@@ -1212,17 +1249,6 @@ class TerrierModule {
                 region.products.forEach( product =>
                     product.variables.forEach( variable => {
                             variable.source = source
-                            // Note: We can get rid of these hacks once the stacks are updated
-                            if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
-                                variable.hasEmptyVals = true
-                            }
-                            if (variable.source.name == 'mrms') {
-                                variable.hasEmptyVals = true
-                            }
-                            // Note: This one too
-                            if (variable.temporalType == '') {
-                                variable.temporalType = 'forecast'
-                            }
                             if (variable.dataType == 'visual') {
                                 variables['visual ' + variable.name + ' ' + source.name] = variable
                             } else {

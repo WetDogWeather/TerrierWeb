@@ -41,20 +41,35 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
       onClick(e)
     })
 
-    // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre(stackName, newMap, (ovl) => {
-        readyFunc(ovl)
-
-        // Tell us what's in the stack
-        // ovl.fetchStackContents((contents) => {
-        //   console.log("Stack contains:\n" + contents)
-        // });
-
-    return () => {
-        console.log("Asked to shut map down, which we don't know how to do.")
-    }
-    },[mapContainer])
+    newMap.on('load', () => {
+      // Find the index of the first symbol layer in the map style
+      const layers = newMap.getStyle().layers;
+      let borderLayerId;
+      let symbolLayerId;
+      for (let i = 0; i < layers.length; i++) {
+          if (layers[i].id === 'Other border') {
+            borderLayerId = layers[i].id;
+          }
+          if (layers[i].type === 'symbol') {
+            symbolLayerId = layers[i].id;
+            break;
+          }
+      }
       
+      // Tell Terrier to hook itself into MapLibre
+      Terrier.startMapLibre(stackName, newMap, (ovl) => {
+          readyFunc(ovl)
+
+          // Tell us what's in the stack
+          // ovl.fetchStackContents((contents) => {
+          //   console.log("Stack contains:\n" + contents)
+          // });
+          return () => {
+            console.log("Asked to shut map down, which we don't know how to do.")
+          }
+      }, symbolLayerId)
+    })
+          
   }, [API_KEY, lng, lat, zoom]);
 
   // Add or remove little zoom control in the upper right

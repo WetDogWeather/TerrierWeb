@@ -564,6 +564,10 @@ class TerrierOverlay {
      * to set your scrubber to cover only the exact time range available.  This is very useful
      * for radar.
      * 
+     * On the visual side you can pass in 'opacity', 'interpMode', and 'importFactor'. Those
+     * will call setOpacity(), setInterpMode(), and setImportanceScale(), respectively on
+     * startup.
+     * 
      * @returns {TerrierLayer} The layer object you can interact with directly to make
      * real-time changes.
      */

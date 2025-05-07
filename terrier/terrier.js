@@ -1606,8 +1606,10 @@ class TerrierModule {
      * @param {function(TerrierOverlay): void} readyFunc When Terrier is properly initialized it will
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
+     * @param belowLayer If set, we'll ask MapLibre to put our new layer below this one.
+     * Typically this lets you put the weather below the labels.
      */
-    startMapLibre(stackName, maplibreMap, readyFunc) {
+    startMapLibre(stackName, maplibreMap, readyFunc, belowLayer) {
         this.stackName = stackName
         if (maplibreMap == undefined) {
             console.log('Need to pass the MapLibre map into TerrierInit.  Not starting.')
@@ -1624,7 +1626,11 @@ class TerrierModule {
 
         this.fetchStackContents( () => {
             this.setupModule(() => {
-                _initMapLibre(maplibreMap)
+                if (belowLayer === undefined) {
+                    _initMapLibre(maplibreMap)
+                } else {
+                    _initMapLibre(maplibreMap,belowLayer)
+                }
             }, readyFunc)
             this.loadLibrary()
         },

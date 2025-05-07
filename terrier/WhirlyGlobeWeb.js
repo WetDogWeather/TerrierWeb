@@ -12175,7 +12175,7 @@ var ASM_CONSTS = {
   }
   
   
-  function _initMapLibre(map) {
+  function _initMapLibre(map,belowLayer) {
     if (!Module.emInitialized) {
       console.log("Deferring Map Init");
       Module.doMapInit = true;
@@ -12311,11 +12311,19 @@ var ASM_CONSTS = {
       } // render
     };  // customLayer
     if (map.isStyleLoaded()) {
-      map.addLayer(customLayer)
+      if (belowLayer === undefined) {
+        map.addLayer(customLayer)        
+      } else {
+        map.addLayer(customLayer,belowLayer)        
+      }
     } else {
       map.on('load', function () {
-        map.addLayer(customLayer);
-      });
+        if (belowLayer === undefined) {
+          map.addLayer(customLayer)        
+        } else {
+          map.addLayer(customLayer,belowLayer)        
+        }
+        });
     }
   }
   

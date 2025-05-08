@@ -124,6 +124,7 @@ class TerrierLayer {
                 jsonSource.depth,
                 jsonSource.isGlobal,
                 jsonSource.hasMissingValues,
+                jsonSource.zeroNoData,
                 jsonSource.importanceScale,
             )
             sources.push(source)
@@ -1186,6 +1187,7 @@ class TerrierModule {
                                 }
                                 if (source.name == 'mrms') {
                                     variable.hasEmptyVals = true
+                                    variable.zeroNoData = true
                                 }
                                 if (variable.temporalType == '') {
                                     variable.temporalType = 'forecast'
@@ -1435,6 +1437,7 @@ class TerrierModule {
                                                 depth: variable.bits,
                                                 isGlobal: region.isglobal,
                                                 hasMissingValues: variable.hasEmptyVals,
+                                                zeroNoData: variable.zeroNoData,
                                                 importanceScale: 1.0,
                                                 drawOrder: source.order
                                             }

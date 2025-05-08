@@ -861,18 +861,18 @@ class TerrierModule {
             ]);
         Terrier.SEVERE_HAIL_INDEX_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
             [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
-            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+            [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
                 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe55dc, 0xff7e32a7]);
         Terrier.PROB_SEVERE_HAIL_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
+            [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
                 0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
         let feetToMm = 25.4;
         Terrier.HAIL_SIZE_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
             [0.0*feetToMm, 0.05*feetToMm, 0.1*feetToMm, 0.15*feetToMm, 0.20*feetToMm, 0.25*feetToMm, 0.40*feetToMm, 
                 0.5*feetToMm, 0.6*feetToMm, 0.75*feetToMm, 1.0*feetToMm, 1.5*feetToMm, 2.0*feetToMm, 3.0*feetToMm, 4.0*feetToMm],
             [0x0006ecec, 0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
-                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffffbe5, 0xff7e32a7]);                
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xfffffbe5, 0xff7e32a7]);                
         Terrier.QPE_FFG_RATIO_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
             [0.0, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.00, 2.25, 2.50, 2.75, 3.00, 3.50, 4.00, 5.00],
             [0xffbebebe, 0xff8c8c8c, 0xff6e6e6e, 0xff505050, 0xff01b500, 0xff009b01, 

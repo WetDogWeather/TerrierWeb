@@ -1593,6 +1593,21 @@ class TerrierModule {
     }
 
     /**
+     * If Terrier has a layer in a MapLibre map, you can get a handle to it here.
+     * This will be null if the MapLibre map style has not yet loaded or the
+     * Terrier layer is not present.
+     * 
+     * This is useful if you need to reorder the layer.
+     */
+    getMapLibreLayer() {
+        if ('maplibreLayer' in globalThis.Module){
+            return globalThis.Module.maplibreLayer;
+        }
+
+        return null;
+    }
+
+    /**
      * If you're using MapLibre as your base map package, this is the method
      * to call to kick off Terrier.  The system does a lot on initialization,
      * including load its WebAssembly.  

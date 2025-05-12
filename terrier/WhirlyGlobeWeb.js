@@ -12311,6 +12311,7 @@ var ASM_CONSTS = {
       } // render
     };  // customLayer
     if (map.isStyleLoaded()) {
+      Module.maplibreLayer = customLayer
       if (belowLayer === undefined) {
         map.addLayer(customLayer)        
       } else {
@@ -12318,6 +12319,7 @@ var ASM_CONSTS = {
       }
     } else {
       map.on('load', function () {
+        Module.maplibreLayer = customLayer
         if (belowLayer === undefined) {
           map.addLayer(customLayer)        
         } else {

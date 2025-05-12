@@ -29,7 +29,7 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
 
     let newMap = new maplibregl.Map({
       container: mapContainer.current,
-      style: `https://api.maptiler.com/maps/dataviz/style.json?key=${API_KEY}`,
+      style: `https://tiles.stadiamaps.com/styles/alidade_satellite.json`,
       center: [lng, lat],
       zoom: zoom
     });
@@ -41,7 +41,7 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
       onClick(e)
     })
 
-    newMap.on('load', () => {
+    newMap.on('style.load', () => {
       // Find the index of the first symbol layer in the map style
       const layers = newMap.getStyle().layers;
       let borderLayerId;
@@ -60,6 +60,10 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
       Terrier.startMapLibre(stackName, newMap, (ovl) => {
           readyFunc(ovl)
 
+          // Could just add this the startLayer, but needed a way to test moveLayer worked
+          let maplibreLayer = Terrier.getMapLibreLayer()
+          newMap.moveLayer(maplibreLayer.id,symbolLayerId)
+
           // Tell us what's in the stack
           // ovl.fetchStackContents((contents) => {
           //   console.log("Stack contains:\n" + contents)
@@ -67,7 +71,7 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
           return () => {
             console.log("Asked to shut map down, which we don't know how to do.")
           }
-      }, symbolLayerId)
+      })
     })
           
   }, [API_KEY, lng, lat, zoom]);

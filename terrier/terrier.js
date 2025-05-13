@@ -1600,7 +1600,7 @@ class TerrierModule {
      * This is useful if you need to reorder the layer.
      */
     getMapLibreLayer() {
-        if ('maplibreLayer' in globalThis.Module){
+        if ('Module' in globalThis && 'maplibreLayer' in globalThis.Module){
             return globalThis.Module.maplibreLayer;
         }
 

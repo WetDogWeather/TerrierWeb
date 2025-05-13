@@ -124,6 +124,7 @@ function App() {
   const [displayAllLayers,setDisplayAllLayers] = useState(false)
   const [sources,setSources] = useState(["All"])
   const [regions,setRegions] = useState(["All"])
+  const [basemaps,setBasemaps] = useState([""])
   const [source,_setSource] = useState("All")
   const [region,_setRegion] = useState("All")
   const [animSpeed, setAnimSpeed] = useState(4.0)
@@ -133,6 +134,7 @@ function App() {
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
   const [stackName, setStackName] = useState('dev')
+  const [baseMapName, setBaseMapName] = useState('alidade_smooth')
 
   function setRegion(newRegion) {
     _setRegion(newRegion)
@@ -470,6 +472,7 @@ function App() {
 
     setSources(["All"].concat(Terrier.sourcesForStack()))
     setRegions(["All"].concat(Terrier.regionsForStack()))
+    setBasemaps(["alidade_smooth","alidade_smooth_dark","alidade_satellite","outdoors","stamen_toner","stamen_terrain","osm_bright"])
 
     const now = Date.now() / 1000
     setCurTime(now)
@@ -520,7 +523,8 @@ function App() {
                           source={source} sources={sources} setSource={setSource}
                           region={region} regions={regions} setRegion={setRegion}
                           stackName={stackName} setStackName={setStackName}
-                          units={units} setUnits={setUnits} />
+                          units={units} setUnits={setUnits}
+                          baseMapName={baseMapName} basemaps={basemaps} setBaseMapName={setBaseMapName} />
               </Burger>
             </Header>
 
@@ -538,6 +542,7 @@ function App() {
              stackName={stackName} 
              readyFunc={terrierReady} 
              fullScreen={!controlsVisible}
+             mapName={baseMapName}
              onClick={onMapClick} />
     </>
   )

@@ -29,7 +29,7 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
 
     let newMap = new maplibregl.Map({
       container: mapContainer.current,
-      style: `https://tiles.stadiamaps.com/styles/alidade_satellite.json`,
+      style: `https://api.maptiler.com/maps/dataviz/style.json?key=${API_KEY}`,
       center: [lng, lat],
       zoom: zoom
     });

@@ -10502,9 +10502,9 @@ var ASM_CONSTS = {
         // This logic comes directly from the sdl implementation. We cannot
         // call preventDefault on all keydown events otherwise onKeyPress will
         // not get called
-        if (event.key == 'Backspace' || event.key == 'Tab') {
-          event.preventDefault();
-        }
+        // if (event.key == 'Backspace' || event.key == 'Tab') {
+        //   event.preventDefault();
+        // }
       },
   onKeyup:(event) => {
         GLFW.onKeyChanged(event.keyCode, 0); // GLFW_RELEASE

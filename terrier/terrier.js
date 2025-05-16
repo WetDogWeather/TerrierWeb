@@ -1185,9 +1185,13 @@ class TerrierModule {
                                 if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
                                     variable.hasEmptyVals = true
                                 }
-                                if (source.name == 'mrms') {
+                                if (source.name == 'mrms' || source.name == 'ndfd') {
                                     variable.hasEmptyVals = true
                                     variable.zeroNoData = true
+                                }
+                                if (source.name == 'ndfd') {
+                                    variable.hasEmptyVals = true
+                                    variable.zeroNoData = false
                                 }
                                 if (variable.temporalType == '') {
                                     variable.temporalType = 'forecast'

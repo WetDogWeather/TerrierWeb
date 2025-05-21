@@ -934,6 +934,31 @@ class TerrierModule {
             [0.0,100.0],
             [0x00666666,0xff666666]
         )
+        Terrier.PERCENT_COLORS_WARN = Terrier.createColorMap(
+            [0.0,5.0,
+                5.0,10,
+                10,20,
+                20,30,
+                30,40,
+                40,50,
+                50,60,
+                60,70,
+                70,80,
+                80,90,
+                90,100],
+            [0x00000000,0x00008C00,
+             0xff008C00,0xff008C00,
+             0xff00C800,0xff00C800,
+             0xff00FF00,0xff00FF00,
+             0xffFFFF00,0xffFFFF00,
+             0xffE0C26A,0xffE0C26A,
+             0xffA56E2A,0xffA56E2A,
+             0xffFFA500,0xffFFA500,
+             0xffFF0000,0xffFF0000,
+             0xff8C0000,0xff8C0000,
+             0xffFF00FF,0xffFF00FF
+            ]
+        )
         let hgToPa = 3386.39
         Terrier.PRESSURE_COLORS_NOT_GREY = Terrier.createColorMap(
             [29.9*hgToPa,30.4*hgToPa],
@@ -1098,6 +1123,9 @@ class TerrierModule {
                     return Terrier.PROB_SEVERE_HAIL_COLORS;
                 }
             case "percentage":
+                if (variable.name.includes('lightning')) {
+                    return Terrier.PERCENT_COLORS_WARN;
+                }
                 return Terrier.PERCENT_COLORS_NOT_GREY;
             case "visibility":
                 return Terrier.VISIBILITY_COLORS_NOT_GREY;
@@ -1185,7 +1213,7 @@ class TerrierModule {
                                 if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
                                     variable.hasEmptyVals = true
                                 }
-                                if (source.name == 'mrms' || source.name == 'ndfd') {
+                                if (source.name == 'mrms') {
                                     variable.hasEmptyVals = true
                                     variable.zeroNoData = true
                                 }
@@ -1193,8 +1221,8 @@ class TerrierModule {
                                     variable.hasEmptyVals = true
                                     variable.zeroNoData = false
                                 }
-                                if (variable.temporalType == '') {
-                                    variable.temporalType = 'forecast'
+                                if (variable.temporalType == '' || source.name == 'flashwx') {
+                                    variable.temporalType = 'both'
                                 }
                             }
                             )

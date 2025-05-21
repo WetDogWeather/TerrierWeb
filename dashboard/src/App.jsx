@@ -138,12 +138,10 @@ function App() {
 
   function setRegion(newRegion) {
     _setRegion(newRegion)
-    _setSource("All")
   }
 
   function setSource(newSource) {
     _setSource(newSource)
-    _setRegion("All")
   }
 
   // React to stackName changes

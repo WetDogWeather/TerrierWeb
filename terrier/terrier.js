@@ -1001,9 +1001,23 @@ class TerrierModule {
                 if (initFunc !== undefined) {
                     Terrier.initFunc()
                 }
-                if (readyFunc !== undefined) {
-                    // Let things settle a beat and then let the dev get set up
-                    setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                // This means the CustomLayer (or whatever) has not yet been invoked
+                //  So we need to delay the readyFunc callback, which is typically
+                //   when users set up their layers
+                if (readyFunc) {
+                    if (!Terrier.isReady) {
+                        globalThis.Module.onOverlayInitialized = function() {
+                            Terrier.isReady = true
+                            if (readyFunc !== undefined) {
+                                // Let things settle a beat and then let the dev get set up
+                                setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                            }
+                            globalThis.Module.onOverlayInitialized = null
+                        }        
+                    } else {
+                        // Let things settle a beat and then let the dev get set up
+                        setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                    }
                 }
             } else {
                 // This happens if they somehow do two start-map actions in a row
@@ -1823,10 +1837,19 @@ class TerrierModule {
      * on the TerrierOverlay.
      */
     stop() {
+        globalThis.Module.enableWind = false
+        globalThis.Module.enableTemp = false
+        globalThis.Module.enableRadar = false
+        globalThis.Module.enableVisual = false
+        for (var key in globalThis.Module.controllerState) {
+            globalThis.Module.controllerState[key].enabled = false
+        }
+    
         this.shuttingDown = false
         if (this.webglCanvasMode) {
             _shutdownWebglCanvas()
         }
+        _stopWhirlyGlobe()
         this.isReady = false
     }
 

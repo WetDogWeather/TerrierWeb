@@ -89,6 +89,10 @@ function interpForVariable(variable) {
 // Come up with a good time range for a variable
 // This is mostly obvious except for a few weird cases
 function  timeRangeForVariable(variable) {
+  switch (variable.source) {
+    case "flashwx":
+      return [-2*60*60,1*2*60*60,32];
+  }
   switch (variable.dataType) {
     case "temperature":
     case "wind_uv":

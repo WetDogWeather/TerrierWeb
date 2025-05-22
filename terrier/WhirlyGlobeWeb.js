@@ -12173,6 +12173,17 @@ var ASM_CONSTS = {
   
     return 0;
   }
+
+  function _stopWhirlyGlobe() {
+    if (Module.stopOverlay) {
+      Module.stopOverlay()
+    }
+    if (Module.overlay) {
+      Module.overlay.teardown()
+      Module.overlay.delete()
+      Module.overlay = null
+    }
+  }
   
   
   function _initMapLibre(map,belowLayer) {
@@ -12200,10 +12211,12 @@ var ASM_CONSTS = {
       let repaintAndSchedule = () => {
         Module.repaint()
         Module.animationFrameRequested = false
-        if (Module.overlay.hasChanges()) {
+        if (Module.overlay && Module.overlay.hasChanges()) {
           Module.animationFrameRequested = true
           Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
+            if (Module.overlay) {
+              repaintAndSchedule()
+            }
           })
         }
       }
@@ -12212,7 +12225,9 @@ var ASM_CONSTS = {
         if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
           Module.animationFrameRequested = true
           Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
+            if (Module.overlay) {
+              repaintAndSchedule()
+            }
           })
         }
       },100);

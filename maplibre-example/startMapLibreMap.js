@@ -24,6 +24,22 @@ function startMap() {
         // Animate the results
         ovl.timePlay({period: 10.0})
     })
+
+    return map
 }
 
-startMap()
+function stopMap(map) {
+    Terrier.stop()
+    map.remove()
+}
+
+let map = startMap()
+
+setTimeout(() => {
+    stopMap(map)
+}, 10000)
+
+setTimeout(() => {
+    // Note: Problem seems to be the system is not properly setup when the layer is created
+    startMap()
+}, 20000)

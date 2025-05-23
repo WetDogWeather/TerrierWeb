@@ -1210,42 +1210,50 @@ class TerrierModule {
             }
         }
 
-        fetch(endpoint + "/manifest/v2/getvisualvarkeys")
-            .then((response) =>  {
-                if (response.ok) {
-                    return response.json()
-                } else {
-                    failFunc()
-                }
-            })
-            .then((data) => {
-                // Note: We're going to do a little hacking here to fix some older stacks
-                data.sources.forEach( source =>
-                    source.regions.forEach( region =>
-                        region.products.forEach( product =>
-                            product.variables.forEach( variable => {
-                                if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
-                                    variable.hasEmptyVals = true
+        let outie = this;
+        setTimeout( () => {
+            if (outie.shuttingDown) {
+                return
+            }
+            fetch(endpoint + "/manifest/v2/getvisualvarkeys")
+                .then((response) =>  {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        failFunc()
+                    }
+                })
+                .then((data) => {
+                    // Note: We're going to do a little hacking here to fix some older stacks
+                    data.sources.forEach( source =>
+                        source.regions.forEach( region =>
+                            region.products.forEach( product =>
+                                product.variables.forEach( variable => {
+                                    if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
+                                        variable.hasEmptyVals = true
+                                    }
+                                    if (source.name == 'mrms') {
+                                        variable.hasEmptyVals = true
+                                        variable.zeroNoData = true
+                                    }
+                                    if (source.name == 'ndfd') {
+                                        variable.hasEmptyVals = true
+                                        variable.zeroNoData = false
+                                    }
+                                    if (variable.temporalType == '' || source.name == 'flashwx') {
+                                        variable.temporalType = 'both'
+                                    }
                                 }
-                                if (source.name == 'mrms') {
-                                    variable.hasEmptyVals = true
-                                    variable.zeroNoData = true
-                                }
-                                if (source.name == 'ndfd') {
-                                    variable.hasEmptyVals = true
-                                    variable.zeroNoData = false
-                                }
-                                if (variable.temporalType == '' || source.name == 'flashwx') {
-                                    variable.temporalType = 'both'
-                                }
-                            }
+                                )
                             )
+                        )            
                         )
-                    )            
-                    )
-                Terrier.stackContents = data
-                fetchFunc(Terrier.stackContents)
-            })
+                    Terrier.stackContents = data
+                    if (!outie.shuttingDown) {
+                        fetchFunc(Terrier.stackContents)
+                    }
+                })
+            },0)
     }
 
     // Search through the stack contents to return all the various levels for a variable
@@ -1679,6 +1687,7 @@ class TerrierModule {
             console.log('Need to pass the MapLibre map into TerrierInit.  Not starting.')
             return
         }
+        this.shuttingDown = false
 
         // Already started, so just call them back
         if (this.isReady) {
@@ -1837,6 +1846,11 @@ class TerrierModule {
      * on the TerrierOverlay.
      */
     stop() {
+        this.shuttingDown = true
+        if (!('Module' in globalThis)) {
+            return
+        }
+
         globalThis.Module.enableWind = false
         globalThis.Module.enableTemp = false
         globalThis.Module.enableRadar = false
@@ -1845,7 +1859,6 @@ class TerrierModule {
             globalThis.Module.controllerState[key].enabled = false
         }
     
-        this.shuttingDown = false
         if (this.webglCanvasMode) {
             _shutdownWebglCanvas()
         }

@@ -1090,7 +1090,9 @@ class TerrierModule {
             },
             onOverlayInitialized: function() {
                 Terrier.isReady = true
+                console.log("onOverlayInitialized called")
                 if (readyFunc !== undefined) {
+                    console.log("onOverlayInitialized calling readyFunc")
                     // Let things settle a beat and then let the dev get set up
                     setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                 }
@@ -1104,6 +1106,7 @@ class TerrierModule {
     // Internal setup logic
     loadLibrary() {
         if (!this.libraryLoaded) {
+            console.log("loadLibrary() called")
             // Have the main WhirlyGlobe web module load itself
             //  this also kicks off Emscriten
             var s = document.createElement('script');
@@ -1209,10 +1212,12 @@ class TerrierModule {
                 endpoint = "https://"+this.stackName+".api.wetdogweather.com"
             }
         }
+        console.log("fetchStackContents() called")
 
         let outie = this;
         setTimeout( () => {
             if (outie.shuttingDown) {
+                console.log("fetchStackContents() short circuited by shuttingDown")
                 return
             }
             fetch(endpoint + "/manifest/v2/getvisualvarkeys")
@@ -1220,6 +1225,7 @@ class TerrierModule {
                     if (response.ok) {
                         return response.json()
                     } else {
+                        console.log("fetchStackContents() fetch failed")
                         failFunc()
                     }
                 })
@@ -1250,6 +1256,7 @@ class TerrierModule {
                         )
                     Terrier.stackContents = data
                     if (!outie.shuttingDown) {
+                        console.log("fetchStackContents() calling fetchFunc()")
                         fetchFunc(Terrier.stackContents)
                     }
                 })
@@ -1688,17 +1695,21 @@ class TerrierModule {
             return
         }
         this.shuttingDown = false
+        console.log("startMapLibre() called")
 
         // Already started, so just call them back
         if (this.isReady) {
             if (readyFunc !== undefined) {
+                console.log("startMapLibre() calling readyFunc directly")
                 readyFunc(this.ovl)
             }
             return
         }
 
         this.fetchStackContents( () => {
+            console.log("startMapLibre() fetchStackContents() callback called")
             this.setupModule(() => {
+                console.log("startMapLibre() setupModule() callback called")
                 if (belowLayer === undefined) {
                     _initMapLibre(maplibreMap)
                 } else {
@@ -1848,9 +1859,11 @@ class TerrierModule {
     stop() {
         this.shuttingDown = true
         if (!('Module' in globalThis)) {
+            console.log("Terrier.stop() called but Terrier was not set up.")
             return
         }
 
+        console.log("Terrier.stop() called")
         globalThis.Module.enableWind = false
         globalThis.Module.enableTemp = false
         globalThis.Module.enableRadar = false

@@ -12326,6 +12326,7 @@ var ASM_CONSTS = {
       } // render
     };  // customLayer
     if (map.isStyleLoaded()) {
+      console.log("_initMapLibre() style is already loaded");
       Module.maplibreLayer = customLayer
       if (belowLayer === undefined) {
         map.addLayer(customLayer)        
@@ -12333,7 +12334,9 @@ var ASM_CONSTS = {
         map.addLayer(customLayer,belowLayer)        
       }
     } else {
+      console.log("_initMapLibre() waiting for style to load");
       map.on('load', function () {
+        console.log("_initMapLibre() style has loaded, adding layer");
         Module.maplibreLayer = customLayer
         if (belowLayer === undefined) {
           map.addLayer(customLayer)        

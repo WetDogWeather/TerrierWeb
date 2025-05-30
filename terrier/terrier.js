@@ -989,7 +989,59 @@ class TerrierModule {
             [29.9*hgToPa,30.4*hgToPa],
             [0x00666666,0xff666666]
         )
-    }
+        Terrier.LIGHTNING_FIRST_STRIKE = Terrier.createColorMap(
+            [0.0,60*0.001,
+                60*0.001,60*15,
+                60*15,60*20,
+                60*20,60*25,
+                60*25,60*30,
+                60*30,60*35,
+                60*35,60*40,
+                60*40,60*45,
+                60*45,60*50,
+                60*50,60*55,
+                60*55,60*60,
+                60*60,60*100],
+            [0x00000000,0xffa80000,
+                0xffa80000,0xffa80000,
+                0xff901848,0xff901848,
+                0xff4818a8,0xff4818a8,
+                0xff1848ff,0xff1848ff,
+                0xff1890f0,0xff1890f0,
+                0xff00c0c0,0xff00c0c0,
+                0xff60d860,0xff60d860,
+                0xff90d848,0xff90d848,
+                0xffc0d878,0xffc0d878,
+                0xfff0d878,0xfff0d878,
+                0x00f0d878,0x00f0d878]
+        )
+        Terrier.LIGHTNING_ALL_CLEAR = Terrier.createColorMap(
+            [0.0,60*0.001,
+                60*0.001,60*1.5,
+                60*1.5,60*2.0,
+                60*2.0,60*2.5,
+                60*2.5,60*3.0,
+                60*3.0,60*3.5,
+                60*3.5,60*4.0,
+                60*4.0,60*4.5,
+                60*4.5,60*5.0,
+                60*5.0,60*5.5,
+                60*5.5,60*6,
+                60*6,60*10],
+            [0x00000000,0xffa8a800,
+                0xffa8a800,0xffa8a800,
+                0xfff0d878,0xfff0d878,
+                0xffc0d878,0xffc0d878,
+                0xff90d848,0xff90d848,
+                0xff60d860,0xff60d860,
+                0xff00c0c0,0xff00c0c0,
+                0xff1890f0,0xff1890f0,
+                0xff1848ff,0xff1848ff,
+                0xff4818a8,0xff4818a8,
+                0xff901848,0xff901848,
+                0xffa80000,0xffa80000
+            ]
+        )    }
 
     /**
      * We use a TrrShaderColorMap object to set and query colormaps, but
@@ -1152,6 +1204,17 @@ class TerrierModule {
      * @returns A trrColorMap you can pass to the Layer creation.
      */
     colorMapForVariable(variable) {
+        if (variable.source == 'flashwx') {
+            switch (variable.name) {
+                case "lightning_probability":
+                case "lightning_probability_extended":
+                    return Terrier.PERCENT_COLORS_WARN;
+                case "lightning_firststrike":
+                    return Terrier.LIGHTNING_FIRST_STRIKE;
+                case "lightning_allclear":
+                    return Terrier.LIGHTNING_ALL_CLEAR;
+            }
+        }
         switch (variable.dataType.toLowerCase()) {
             case "reflectivity":
                 return Terrier.REFLECTIVITY_HRRR_COMPATIBLE;

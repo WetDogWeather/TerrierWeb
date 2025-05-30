@@ -959,6 +959,31 @@ class TerrierModule {
              0xffFF00FF,0xffFF00FF
             ]
         )
+        Terrier.TIME_CLEAR_COLORS = Terrier.createColorMap(
+            [0.0,1*60,
+                1*60,6*60,
+                6*60,12*60,
+                12*60,18*60,
+                18*60,24*60,
+                24*60,30*60,
+                30*60,36*60,
+                36*60,42*60,
+                42*60,48*60,
+                48*60,54*60,
+                54*60,60*60],
+            [0x00000000,0x00008C00,
+             0xff008C00,0xff008C00,
+             0xff00C800,0xff00C800,
+             0xff00FF00,0xff00FF00,
+             0xffFFFF00,0xffFFFF00,
+             0xffE0C26A,0xffE0C26A,
+             0xffA56E2A,0xffA56E2A,
+             0xffFFA500,0xffFFA500,
+             0xffFF0000,0xffFF0000,
+             0xff8C0000,0xff8C0000,
+             0xffFF00FF,0xffFF00FF
+            ]
+        )
         let hgToPa = 3386.39
         Terrier.PRESSURE_COLORS_NOT_GREY = Terrier.createColorMap(
             [29.9*hgToPa,30.4*hgToPa],
@@ -1164,6 +1189,8 @@ class TerrierModule {
                 if (variable.name.includes("qpe_ffg")) {
                     return Terrier.QPE_FFG_RATIO_COLORS;
                 }
+            case "time":
+                return Terrier.TIME_CLEAR_COLORS;
             default:
                 return Terrier.INDEXPLACE_COLORS_NOT_GREY
                 break;

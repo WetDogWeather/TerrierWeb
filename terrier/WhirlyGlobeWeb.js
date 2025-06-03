@@ -12325,7 +12325,7 @@ var ASM_CONSTS = {
         }
       } // render
     };  // customLayer
-    if (map.isStyleLoaded()) {
+    if (map.loaded()) {
       console.log("_initMapLibre() style is already loaded");
       Module.maplibreLayer = customLayer
       if (belowLayer === undefined) {

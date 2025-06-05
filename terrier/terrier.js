@@ -1016,8 +1016,8 @@ class TerrierModule {
                 0x00f0d878,0x00f0d878]
         )
         Terrier.LIGHTNING_ALL_CLEAR = Terrier.createColorMap(
-            [0.0,60*0.001,
-                60*0.001,60*1.5,
+            [0.0,60*1.0,
+                60*1.0,60*1.5,
                 60*1.5,60*2.0,
                 60*2.0,60*2.5,
                 60*2.5,60*3.0,
@@ -1028,7 +1028,7 @@ class TerrierModule {
                 60*5.0,60*5.5,
                 60*5.5,60*6,
                 60*6,60*10],
-            [0x00000000,0xffa8a800,
+            [0x00000000,0x00000000,
                 0xffa8a800,0xffa8a800,
                 0xfff0d878,0xfff0d878,
                 0xffc0d878,0xffc0d878,
@@ -1040,7 +1040,12 @@ class TerrierModule {
                 0xff4818a8,0xff4818a8,
                 0xff901848,0xff901848,
                 0xffa80000,0xffa80000
-            ]
+            ],
+            Terrier.RADIATION_FLUX = Terrier.createColorMap(
+                [0.0,500.0],
+                [0xff666666,0xffffffff]
+            )
+    
         )    }
 
     /**
@@ -1213,6 +1218,12 @@ class TerrierModule {
                     return Terrier.LIGHTNING_FIRST_STRIKE;
                 case "lightning_allclear":
                     return Terrier.LIGHTNING_ALL_CLEAR;
+            }
+        }
+        if (variable.units) {
+            switch(variable.units.toLowerCase()) {
+                case "w/m^2":
+                    return Terrier.RADIATION_FLUX
             }
         }
         switch (variable.dataType.toLowerCase()) {
@@ -1585,6 +1596,7 @@ class TerrierModule {
                                                 interval: intervalName,
                                                 temporalType: variable.temporalType,
                                                 dataType: variable.dataType,
+                                                units: variable.units,
                                                 depth: variable.bits,
                                                 isGlobal: region.isglobal,
                                                 hasMissingValues: variable.hasEmptyVals,

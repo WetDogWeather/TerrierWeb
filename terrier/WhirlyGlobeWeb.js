@@ -12324,26 +12324,45 @@ var ASM_CONSTS = {
           stack.pop();
         }
       } // render
-    };  // customLayer
-    if (map.loaded()) {
-      console.log("_initMapLibre() style is already loaded");
-      Module.maplibreLayer = customLayer
-      if (belowLayer === undefined) {
-        map.addLayer(customLayer)        
-      } else {
-        map.addLayer(customLayer,belowLayer)        
+    };  // customLayer)
+    if (Module.mapLibreStartAttempt === undefined) {
+      Module.mapLibreStartAttempt = 1
+    } else {
+      Module.mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+    }
+    mapLibreStartAttempt = Module.mapLibreStartAttempt
+    let addLayerFunc = function() {
+      if (!Module.maplibreLayer) {
+        if (mapLibreStartAttempt != Module.mapLibreStartAttempt) {
+          console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
+          return
+        }
+        if (map.isStyleLoaded()) {
+          console.log("_initMapLibre() added layer via timeout");
+          Module.maplibreLayer = customLayer
+          if (belowLayer === undefined) {
+            map.addLayer(customLayer)        
+          } else {
+            map.addLayer(customLayer,belowLayer)        
+          }
+        } else {
+          // If the style never loads, this'll just keep trying
+          console.log("_initMapLibre() style still not ready so deferring");
+          setTimeout(addLayerFunc, 500)
+        }
       }
+    }
+    if (map.isStyleLoaded()) {
+      console.log("_initMapLibre() style is already loaded");
+      addLayerFunc()
     } else {
       console.log("_initMapLibre() waiting for style to load");
       map.on('load', function () {
         console.log("_initMapLibre() style has loaded, adding layer");
-        Module.maplibreLayer = customLayer
-        if (belowLayer === undefined) {
-          map.addLayer(customLayer)        
-        } else {
-          map.addLayer(customLayer,belowLayer)        
-        }
-        });
+        addLayerFunc()
+      });
+      // Chase that with a timeout, just in case
+      setTimeout(addLayerFunc, 500)      
     }
   }
   

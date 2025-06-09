@@ -12175,6 +12175,8 @@ var ASM_CONSTS = {
   }
 
   function _stopWhirlyGlobe() {
+    mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+      Module.maplibreLayer = null
     if (Module.stopOverlay) {
       Module.stopOverlay()
     }
@@ -12338,7 +12340,6 @@ var ASM_CONSTS = {
           return
         }
         if (map.isStyleLoaded()) {
-          console.log("_initMapLibre() added layer via timeout");
           Module.maplibreLayer = customLayer
           if (belowLayer === undefined) {
             map.addLayer(customLayer)        
@@ -12357,10 +12358,15 @@ var ASM_CONSTS = {
       addLayerFunc()
     } else {
       console.log("_initMapLibre() waiting for style to load");
-      map.on('load', function () {
-        console.log("_initMapLibre() style has loaded, adding layer");
+      if (map.getStyle()) {
+        console.log("_initMapLibre() style shows not loaded by style is loaded");
         addLayerFunc()
-      });
+      } else {
+        map.on('load', function () {
+          console.log("_initMapLibre() style has loaded, adding layer");
+          addLayerFunc()
+        });
+      }
       // Chase that with a timeout, just in case
       setTimeout(addLayerFunc, 500)      
     }

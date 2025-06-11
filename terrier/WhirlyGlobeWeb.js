@@ -12175,6 +12175,21 @@ var ASM_CONSTS = {
   }
   
   
+  
+  function _stopWhirlyGlobe() {
+    if ('maplibreLayer' in Module) {
+      mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+      Module.maplibreLayer = null
+    }
+    if (Module.stopOverlay) {
+      Module.stopOverlay()
+    }
+    if (Module.overlay) {
+      Module.overlay.teardown()
+      Module.overlay.delete()
+      Module.overlay = null
+    }
+  }
   function _initMapLibre(map,belowLayer) {
     if (!Module.emInitialized) {
       console.log("Deferring Map Init");
@@ -12200,10 +12215,12 @@ var ASM_CONSTS = {
       let repaintAndSchedule = () => {
         Module.repaint()
         Module.animationFrameRequested = false
-        if (Module.overlay.hasChanges()) {
+        if (Module.overlay && Module.overlay.hasChanges()) {
           Module.animationFrameRequested = true
           Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
+            if (Module.overlay) {
+              repaintAndSchedule()
+            }
           })
         }
       }
@@ -12212,7 +12229,9 @@ var ASM_CONSTS = {
         if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
           Module.animationFrameRequested = true
           Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
+            if (Module.overlay) {
+              repaintAndSchedule()
+            }
           })
         }
       },100);
@@ -12310,22 +12329,48 @@ var ASM_CONSTS = {
         }
       } // render
     };  // customLayer
-    if (map.isStyleLoaded()) {
-      Module.maplibreLayer = customLayer
-      if (belowLayer === undefined) {
-        map.addLayer(customLayer)        
-      } else {
-        map.addLayer(customLayer,belowLayer)        
-      }
+    if (Module.mapLibreStartAttempt === undefined) {
+      Module.mapLibreStartAttempt = 1
     } else {
-      map.on('load', function () {
-        Module.maplibreLayer = customLayer
-        if (belowLayer === undefined) {
-          map.addLayer(customLayer)        
-        } else {
-          map.addLayer(customLayer,belowLayer)        
+      Module.mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+    }
+    mapLibreStartAttempt = Module.mapLibreStartAttempt
+    let addLayerFunc = function() {
+      if (!Module.maplibreLayer) {
+        if (mapLibreStartAttempt != Module.mapLibreStartAttempt) {
+          // console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
+          return
         }
+        if (map.isStyleLoaded()) {
+          Module.maplibreLayer = customLayer
+          if (belowLayer === undefined) {
+            map.addLayer(customLayer)        
+          } else {
+            map.addLayer(customLayer,belowLayer)        
+          }
+        } else {
+          // If the style never loads, this'll just keep trying
+          // console.log("_initMapLibre() style still not ready so deferring");
+          setTimeout(addLayerFunc, 500)
+        }
+      }
+    }
+    if (map.isStyleLoaded()) {
+      // console.log("_initMapLibre() style is already loaded");
+      addLayerFunc()
+    } else {
+      // console.log("_initMapLibre() waiting for style to load");
+      if (map.getStyle()) {
+        // console.log("_initMapLibre() style shows not loaded by style is loaded");
+        addLayerFunc()
+      } else {
+        map.on('load', function () {
+          // console.log("_initMapLibre() style has loaded, adding layer");
+          addLayerFunc()
         });
+      }
+      // Chase that with a timeout, just in case
+      setTimeout(addLayerFunc, 500)      
     }
   }
   

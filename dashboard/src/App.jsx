@@ -91,7 +91,7 @@ function interpForVariable(variable) {
 function  timeRangeForVariable(variable) {
   switch (variable.source) {
     case "flashwx":
-      return [-4*60*60,4*60*60,64]
+      return [-2*60*60,1*2*60*60,32];
   }
   switch (variable.dataType) {
     case "temperature":

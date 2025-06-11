@@ -817,17 +817,17 @@ class TerrierModule {
 
     // Wire in the global colormaps
     setupColorMaps() {
-        Terrier.TEMP_COLORS_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [255.372, 316.483], [0xFF000000, 0xFFFFFFFF]);
-        Terrier.TEMP_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.TEMP_COLORS_GREY = Terrier.createColorMap([255.372, 316.483], [0xFF000000, 0xFFFFFFFF]);
+        Terrier.TEMP_COLORS_NOT_GREY = Terrier.createColorMap(
             [255.372, 260.928, 266.483, 272.039, 277.594, 283.15, 288.706, 294.261, 299.817, 305.372, 310.928, 316.483],
             [0xFFFFBFFF, 0xFFD873DB, 0xFF913ABB, 0xFF372398, 0xFF00B6DC, 0xFF02D786, 0xFF40C604, 0xFFFFFF00, 0xFFFB7700, 0xFFD22402, 0xFFA20902, 0xFFEED9D8]);
-        Terrier.WIND_COLORS_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [0, 40], [0xFF000000, 0xFFFFFFFF]);
-        Terrier.WIND_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.WIND_COLORS_GREY = Terrier.createColorMap([0, 40], [0xFF000000, 0xFFFFFFFF]);
+        Terrier.WIND_COLORS_NOT_GREY = Terrier.createColorMap(
         [0, 5, 10, 15, 20, 25, 30, 35, 40],
             [0xFFAED5FF, 0xFF86B4E6, 0xFF66E2D6, 0xFF00CC05, 0xFFECF006, 0xFFFF6B00, 0xFFE11511, 0xFFE111C1, 0xFFFFCEF7]);
         
-        Terrier.RADAR_COLORS_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [-30, 5, 70], [0x00000000, 0xFF111111, 0xFFFFFFFF]);
-        Terrier.RADAR_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [
+        Terrier.RADAR_COLORS_GREY = Terrier.createColorMap([-30, 5, 70], [0x00000000, 0xFF111111, 0xFFFFFFFF]);
+        Terrier.RADAR_COLORS_NOT_GREY = Terrier.createColorMap([
         -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
         ], [
             0x00000000,   // Not actually present in the data
@@ -843,7 +843,7 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
-        Terrier.REFLECTIVITY_HRRR_COMPATIBLE = new globalThis.Module.TrrShaderColorMap(0, false, [
+        Terrier.REFLECTIVITY_HRRR_COMPATIBLE = Terrier.createColorMap([
             -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
             ], [
                 0x00000000,   // Not actually present in the data
@@ -859,32 +859,32 @@ class TerrierModule {
                 true, true, true, true, true, true, true, true,
                 true, true, true, true, true, true, true, true
             ]);
-        Terrier.SEVERE_HAIL_INDEX_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.SEVERE_HAIL_INDEX_COLORS = Terrier.createColorMap(
             [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
             [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
                 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe55dc, 0xff7e32a7]);
-        Terrier.PROB_SEVERE_HAIL_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.PROB_SEVERE_HAIL_COLORS = Terrier.createColorMap(
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
                 0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
         let feetToMm = 25.4;
-        Terrier.HAIL_SIZE_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.HAIL_SIZE_COLORS = Terrier.createColorMap(
             [0.0*feetToMm, 0.05*feetToMm, 0.1*feetToMm, 0.15*feetToMm, 0.20*feetToMm, 0.25*feetToMm, 0.40*feetToMm, 
                 0.5*feetToMm, 0.6*feetToMm, 0.75*feetToMm, 1.0*feetToMm, 1.5*feetToMm, 2.0*feetToMm, 3.0*feetToMm, 4.0*feetToMm],
             [0x0006ecec, 0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
                 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xfffffbe5, 0xff7e32a7]);                
-        Terrier.QPE_FFG_RATIO_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.QPE_FFG_RATIO_COLORS = Terrier.createColorMap(
             [0.0, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.00, 2.25, 2.50, 2.75, 3.00, 3.50, 4.00, 5.00],
             [0xffbebebe, 0xff8c8c8c, 0xff6e6e6e, 0xff505050, 0xff01b500, 0xff009b01, 
                 0xffffff04, 0xffffe102, 0xffffc802, 0xffffb400, 0xffffa100, 0xffb40100, 0xffc80200, 
                 0xffe20100, 0xffff0100, 0xffff01ff, 0xffd300d2, 0xffaa00ab, 0xff800080]);                
-        Terrier.PRECIP_FLAG_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.PRECIP_FLAG_COLORS = Terrier.createColorMap(
             [0, 1, 2, 3, 4, 5, 6, 7],
             [0x00000000, 0xFFffffff, 0xFF960096, 0xFFff3332, 0xFF0350a5, 0xFF6effff, 0xff00ff00, 0xff00ff00]);
         
 
         // A placeholder for an index value we haven't made a proper colormap for yet
-        Terrier.INDEXPLACE_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.INDEXPLACE_COLORS_NOT_GREY = Terrier.createColorMap(
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
             [0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 
                 0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
@@ -1040,13 +1040,13 @@ class TerrierModule {
                 0xff4818a8,0xff4818a8,
                 0xff901848,0xff901848,
                 0xffa80000,0xffa80000
-            ],
-            Terrier.RADIATION_FLUX = Terrier.createColorMap(
-                [0.0,500.0],
-                [0xff666666,0xffffffff]
-            )
+            ])
+        Terrier.RADIATION_FLUX = Terrier.createColorMap(
+            [0.0,500.0],
+            [0xff666666,0xffffffff]
+        )
     
-        )    }
+        }
 
     /**
      * We use a TrrShaderColorMap object to set and query colormaps, but
@@ -1062,17 +1062,21 @@ class TerrierModule {
      * converter online to map from your favorite color system to hex values.
      * @returns TrrShaderColorMap
      */
-    createColorMap(values, colors) {
+    createColorMap(values, colors, visibles) {
         if (values.length != colors.length) {
             console.log("createColorMap: Values and colors array must be same length.")
             return
         }
-        return new globalThis.Module.TrrShaderColorMap(0, false, values, colors)
+        if (visibles !== undefined) {
+            return new globalThis.Module.TrrShaderColorMap(0, false, values, colors, visibles)
+        } else {
+            return new globalThis.Module.TrrShaderColorMap(0, false, values, colors)
+        }
     }
 
     // Internal setup logic
     setupModule(initFunc, readyFunc) {
-        console.log("setupModule() called.")
+        // console.log("setupModule() called.")
         Terrier.initFunc = initFunc
         Terrier.readyFunc = readyFunc
 
@@ -1148,7 +1152,7 @@ class TerrierModule {
             onRuntimeInitialized: function () {
                 Terrier.setupColorMaps()
                         
-                console.log("Runtime Initialized");
+                // console.log("Runtime Initialized");
                 if (window.mobile) {
                     const text = document.getElementById("frameText");
                     text.innerHTML = "Mobile not supported";
@@ -1172,9 +1176,9 @@ class TerrierModule {
             },
             onOverlayInitialized: function() {
                 Terrier.isReady = true
-                console.log("onOverlayInitialized called")
+                // console.log("onOverlayInitialized called")
                 if (readyFunc !== undefined) {
-                    console.log("onOverlayInitialized calling readyFunc")
+                    // console.log("onOverlayInitialized calling readyFunc")
                     // Let things settle a beat and then let the dev get set up
                     setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                 }
@@ -1188,7 +1192,7 @@ class TerrierModule {
     // Internal setup logic
     loadLibrary() {
         if (!this.libraryLoaded) {
-            console.log("loadLibrary() called")
+            // console.log("loadLibrary() called")
             // Have the main WhirlyGlobe web module load itself
             //  this also kicks off Emscriten
             var s = document.createElement('script');
@@ -1313,12 +1317,12 @@ class TerrierModule {
                 endpoint = "https://"+this.stackName+".api.wetdogweather.com"
             }
         }
-        console.log("fetchStackContents() called")
+        // console.log("fetchStackContents() called")
 
         let outie = this;
         setTimeout( () => {
             if (outie.shuttingDown) {
-                console.log("fetchStackContents() short circuited by shuttingDown")
+                // console.log("fetchStackContents() short circuited by shuttingDown")
                 return
             }
             fetch(endpoint + "/manifest/v2/getvisualvarkeys")
@@ -1326,7 +1330,7 @@ class TerrierModule {
                     if (response.ok) {
                         return response.json()
                     } else {
-                        console.log("fetchStackContents() fetch failed")
+                        // console.log("fetchStackContents() fetch failed")
                         failFunc()
                     }
                 })
@@ -1357,7 +1361,7 @@ class TerrierModule {
                         )
                     Terrier.stackContents = data
                     if (!outie.shuttingDown) {
-                        console.log("fetchStackContents() calling fetchFunc()")
+                        // console.log("fetchStackContents() calling fetchFunc()")
                         fetchFunc(Terrier.stackContents)
                     }
                 })
@@ -1797,21 +1801,21 @@ class TerrierModule {
             return
         }
         this.shuttingDown = false
-        console.log("startMapLibre() called")
+        // console.log("startMapLibre() called")
 
         // Already started, so just call them back
         if (this.isReady) {
             if (readyFunc !== undefined) {
-                console.log("startMapLibre() calling readyFunc directly")
+                // console.log("startMapLibre() calling readyFunc directly")
                 readyFunc(this.ovl)
             }
             return
         }
 
         this.fetchStackContents( () => {
-            console.log("startMapLibre() fetchStackContents() callback called")
+            // console.log("startMapLibre() fetchStackContents() callback called")
             this.setupModule(() => {
-                console.log("startMapLibre() setupModule() callback called")
+                // console.log("startMapLibre() setupModule() callback called")
                 if (belowLayer === undefined) {
                     _initMapLibre(maplibreMap)
                 } else {
@@ -1965,7 +1969,7 @@ class TerrierModule {
             return
         }
 
-        console.log("Terrier.stop() called")
+        // console.log("Terrier.stop() called")
         globalThis.Module.enableWind = false
         globalThis.Module.enableTemp = false
         globalThis.Module.enableRadar = false

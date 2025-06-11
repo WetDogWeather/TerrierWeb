@@ -37,9 +37,11 @@ let map = startMap()
 
 setTimeout(() => {
     stopMap(map)
-}, 10000)
-
-setTimeout(() => {
     // Note: Problem seems to be the system is not properly setup when the layer is created
     startMap()
-}, 20000)
+}, 10000)
+
+// setTimeout(() => {
+//     // Note: Problem seems to be the system is not properly setup when the layer is created
+//     startMap()
+// }, 0)

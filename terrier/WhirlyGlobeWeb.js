@@ -12338,7 +12338,7 @@ var ASM_CONSTS = {
     let addLayerFunc = function() {
       if (!Module.maplibreLayer) {
         if (mapLibreStartAttempt != Module.mapLibreStartAttempt) {
-          // console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
+          console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
           return
         }
         if (map.isStyleLoaded()) {
@@ -12350,22 +12350,22 @@ var ASM_CONSTS = {
           }
         } else {
           // If the style never loads, this'll just keep trying
-          // console.log("_initMapLibre() style still not ready so deferring");
+          console.log("_initMapLibre() style still not ready so deferring");
           setTimeout(addLayerFunc, 500)
         }
       }
     }
     if (map.isStyleLoaded()) {
-      // console.log("_initMapLibre() style is already loaded");
+      console.log("_initMapLibre() style is already loaded");
       addLayerFunc()
     } else {
-      // console.log("_initMapLibre() waiting for style to load");
+      console.log("_initMapLibre() waiting for style to load");
       if (map.getStyle()) {
-        // console.log("_initMapLibre() style shows not loaded by style is loaded");
+        console.log("_initMapLibre() style shows not loaded by style is loaded");
         addLayerFunc()
       } else {
         map.on('load', function () {
-          // console.log("_initMapLibre() style has loaded, adding layer");
+          console.log("_initMapLibre() style has loaded, adding layer");
           addLayerFunc()
         });
       }

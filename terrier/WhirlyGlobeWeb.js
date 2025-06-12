@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  240500: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 240944: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  241476: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 241920: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -12338,7 +12338,7 @@ var ASM_CONSTS = {
     let addLayerFunc = function() {
       if (!Module.maplibreLayer) {
         if (mapLibreStartAttempt != Module.mapLibreStartAttempt) {
-          console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
+          // console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
           return
         }
         if (map.isStyleLoaded()) {
@@ -12350,22 +12350,22 @@ var ASM_CONSTS = {
           }
         } else {
           // If the style never loads, this'll just keep trying
-          console.log("_initMapLibre() style still not ready so deferring");
+          // console.log("_initMapLibre() style still not ready so deferring");
           setTimeout(addLayerFunc, 500)
         }
       }
     }
     if (map.isStyleLoaded()) {
-      console.log("_initMapLibre() style is already loaded");
+      // console.log("_initMapLibre() style is already loaded");
       addLayerFunc()
     } else {
-      console.log("_initMapLibre() waiting for style to load");
+      // console.log("_initMapLibre() waiting for style to load");
       if (map.getStyle()) {
-        console.log("_initMapLibre() style shows not loaded by style is loaded");
+        // console.log("_initMapLibre() style shows not loaded by style is loaded");
         addLayerFunc()
       } else {
         map.on('load', function () {
-          console.log("_initMapLibre() style has loaded, adding layer");
+          // console.log("_initMapLibre() style has loaded, adding layer");
           addLayerFunc()
         });
       }

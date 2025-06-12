@@ -12192,12 +12192,12 @@ var ASM_CONSTS = {
   }
   function _initMapLibre(map,belowLayer) {
     if (!Module.emInitialized) {
-      console.log("Deferring Map Init");
+      // console.log("Deferring Map Init");
       Module.doMapInit = true;
       return;
     }
   
-    console.log("Initializing MapLibre Overlay");
+    // console.log("Initializing MapLibre Overlay");
   
     Module.map = map;
   
@@ -12241,7 +12241,7 @@ var ASM_CONSTS = {
       type: 'custom', // must be "custom"
       renderingMode: '2d',  // 2d and 3d both seem to work
       onAdd: function (map, gl) {
-        console.log("Terrier custom layer add");
+        // console.log("Terrier custom layer add");
         Module.canvas = map.getCanvas();
   
         _glfwInit();
@@ -12274,7 +12274,7 @@ var ASM_CONSTS = {
         }
       },
       onRemove: function(map, gl) {
-        console.log("Terrier custom layer remove");
+        // console.log("Terrier custom layer remove");
         // TODO
       },  // onRemove
       prerender: function(gl, matrix) {
@@ -12380,12 +12380,12 @@ var ASM_CONSTS = {
   
   function _initArcGIS(mapView) {
     if (!Module.emInitialized) {
-      console.log("Deferring Map Init");
+      // console.log("Deferring Map Init");
       Module.doMapInit = true;
       return;
     }
   
-    console.log("Initializing ArcGIS Overlay");
+    // console.log("Initializing ArcGIS Overlay");
   
     Module.map = mapView.map;
   
@@ -12427,7 +12427,7 @@ var ASM_CONSTS = {
           },
           // Called once a custom layer is added to the map.layers collection and this layer view is instantiated.
           attach: function () {
-            console.log("Terrier custom layer add");      
+            // console.log("Terrier custom layer add");      
   
             let gl = this.context;
   
@@ -12545,14 +12545,14 @@ var ASM_CONSTS = {
   
   function _initWebglCanvas(canvas) {
       if (!Module.emInitialized) {
-        console.log("Deferring Map Init");
+        // console.log("Deferring Map Init");
         Module.doMapInit = true;
         return;
       }
   
       Module.canvas = canvas
   
-      console.log("Initializing WebGL Canvas Overlay");
+      // console.log("Initializing WebGL Canvas Overlay");
   
       const gl = canvas.getContext("webgl2");
       if (!gl) {

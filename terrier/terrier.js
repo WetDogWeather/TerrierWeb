@@ -1041,9 +1041,26 @@ class TerrierModule {
                 0xff901848,0xff901848,
                 0xffa80000,0xffa80000
             ])
+        Terrier.RED_TO_GREEN_PERCENT = Terrier.createColorMap(
+            [0.0,
+             10.0,
+             30.0,
+             50.0,
+             60.0,
+             70.0,
+             100.0],
+            [0xffD61F1F,
+             0xffD61F1F,
+             0xffE03C32,
+             0xffFFD301,
+             0xff7BB662,
+             0xff639754,
+             0xff006B3D
+            ]),
+
         Terrier.RADIATION_FLUX = Terrier.createColorMap(
             [0.0,500.0],
-            [0xff666666,0xffffffff]
+            [0xff666666,0xffffffff]    
         )
     
         }
@@ -1222,6 +1239,8 @@ class TerrierModule {
                     return Terrier.LIGHTNING_FIRST_STRIKE;
                 case "lightning_allclear":
                     return Terrier.LIGHTNING_ALL_CLEAR;
+                case "golf_playability_index":
+                    return Terrier.RED_TO_GREEN_PERCENT;
             }
         }
         if (variable.units) {

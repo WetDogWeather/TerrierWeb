@@ -89,9 +89,18 @@ function interpForVariable(variable) {
 // Come up with a good time range for a variable
 // This is mostly obvious except for a few weird cases
 function  timeRangeForVariable(variable) {
-  switch (variable.source) {
-    case "flashwx":
-      return [-2*60*60,1*2*60*60,32];
+  if (variable.source == 'flashwx') {
+    switch (variable.name) {
+        case "lightning_probability":
+          return [-1*3600,1*3600,48]
+        case "lightning_probability_extended":
+          return [0,24*3600,48]
+        case "lightning_firststrike":
+        case "lightning_allclear":
+          return [-4*3600,0,48]
+        case "golf_playability_index":
+          return [-12*3600,48*3600,96]
+    }
   }
   switch (variable.dataType) {
     case "temperature":
@@ -368,7 +377,7 @@ function App() {
           'colorsGrey': colorMap,
           'colors': colorMap,
           'importanceScale': 16.0,
-          'timeRange': timeRange,
+          'cadence': timeRange,
           // The load callback lets us insert some logic when the manifest for a
           //  given data source loads.  You'll see more than one data source, depending
           //  on what you're displaying.
@@ -409,7 +418,7 @@ function App() {
             'units': variable.units,
             'colorsGrey': colorMap,
             'colors': colorMap,
-            'timeRange': timeRange,
+            'cadence': timeRange,
             'interpMode': interp,
             // The load callback lets us insert some logic when the manifest for a
             //  given data source loads.  You'll see more than one data source, depending

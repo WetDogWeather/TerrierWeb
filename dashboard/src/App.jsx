@@ -377,7 +377,7 @@ function App() {
           'colorsGrey': colorMap,
           'colors': colorMap,
           'importanceScale': 16.0,
-          'cadence': timeRange,
+          'timeRange': timeRange,
           // The load callback lets us insert some logic when the manifest for a
           //  given data source loads.  You'll see more than one data source, depending
           //  on what you're displaying.
@@ -418,7 +418,7 @@ function App() {
             'units': variable.units,
             'colorsGrey': colorMap,
             'colors': colorMap,
-            'cadence': timeRange,
+            'timeRange': timeRange,
             'interpMode': interp,
             // The load callback lets us insert some logic when the manifest for a
             //  given data source loads.  You'll see more than one data source, depending

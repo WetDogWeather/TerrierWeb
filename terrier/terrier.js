@@ -1062,7 +1062,110 @@ class TerrierModule {
             [0.0,500.0],
             [0xff666666,0xffffffff]    
         )
-    
+
+        Terrier.AIRQUALITYINDEX = Terrier.createColorMap(
+            [0.0,50.0,
+                50.0, 100.0,
+                100.0, 150.0,
+                150.0, 200.0,
+                200.0, 300.0,
+                300.0, 500.0
+            ],
+            [0xff05e300,0xff05e300,
+                0xffffff00,0xffffff00,
+                0xffff7e00,0xffff7e00,
+                0xffff0100,0xffff0100,
+                0xff8f3f97,0xff8f3f97,
+                0xff7e0123,0xff7e0123,
+            ]    
+        )
+
+        Terrier.AIRQUALITYINDEX = Terrier.createColorMap(
+            [0.0,50.0,
+                50.0, 100.0,
+                100.0, 150.0,
+                150.0, 200.0,
+                200.0, 300.0,
+                300.0, 500.0
+            ],
+            [0xff05e300,0xff05e300,
+                0xffffff00,0xffffff00,
+                0xffff7e00,0xffff7e00,
+                0xffff0100,0xffff0100,
+                0xff8f3f97,0xff8f3f97,
+                0xff7e0123,0xff7e0123,
+            ]    
+        )
+
+        Terrier.AEROSOLTYPE = Terrier.createColorMap(
+            [0.0,
+             2,
+             15,
+             30,
+             45,
+             60,
+             75,
+             90,
+             105,
+             120,
+             135,
+             150,
+             165,
+             180,
+             195,
+             210,
+             225,
+             240
+            ],
+            [0x00000000,
+                0xff090ce2,
+                0xff090ce2,
+                0xff0751ff,
+                0xff0099ff,
+                0xff4bc3ff,
+                0xff67ddff,
+                0xff81f2ff,
+                0xff99f8ff,
+                0xffc2ffff,
+                0xffffff3d,
+                0xffffeb00,
+                0xffffc100,
+                0xffff8900,
+                0xffff2f00,
+                0xffff0000,
+                0xffe90000,
+                0xffae0000
+               ]    
+           )
+
+           Terrier.UVINDEX = Terrier.createColorMap(
+            [
+             1,
+             2,
+             3,
+             4,
+             5,
+             6,
+             7,
+             8,
+             9,
+             10,
+             11
+            ],
+            [0xff279500,
+                0xff279500,
+                0xfff7e400,
+                0xfff7e400,
+                0xfff7e400,
+                0xfff85900,
+                0xfff85900,
+                0xffd80211,
+                0xffd80211,
+                0xffd80211,
+                0xff6b49c8
+               ]    
+           )
+
         }
 
     /**
@@ -1243,6 +1346,19 @@ class TerrierModule {
                     return Terrier.RED_TO_GREEN_PERCENT;
             }
         }
+        if (variable.source == 'airnow') {
+            switch (variable.name) {
+                case "forecasted_air_quality_index":
+                    return Terrier.AIRQUALITYINDEX;
+            }
+            switch (variable.units) {
+                case "ug/m3":
+                    return Terrier.AEROSOLTYPE;
+            }
+        }
+        if (variable.name == 'uv_index') {
+            return Terrier.UVINDEX;
+        }
         if (variable.units) {
             switch(variable.units.toLowerCase()) {
                 case "w/m^2":
@@ -1372,6 +1488,9 @@ class TerrierModule {
                                     }
                                     if (variable.temporalType == '' || source.name == 'flashwx') {
                                         variable.temporalType = 'both'
+                                    }
+                                    if (source.name == 'airnow' && variable.name.includes('particulate')) {
+                                        variable.hasEmptyVals = false
                                     }
                                 }
                                 )

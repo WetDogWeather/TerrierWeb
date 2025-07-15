@@ -102,7 +102,13 @@ function  timeRangeForVariable(variable) {
           return [-12*3600,48*3600,96]
     }
   }
-  switch (variable.dataType) {
+  if (variable.source == 'airnow') {
+    switch (variable.name) {
+        case "forecasted_air_quality_index":
+          return [-14*24*3600,1*24*3600,32];
+    }
+}
+switch (variable.dataType) {
     case "temperature":
     case "wind_uv":
     case "velocity":

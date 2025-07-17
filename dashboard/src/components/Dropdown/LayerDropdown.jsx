@@ -22,7 +22,7 @@ function LayerDropdown({layer, level, setLevel, extraFields}) {
     return (
         <>
             <div className='dropdown-content' key={'content-'+layerName}>
-            <h1 key={'header-'+layerName}> {layer.getDisplayName()} </h1>
+            <h2 key={'header-'+layerName}> {layer.getDisplayName()} </h2>
             {levelsContent}
             <h3 key={'colors-'+layerName}>Colors</h3>
             <div className='dropdown-input' key={'dropdown-input-'+layerName}>

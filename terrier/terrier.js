@@ -825,7 +825,49 @@ class TerrierModule {
         Terrier.WIND_COLORS_NOT_GREY = Terrier.createColorMap(
         [0, 5, 10, 15, 20, 25, 30, 35, 40],
             [0xFFAED5FF, 0xFF86B4E6, 0xFF66E2D6, 0xFF00CC05, 0xFFECF006, 0xFFFF6B00, 0xFFE11511, 0xFFE111C1, 0xFFFFCEF7]);
-        
+        const MeterstoKnots = 0.514444
+        Terrier.WIND_NOAA = Terrier.createColorMap(
+            [0*MeterstoKnots, 5*MeterstoKnots, 
+             5*MeterstoKnots, 10*MeterstoKnots,
+             10*MeterstoKnots, 15*MeterstoKnots, 
+             15*MeterstoKnots, 20*MeterstoKnots,
+             20*MeterstoKnots, 25*MeterstoKnots, 
+             25*MeterstoKnots, 30*MeterstoKnots,
+             30*MeterstoKnots, 35*MeterstoKnots, 
+             35*MeterstoKnots, 40*MeterstoKnots,
+             40*MeterstoKnots, 45*MeterstoKnots,
+             45*MeterstoKnots, 50*MeterstoKnots,
+             50*MeterstoKnots, 55*MeterstoKnots,
+             55*MeterstoKnots, 60*MeterstoKnots,
+             60*MeterstoKnots, 65*MeterstoKnots,
+             65*MeterstoKnots, 70*MeterstoKnots,
+             70*MeterstoKnots, 75*MeterstoKnots,
+             75*MeterstoKnots, 80*MeterstoKnots,
+             80*MeterstoKnots, 85*MeterstoKnots,
+             85*MeterstoKnots, 90*MeterstoKnots,
+             90*MeterstoKnots
+             ],
+            [0x0000000, 0x00f8d4f9,
+             0xfff8d4f9, 0xfff8d4f9,
+             0xfff1a5f4, 0xfff1a5f4,
+             0xffe074f1, 0xffe074f1,
+             0xff0045ff, 0xff0045ff,
+             0xff0099ff, 0xff0099ff,
+             0xff00ceff, 0xff00ceff,
+             0xff00e8ff, 0xff00e8ff,
+             0xff07ffe6, 0xff07ffe6,
+             0xff66d400, 0xff66d400,
+             0xff80fa04, 0xff80fa04,
+             0xffb4ff36, 0xffb4ff36,
+             0xffeaff13, 0xffeaff13,
+             0xffffe501, 0xffffe501,
+             0xffffc808, 0xffffc808,
+             0xfffe8708, 0xfffe8708,
+             0xffff3300, 0xffff3300,
+             0xffff0139, 0xffff0139,
+             0xfff704fc
+            ]);
+                
         Terrier.RADAR_COLORS_GREY = Terrier.createColorMap([-30, 5, 70], [0x00000000, 0xFF111111, 0xFFFFFFFF]);
         Terrier.RADAR_COLORS_NOT_GREY = Terrier.createColorMap([
         -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
@@ -1372,7 +1414,7 @@ class TerrierModule {
                 return Terrier.TEMP_COLORS_NOT_GREY;
             case "wind_uv":
             case "velocity":
-                return Terrier.WIND_COLORS_NOT_GREY;
+                return Terrier.WIND_NOAA;
             case "probability":
                 if (variable.name == "probability_severe_hail") {
                     return Terrier.PROB_SEVERE_HAIL_COLORS;

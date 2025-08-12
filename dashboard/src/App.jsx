@@ -367,6 +367,29 @@ function App() {
       let levels = Terrier.variableLevelsForStack(sources[0].name)
       let interp = interpForVariable(sources[0])
       switch (variable.dataType) {
+      case 'wind_uv':
+        newLayer = new Layer(terrierOvl, 
+            {'displayName': variable.name,
+            'layerName': variable.name,
+            'icon': icon,
+            'sources': sources,
+            'levels': levels,
+            'units': variable.units,
+            'colorsGrey': colorMap,
+            'colors': colorMap,
+            'arrows': {
+              'cutoff': 2.57,
+              'speed': [2.57, 40.0],
+              'size': [[5,10],[20,40]],
+              'layout': [50,50],
+              'colors': [0xFF000000,0xFF000000],
+              // Only accepting png
+              'image': 'arrow1.png'
+            },
+            'timeRange': timeRange,
+            'interpMode': interp
+            })                        
+      break;
       case 'reflectivity':
         if (radarOnly) {
           timeRange = [-4*60*60,0.0,64]
@@ -505,7 +528,7 @@ function App() {
       const ret = layer.queryValue(x, y)
       if (ret != null) {
         setLegendValue(ret['value'])
-        console.log("Map clicked %d, %d: " + ret['value'].toString(), x, y)
+        console.log("Map clicked at pix:(%d,%d), geo:(%f,%f) " + ret['value'].toString(), x, y, ret['lon'], ret['lat'])
       } else {
         setLegendValue(null)
         console.log("No data at %d, %d: ", x, y)

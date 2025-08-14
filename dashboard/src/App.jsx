@@ -378,13 +378,11 @@ function App() {
             'colorsGrey': colorMap,
             'colors': colorMap,
             'arrows': {
-              'cutoff': 2.57,
+              'cutoff': 1.0,
               'speed': [2.57, 40.0],
-              'size': [[5,10],[20,40]],
-              'layout': [50,50],
-              'colors': [0xFF000000,0xFF000000],
-              // Only accepting png
-              'image': 'arrow1.png'
+              'size': [[10,20],[40,80]],
+              'layout': [80,80],
+              'colors': [0xAA000000,0xFF000000],
             },
             'timeRange': timeRange,
             'interpMode': interp

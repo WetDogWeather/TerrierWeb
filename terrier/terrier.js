@@ -51,6 +51,28 @@ class TerrierLayer {
         this.setup(params)
     }
 
+    /**
+     * This draws an arrow into a canvas and then returns a raw image.
+     * Not something you need to be calling, we use it for wind arrows
+     */
+    drawArrowIntoCanvas() {
+        var canvas = document.createElement('canvas');
+        canvas.id     = "temp";
+        canvas.width  = 190;
+        canvas.height = 235;
+        canvas.style.zIndex   = 9;
+        canvas.style.position = "absolute";
+        canvas.style.border   = "0px";
+        let ctx = canvas.getContext('2d');
+        var path = new Path2D('m0 80 79-80 81 80-14.1 14.1-55.9-55.8v181.7h-20v-181.7l-55.8 55.8z');
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 20.0;
+        ctx.translate(15.0,-10.0);
+        ctx.stroke(path);
+        let url = canvas.toDataURL("image/png");
+        return url
+    }
+
     // Internal param parsing.  Don't call this.
     setup(params) {
         if (params === undefined) {
@@ -75,6 +97,9 @@ class TerrierLayer {
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
             hasImportScale = true
+        }
+        if ('arrows' in params) {
+            this.arrows = params['arrows']
         }
         if ('loadCallback' in params) {
             this.loadCallback = params['loadCallback']
@@ -162,6 +187,51 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.windCallback = this.loadCallback
                 }
+                if (this.arrows !== null && this.arrows !== undefined) {
+                    // Start loading an image and we'll set up the arrows when it arrives
+                    var imageUrl
+                    if ('image' in this.arrows)
+                        imageUrl = this.arrows['image']
+                    else
+                        imageUrl = this.drawArrowIntoCanvas()
+                    // Set up arrows fields
+                    var cutoff = 2.57
+                    if ('cutoff' in this.arrows) {
+                        cutoff = this.arrows['cutoff']
+                    }
+                    var speed = [2.57, 40.0];
+                    if ('speed' in this.arrows) {
+                        speed = this.arrows['speed']
+                    }
+                    var minSize = [5,10]
+                    var maxSize = [20,40]
+                    if ('size' in this.arrows) {
+                        minSize = this.arrows.size[0]
+                        maxSize = this.arrows.size[1]
+                    }
+                    var layout = [100,100]
+                    if ('layout' in this.arrows) {
+                        layout = this.arrows['layout']
+                    }
+                    var colors = [0xFF000000,0xFF000000]
+                    if ('colors' in this.arrows) {
+                        colors = this.arrows['colors']
+                    }
+                    let windArrows = new globalThis.Module.TrrWindArrows(cutoff, 
+                                                            speed[0], speed[1], 
+                                                            minSize[0], minSize[1], maxSize[0], maxSize[1],
+                                                            layout[0], layout[1],
+                                                            colors[0], colors[1], 
+                                                            imageUrl)
+                    setTimeout(() => {
+                        let windControl = findControllerState("winduv")
+                        if (windControl) {
+                            windControl.controller.setWindArrows(windArrows)    
+                            windArrows.delete();                        
+                        }
+                    }, 0)
+                }
+
                 globalThis.Module.windSources = sources
                 foundState = findControllerState("winduv")
                 break;
@@ -469,13 +539,14 @@ class TerrierLayer {
      * 
      * @param {float} x Horizontal fraction across the OpenGL window, from 0 to 1.
      * @param {float} y Vertical fraction across the OpenGL window, from 0 to 1.
-     * @returns An array with one or two values, depending on what you queried.  Wind returns two.
+     * @returns A structure containing "value" with one or two values (two for wind) and lon and lat in degrees.
      */
     queryValue(x,y) {
         if (globalThis.Module === undefined || globalThis.Module.canvas === undefined) {
             return null
         }
         var ret = this.state.controller.queryValue(x / globalThis.Module.canvas.width, y / globalThis.Module.canvas.height)
+        var loc = this.state.controller.queryLocation(x, y);
         if (!Array.isArray(ret)) {
             ret = [ret]
         }
@@ -485,7 +556,29 @@ class TerrierLayer {
         return {
             // Can return one or more values
             "value": ret,
-            // Will add lat/lon later
+            "lon": loc[0]*180.0/Math.PI,
+            "lat": loc[1]*180.0/Math.PI
+        }
+    }
+
+    /**
+     * Return a geographic location given a point on the screen.
+     * Any of the map toolkits can do this for you too, but this is only Terrier dependent.
+     * @param {*} x Horizontal location in screen pixels.
+     * @param {*} y Vertical location in screen pixels.
+     * @returns lon and lat in degrees
+     */
+    queryLocation(x,y) {
+        if (globalThis.Module === undefined || globalThis.Module.canvas === undefined) {
+            return null
+        }
+        var ret = this.state.controller.queryLocation(x, y);
+        if (!Array.isArray(ret)) {
+            ret = []
+        }
+        return {
+            "lon": loc[0]*180.0/Math.PI,
+            "lat": loc[1]*180.0/Math.PI
         }
     }
 }

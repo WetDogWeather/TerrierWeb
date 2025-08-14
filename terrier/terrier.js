@@ -649,6 +649,16 @@ class TerrierOverlay {
      * 'current' just sets the current time where 'first' or 'last' will snap to the appropriate
      * frame time.  You would use 'last' for radar, for example to show the most recent radar.
      * 
+     * 'arrows' is a set of parameters to control directional arrows for a wind layer.
+     * That can contain the following parameters:
+     * 'cutoff' in m/s below which no arrow is displayed.
+     * 'speed' is a 2 component array of the min and max speed for scaling arrows.
+     * 'size' is 2 2 component arrays defining the mix and max size in x and y.
+     * 'layout' is a 2 component array defining a grid to lay the arrows out on.
+     * 'colors' is a 2 component array of standard 3 component color values (with alpha defined first)
+     * that will be used to scale from min to max.
+     * 'image' is an optional URL for the PNG you'd like to use rather than our default arrow.
+     * 
      * 'loadCallback' is a Javascript function you pass in that will be called as soon as the 
      * layer has loaded its manifest.  Your function's only argument is the manifest object.
      * The manifest is a JSON return from the Boxer service and it contains everything you

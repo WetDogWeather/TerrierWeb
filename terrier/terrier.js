@@ -1225,23 +1225,6 @@ class TerrierModule {
             ]    
         )
 
-        Terrier.AIRQUALITYINDEX = Terrier.createColorMap(
-            [0.0,50.0,
-                50.0, 100.0,
-                100.0, 150.0,
-                150.0, 200.0,
-                200.0, 300.0,
-                300.0, 500.0
-            ],
-            [0xff05e300,0xff05e300,
-                0xffffff00,0xffffff00,
-                0xffff7e00,0xffff7e00,
-                0xffff0100,0xffff0100,
-                0xff8f3f97,0xff8f3f97,
-                0xff7e0123,0xff7e0123,
-            ]    
-        )
-
         Terrier.AEROSOLTYPE = Terrier.createColorMap(
             [0.0,
              2,
@@ -1494,6 +1477,7 @@ class TerrierModule {
         if (variable.source == 'airnow') {
             switch (variable.name) {
                 case "forecasted_air_quality_index":
+                    case "air_quality_index":
                     return Terrier.AIRQUALITYINDEX;
             }
             switch (variable.units) {

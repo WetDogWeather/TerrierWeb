@@ -12,10 +12,22 @@ function startMap() {
 
     // Tell Terrier to hook itself into MapLibre
     Terrier.startMapLibre('dev', map, (ovl) => {
-        // Once successful, start up a temperature layer
-        let tempLayer = ovl.startLayer('reflectivity', {
-            // colorMap: {}
-            // level: 80
+        let mrms_refl = Terrier.sourcesForVariable({source:'mrms',region:'conus',product:'mbr',variable:'reflectivity'})
+        let hrrr_refl = Terrier.sourcesForVariable({source:'hrrr',region:'conus',variable:'reflectivity'})
+
+        // let mrmsLayer = ovl.startLayer('reflectivity', {
+        //     sources: mrms_refl,
+        //     colorMap: Terrier.RADAR_COLORS_NOT_GREY,
+        //     timeRange: [-4*60*60,0,64],
+        //     interpMode: 'linear',
+        //     opacity: 0.5,
+        //     importFactor: 16.0,
+        // })
+
+        let hrrrLayer = ovl.startLayer('reflectivity', {
+            sources: hrrr_refl,
+            colorMap: Terrier.RADAR_COLORS_NOT_GREY,
+            timeRange: [0,4*60*60,64],
             interpMode: 'linear',
             opacity: 0.5,
             importFactor: 16.0,
@@ -35,13 +47,13 @@ function stopMap(map) {
 
 let map = startMap()
 
-setTimeout(() => {
-    stopMap(map)
-    setTimeout(() => {
-        // Note: Problem seems to be the system is not properly setup when the layer is created
-        startMap()
-    }, 1000);
-}, 10000)
+// setTimeout(() => {
+//     stopMap(map)
+//     setTimeout(() => {
+//         // Note: Problem seems to be the system is not properly setup when the layer is created
+//         startMap()
+//     }, 1000);
+// }, 10000)
 
 // setTimeout(() => {
 //     // Note: Problem seems to be the system is not properly setup when the layer is created

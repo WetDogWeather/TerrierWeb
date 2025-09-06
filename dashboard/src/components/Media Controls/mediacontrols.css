@@ -23,7 +23,7 @@
 
   transform: translateX(-50%);
 
-  transition: bottom 0.3s ease-in-out;
+  transition: bottom 0.3s ease-in-out; 
   z-index: 9999;
   pointer-events: auto;
 }

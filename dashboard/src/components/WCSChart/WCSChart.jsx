@@ -159,7 +159,7 @@ const WCSChart = forwardRef((props, ref) => {
 
         const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([height, 0]).nice();
         // https://d3js.org/d3-scale-chromatic/categorical
-        const colorPair = [d3.schemeSet1[2], d3.schemeSet1[3]]; // green and purple seem nice and contrasty
+        const colorPair = [d3.schemeSet1[2], d3.schemeSet1[3]]; // green and purple seem nice and contrasty 
         const colorScale = d3.scaleOrdinal(colorPair);
 
 

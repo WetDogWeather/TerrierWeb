@@ -516,7 +516,7 @@ function App() {
 
     // let radarSources = Terrier.sourcesForVariable({product: 'mbr',
     //   level: '500m',
-    //   variable: 'reflectivity'})
+    //   variable: 'reflectivity'}) 
     // let temperatureSources = Terrier.sourcesForVariable({level: '2m',
     //   variable: 'temperature'}) 
 

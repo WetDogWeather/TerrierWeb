@@ -14,7 +14,7 @@ function MediaControls({curTime,setCurTime,timeRange,isPlaying,setIsPlaying,anim
     // Date we're showing
     const displayDate = moment(Number(new Date(curTime*1000))).format('dddd, MMMM Do, h:mm a')
 
-    // Setting the scrubber value when this component re-renders.
+    // Setting the scrubber value when this component re-renders. 
     // Making sure the icon is correct.
     // This logic is necessary incase the MediaControls need to de-render and re-render because of fullscreen.
     const range = (Number(timeRange[1]) - Number(timeRange[0]))

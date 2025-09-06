@@ -1,4 +1,4 @@
-.media-controls {
+.media-controls-original {
   background-color: rgb(183, 185, 230);
   width: 500px;
   border-radius: 20px;
@@ -11,6 +11,21 @@
   pointer-events: auto;
 
   z-index: 9999;
+}
+
+.media-controls {
+  background-color: rgb(183, 185, 230);
+  width: 500px;
+  border-radius: 20px;
+  position: absolute;
+  bottom: 10px; 
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  transition: bottom 0.3s ease-in-out;
+  z-index: 9999;
+  pointer-events: auto;
 }
 
 #media-date {
@@ -35,3 +50,4 @@
 #play-button {
   height: 30px;
 }
+

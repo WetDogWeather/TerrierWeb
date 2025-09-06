@@ -3,7 +3,8 @@ import { useState } from 'react'
 import './dropdown.css'
 
 // Settings are a separate dropdown
-function SettingsDropdown({legendVisible, setLegendVisible, 
+function SettingsDropdown({ chartVisible, setChartVisible,
+                            legendVisible, setLegendVisible, 
                             snapFrame, setSnapFrame,
                             animSpeed, setAnimSpeed,
                             displayAllLayers, setDisplayAllLayers,
@@ -64,6 +65,11 @@ function SettingsDropdown({legendVisible, setLegendVisible,
         <>
         <div className='dropdown-content' key={'settings-content'}>
             <h1>Settings</h1>
+            <br />
+            <label>
+                <input type="checkbox" checked={chartVisible} onChange={() => setChartVisible(!chartVisible)}/>
+            Show Time Series Chart
+            </label>
             <br />
 
             <label>

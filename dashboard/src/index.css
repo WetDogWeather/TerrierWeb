@@ -32,3 +32,32 @@ label {
   font-family: Arial;
   user-select: none;
 }
+
+/* 
+.maplibregl-ctrl-bottom-right .raised {
+  bottom: calc(var(--wcs-chart-height) + 10px);
+} */
+
+.media-controls-wrapper {
+
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: bottom 0.2s ease-in;
+  z-index: 1001;
+}
+
+.media-controls-wrapper.raised {
+  bottom: calc(var(--wcs-chart-height) + 10px);
+}
+
+.header, Header { 
+  position: relative; 
+  z-index: 1002;
+}
+
+.legend, Legend {
+  position: relative;
+  z-index: 1001;
+}

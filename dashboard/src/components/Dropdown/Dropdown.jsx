@@ -18,6 +18,7 @@ import attributionIcon from '../../assets/copyright.png'
 function Dropdown({layers, 
                     curLayer, setCurLayer, 
                     level, setLevel,
+                    chartVisible, setChartVisible,
                     legendVisible, setLegendVisible,
                     snapFrame, setSnapFrame,
                     animSpeed, setAnimSpeed, 
@@ -84,7 +85,8 @@ function Dropdown({layers,
         dropdown = [dropdown, layerContent]
     } else if (settingsMode == 1) {
         const settingsContent = (
-            <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+            <SettingsDropdown chartVisible={chartVisible} setChartVisible={setChartVisible}
+                              legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                               snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                               animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
                               displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}

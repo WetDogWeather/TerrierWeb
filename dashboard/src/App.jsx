@@ -1,10 +1,12 @@
 import { createContext, useState, useEffect, useRef, createRef } from 'react'
-import Terrier from "../terrier.js"
+
+import Terrier from "../../terrier/terrier.js"
 
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'
 import Dropdown from './components/Dropdown/Dropdown'
 import Legend from './components/Legend/Legend'
+import WCSChart from './components/WCSChart/WCSChart.jsx'
 import MediaControls from './components/Media Controls/MediaControls'
 import Map from './components/map.jsx';
 import Layer from './Layers/Layer.jsx'
@@ -133,6 +135,7 @@ switch (variable.dataType) {
 
 function App() {
   const [controlsVisible, setControlsVisible] = useState(true)
+  const [chartVisible, setChartVisible] = useState(false)
   const [legendVisible, setLegendVisible] = useState(true)
   const [legendValue, setLegendValue] = useState(null)
   const [snapFrame, setSnapFrame] = useState(false)
@@ -154,6 +157,15 @@ function App() {
   const [units, _setUnits] = useState('')
   const [stackName, setStackName] = useState('dev')
   const [baseMapName, setBaseMapName] = useState('alidade_smooth')
+
+  const maplibreglRef = useRef(null);
+  const clickMarkerRef = useRef(null);
+  const chartVisibleRef = useRef(chartVisible);
+  const chartRef = useRef(null);
+
+  useEffect(() => {
+    chartVisibleRef.current = chartVisible;
+  }, [chartVisible]);
 
   function setRegion(newRegion) {
     _setRegion(newRegion)
@@ -508,6 +520,7 @@ function App() {
     // let temperatureSources = Terrier.sourcesForVariable({level: '2m',
     //   variable: 'temperature'})
 
+    maplibreglRef.current = window.maplibregl;
     setSources(["All"].concat(Terrier.sourcesForStack()))
     setRegions(["All"].concat(Terrier.regionsForStack()))
     setBasemaps(["alidade_smooth","alidade_smooth_dark","alidade_satellite","outdoors","stamen_toner","stamen_terrain","osm_bright"])
@@ -516,7 +529,6 @@ function App() {
     setCurTime(now)
   }
 
-  // Called when the user clicks on the map
   const onMapClick = (e) => {
     const layers = Terrier.ovl.getLayers()
     if (layers.length > 0) {
@@ -527,12 +539,24 @@ function App() {
       if (ret != null) {
         setLegendValue(ret['value'])
         console.log("Map clicked at pix:(%d,%d), geo:(%f,%f) " + ret['value'].toString(), x, y, ret['lon'], ret['lat'])
+        if (chartVisibleRef.current && chartRef.current) {
+          chartRef.current.fetchForCoordinates(ret['lat'], ret['lon']);
+        }
+        // if (maplibreglRef.current) {
+        //     const newMarker = new maplibreglRef.current.Marker({
+        //       color: "#c03b3b6d",
+        //     })
+        //     .setLngLat([ret['lon'], ret['lat']])
+        //     .addTo(terrierOvl.getMap()); // TODO: make this actually work.. and randomize color for marker and respective graph grid?
+        //     clickMarkerRef.current = newMarker;
+        // }
       } else {
         setLegendValue(null)
         console.log("No data at %d, %d: ", x, y)
       }
-}
+    }
   }
+
 
   // Change the units on the currently displayed layer
   let setUnits = (layer, newUnits) => {
@@ -554,6 +578,7 @@ function App() {
                 <Dropdown layers={layers} 
                           curLayer={curLayer} setCurLayer={setCurLayer} 
                           level={level} setLevel={setLevel}
+                          chartVisible={chartVisible} setChartVisible={setChartVisible}
                           legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                           snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
@@ -567,10 +592,11 @@ function App() {
             </Header>
 
             {canDisplayMediaControls &&  
+              <div className={`media-controls-wrapper ${chartVisible ? 'raised' : ''}`}>
               <MediaControls curTime={displayedTime} setCurTime={setCurTime} timeRange={timeRange} 
                              isPlaying={isPlaying} 
                              setIsPlaying={setIsPlaying}
-                             animSpeed={animSpeed} /> }
+                             animSpeed={animSpeed} /> </div>}
           </>
         }
         {canDisplayLegend 
@@ -582,6 +608,7 @@ function App() {
              fullScreen={!controlsVisible}
              mapName={baseMapName}
              onClick={onMapClick} />
+        {chartVisible && <WCSChart ref={chartRef} />}
     </>
   )
 }

@@ -10,7 +10,7 @@ import settingsIcon from '../../assets/settings.png'
 import attributionIcon from '../../assets/copyright.png'
 
 //
-// Handles the main layout for the dropdown menu.
+// Handles the main layout for the dropdown menu. 
 // Does not handle logic for button functionality, it simply calls the component.
 // Go to DropdownButton.jsx for that.
 // 

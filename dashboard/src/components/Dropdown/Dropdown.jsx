@@ -13,7 +13,7 @@ import attributionIcon from '../../assets/copyright.png'
 // Handles the main layout for the dropdown menu.
 // Does not handle logic for button functionality, it simply calls the component.
 // Go to DropdownButton.jsx for that.
-//
+// 
 
 function Dropdown({layers, 
                     curLayer, setCurLayer, 

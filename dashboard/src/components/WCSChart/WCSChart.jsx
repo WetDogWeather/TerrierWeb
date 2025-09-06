@@ -153,7 +153,7 @@ const WCSChart = forwardRef((props, ref) => {
             tooltipFormat = timeFormat("%b %-d, %a %-I%p"); 
         }
         
-        const yMin = d3.min(processedData, d => d.value);
+        const yMin = d3.min(processedData, d => d.value); 
         const yMax = d3.max(processedData, d => d.value);
         const yPadding = (yMax - yMin) * 0.0 || 0.5; // some breathing room
 

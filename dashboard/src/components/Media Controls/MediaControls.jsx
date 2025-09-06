@@ -27,7 +27,7 @@ function MediaControls({curTime,setCurTime,timeRange,isPlaying,setIsPlaying,anim
     }
 
     // Called when the user clicks the play or pause button
-    // TODO: We don't have to make this a toggle.  We could make it deterministic
+    // TODO: We don't have to make this a toggle.  We could make it deterministic 
     function onPlayClick() {
         setIsPlaying(!isPlaying)
     }

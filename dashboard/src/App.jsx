@@ -518,7 +518,7 @@ function App() {
     //   level: '500m',
     //   variable: 'reflectivity'})
     // let temperatureSources = Terrier.sourcesForVariable({level: '2m',
-    //   variable: 'temperature'})
+    //   variable: 'temperature'}) 
 
     maplibreglRef.current = window.maplibregl;
     setSources(["All"].concat(Terrier.sourcesForStack()))

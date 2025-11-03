@@ -903,7 +903,202 @@ class TerrierModule {
             [29.9*hgToPa,30.4*hgToPa],
             [0x00666666,0xff666666]
         )
-    }
+        Terrier.LIGHTNING_FIRST_STRIKE = Terrier.createColorMap(
+            [0.0,60*0.001,
+                60*0.001,60*15,
+                60*15,60*20,
+                60*20,60*25,
+                60*25,60*30,
+                60*30,60*35,
+                60*35,60*40,
+                60*40,60*45,
+                60*45,60*50,
+                60*50,60*55,
+                60*55,60*60,
+                60*60,60*100],
+            [0x00000000,0xffa80000,
+                0xffa80000,0xffa80000,
+                0xff901848,0xff901848,
+                0xff4818a8,0xff4818a8,
+                0xff1848ff,0xff1848ff,
+                0xff1890f0,0xff1890f0,
+                0xff00c0c0,0xff00c0c0,
+                0xff60d860,0xff60d860,
+                0xff90d848,0xff90d848,
+                0xffc0d878,0xffc0d878,
+                0xfff0d878,0xfff0d878,
+                0x00f0d878,0x00f0d878]
+        )
+        Terrier.LIGHTNING_ALL_CLEAR = Terrier.createColorMap(
+            [0.0,60*1.0,
+                60*1.0,60*1.5,
+                60*1.5,60*2.0,
+                60*2.0,60*2.5,
+                60*2.5,60*3.0,
+                60*3.0,60*3.5,
+                60*3.5,60*4.0,
+                60*4.0,60*4.5,
+                60*4.5,60*5.0,
+                60*5.0,60*5.5,
+                60*5.5,60*6,
+                60*6,60*10],
+            [0x00000000,0x00000000,
+                0xffa8a800,0xffa8a800,
+                0xfff0d878,0xfff0d878,
+                0xffc0d878,0xffc0d878,
+                0xff90d848,0xff90d848,
+                0xff60d860,0xff60d860,
+                0xff00c0c0,0xff00c0c0,
+                0xff1890f0,0xff1890f0,
+                0xff1848ff,0xff1848ff,
+                0xff4818a8,0xff4818a8,
+                0xff901848,0xff901848,
+                0xffa80000,0xffa80000
+            ])
+        Terrier.RED_TO_GREEN_PERCENT = Terrier.createColorMap(
+            [0.0,
+             10.0,
+             30.0,
+             50.0,
+             60.0,
+             70.0,
+             100.0],
+            [0xffD61F1F,
+             0xffD61F1F,
+             0xffE03C32,
+             0xffFFD301,
+             0xff7BB662,
+             0xff639754,
+             0xff006B3D
+            ]),
+
+        Terrier.RADIATION_FLUX = Terrier.createColorMap(
+            [0.0,500.0],
+            [0xff666666,0xffffffff]    
+        )
+
+        Terrier.AIRQUALITYINDEX = Terrier.createColorMap(
+            [0.0,50.0,
+                50.0, 100.0,
+                100.0, 150.0,
+                150.0, 200.0,
+                200.0, 300.0,
+                300.0, 500.0
+            ],
+            [0xff05e300,0xff05e300,
+                0xffffff00,0xffffff00,
+                0xffff7e00,0xffff7e00,
+                0xffff0100,0xffff0100,
+                0xff8f3f97,0xff8f3f97,
+                0xff7e0123,0xff7e0123,
+            ]    
+        )
+
+        Terrier.AEROSOLTYPE = Terrier.createColorMap(
+            [0.0,
+             2,
+             15,
+             30,
+             45,
+             60,
+             75,
+             90,
+             105,
+             120,
+             135,
+             150,
+             165,
+             180,
+             195,
+             210,
+             225,
+             240
+            ],
+            [0x00000000,
+                0xff090ce2,
+                0xff090ce2,
+                0xff0751ff,
+                0xff0099ff,
+                0xff4bc3ff,
+                0xff67ddff,
+                0xff81f2ff,
+                0xff99f8ff,
+                0xffc2ffff,
+                0xffffff3d,
+                0xffffeb00,
+                0xffffc100,
+                0xffff8900,
+                0xffff2f00,
+                0xffff0000,
+                0xffe90000,
+                0xffae0000
+               ]    
+           )
+
+           Terrier.UVINDEX = Terrier.createColorMap(
+            [
+             1,
+             2,
+             3,
+             4,
+             5,
+             6,
+             7,
+             8,
+             9,
+             10,
+             11
+            ],
+            [0xff279500,
+                0xff279500,
+                0xfff7e400,
+                0xfff7e400,
+                0xfff7e400,
+                0xfff85900,
+                0xfff85900,
+                0xffd80211,
+                0xffd80211,
+                0xffd80211,
+                0xff6b49c8
+               ]    
+           )
+
+            Terrier.SMOKE = Terrier.createColorMap(
+            [0.0, 1,
+             1, 4,
+             4, 7,
+             7, 11,
+             11, 15,
+             15, 20,
+             20, 25,
+             25, 30,
+             30,40,
+             40, 50,
+             50, 75,
+             75, 150,
+             150, 250,
+             250, 500,
+             500
+            ],
+            [0x00000000, 0x00000000,
+                0xffd0e2f3, 0xffd0e2f3,
+                0xff94c4df, 0xff94c4df,
+                0xff4998c9, 0xff4998c9,
+                0xff1564ab, 0xff1564ab,
+                0xff108446, 0xff108446,
+                0xff55b45f, 0xff55b45f,
+                0xffa2d86a, 0xffa2d86a,
+                0xfffff7b0, 0xfffff7b0,
+                0xfffcab5f, 0xfffcab5f,
+                0xfff7844e, 0xfff7844e,
+                0xffed5f3d, 0xffed5f3d,
+                0xffc21d27, 0xffc21d27,
+                0xffa50026, 0xffa50026,
+                0xffa50026
+               ]    
+           )
+
+        }
 
     /**
      * We use a TrrShaderColorMap object to set and query colormaps, but
@@ -1049,6 +1244,42 @@ class TerrierModule {
      * @returns A trrColorMap you can pass to the Layer creation.
      */
     colorMapForVariable(variable) {
+        if (variable.source == 'flashwx') {
+            switch (variable.name) {
+                case "lightning_probability":
+                case "lightning_probability_extended":
+                    return Terrier.PERCENT_COLORS_WARN;
+                case "lightning_firststrike":
+                    return Terrier.LIGHTNING_FIRST_STRIKE;
+                case "lightning_allclear":
+                    return Terrier.LIGHTNING_ALL_CLEAR;
+                case "golf_playability_index":
+                    return Terrier.RED_TO_GREEN_PERCENT;
+            }
+        }
+        if (variable.source == 'airnow') {
+            switch (variable.name) {
+                case "forecasted_air_quality_index":
+                    case "air_quality_index":
+                    return Terrier.AIRQUALITYINDEX;
+            }
+            switch (variable.units) {
+                case "ug/m3":
+                    return Terrier.AEROSOLTYPE;
+            }
+        }
+        if (variable.name == 'uv_index') {
+            return Terrier.UVINDEX;
+        }
+        if (variable.name == 'column_integrated_smoke') {
+            return Terrier.SMOKE;
+        }
+        if (variable.units) {
+            switch(variable.units.toLowerCase()) {
+                case "w/m^2":
+                    return Terrier.RADIATION_FLUX
+            }
+        }
         switch (variable.dataType.toLowerCase()) {
             case "reflectivity":
                 return Terrier.RADAR_COLORS_NOT_GREY;

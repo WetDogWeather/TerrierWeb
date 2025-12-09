@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  240500: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 240944: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  246356: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 246800: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -10502,9 +10502,9 @@ var ASM_CONSTS = {
         // This logic comes directly from the sdl implementation. We cannot
         // call preventDefault on all keydown events otherwise onKeyPress will
         // not get called
-        if (event.key == 'Backspace' || event.key == 'Tab') {
-          event.preventDefault();
-        }
+        // if (event.key == 'Backspace' || event.key == 'Tab') {
+        //   event.preventDefault();
+        // }
       },
   onKeyup:(event) => {
         GLFW.onKeyChanged(event.keyCode, 0); // GLFW_RELEASE
@@ -12175,14 +12175,29 @@ var ASM_CONSTS = {
   }
   
   
-  function _initMapLibre(map) {
+  
+  function _stopWhirlyGlobe() {
+    if ('maplibreLayer' in Module) {
+      mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+      Module.maplibreLayer = null
+    }
+    if (Module.stopOverlay) {
+      Module.stopOverlay()
+    }
+    if (Module.overlay) {
+      Module.overlay.teardown()
+      Module.overlay.delete()
+      Module.overlay = null
+    }
+  }
+  function _initMapLibre(map,belowLayer) {
     if (!Module.emInitialized) {
-      console.log("Deferring Map Init");
+      // console.log("Deferring Map Init");
       Module.doMapInit = true;
       return;
     }
   
-    console.log("Initializing MapLibre Overlay");
+    // console.log("Initializing MapLibre Overlay");
   
     Module.map = map;
   
@@ -12200,10 +12215,12 @@ var ASM_CONSTS = {
       let repaintAndSchedule = () => {
         Module.repaint()
         Module.animationFrameRequested = false
-        if (Module.overlay.hasChanges()) {
+        if (Module.overlay && Module.overlay.hasChanges()) {
           Module.animationFrameRequested = true
           Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
+            if (Module.overlay) {
+              repaintAndSchedule()
+            }
           })
         }
       }
@@ -12212,7 +12229,9 @@ var ASM_CONSTS = {
         if (Module.overlay.hasChanges() && !Module.animationFrameRequested) {
           Module.animationFrameRequested = true
           Module.requestAnimationFrame(() => {
-            repaintAndSchedule()
+            if (Module.overlay) {
+              repaintAndSchedule()
+            }
           })
         }
       },100);
@@ -12222,7 +12241,7 @@ var ASM_CONSTS = {
       type: 'custom', // must be "custom"
       renderingMode: '2d',  // 2d and 3d both seem to work
       onAdd: function (map, gl) {
-        console.log("Terrier custom layer add");
+        // console.log("Terrier custom layer add");
         Module.canvas = map.getCanvas();
   
         _glfwInit();
@@ -12255,7 +12274,7 @@ var ASM_CONSTS = {
         }
       },
       onRemove: function(map, gl) {
-        console.log("Terrier custom layer remove");
+        // console.log("Terrier custom layer remove");
         // TODO
       },  // onRemove
       prerender: function(gl, matrix) {
@@ -12310,12 +12329,48 @@ var ASM_CONSTS = {
         }
       } // render
     };  // customLayer
-    if (map.isStyleLoaded()) {
-      map.addLayer(customLayer)
+    if (Module.mapLibreStartAttempt === undefined) {
+      Module.mapLibreStartAttempt = 1
     } else {
-      map.on('load', function () {
-        map.addLayer(customLayer);
-      });
+      Module.mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+    }
+    mapLibreStartAttempt = Module.mapLibreStartAttempt
+    let addLayerFunc = function() {
+      if (!Module.maplibreLayer) {
+        if (mapLibreStartAttempt != Module.mapLibreStartAttempt) {
+          // console.log("_initMapLibre() caught out-of-sync MapLibre start attempt");
+          return
+        }
+        if (map.isStyleLoaded()) {
+          Module.maplibreLayer = customLayer
+          if (belowLayer === undefined) {
+            map.addLayer(customLayer)        
+          } else {
+            map.addLayer(customLayer,belowLayer)        
+          }
+        } else {
+          // If the style never loads, this'll just keep trying
+          // console.log("_initMapLibre() style still not ready so deferring");
+          setTimeout(addLayerFunc, 500)
+        }
+      }
+    }
+    if (map.isStyleLoaded()) {
+      // console.log("_initMapLibre() style is already loaded");
+      addLayerFunc()
+    } else {
+      // console.log("_initMapLibre() waiting for style to load");
+      if (map.getStyle()) {
+        // console.log("_initMapLibre() style shows not loaded by style is loaded");
+        addLayerFunc()
+      } else {
+        map.on('load', function () {
+          // console.log("_initMapLibre() style has loaded, adding layer");
+          addLayerFunc()
+        });
+      }
+      // Chase that with a timeout, just in case
+      setTimeout(addLayerFunc, 500)      
     }
   }
   
@@ -12325,12 +12380,12 @@ var ASM_CONSTS = {
   
   function _initArcGIS(mapView) {
     if (!Module.emInitialized) {
-      console.log("Deferring Map Init");
+      // console.log("Deferring Map Init");
       Module.doMapInit = true;
       return;
     }
   
-    console.log("Initializing ArcGIS Overlay");
+    // console.log("Initializing ArcGIS Overlay");
   
     Module.map = mapView.map;
   
@@ -12372,7 +12427,7 @@ var ASM_CONSTS = {
           },
           // Called once a custom layer is added to the map.layers collection and this layer view is instantiated.
           attach: function () {
-            console.log("Terrier custom layer add");      
+            // console.log("Terrier custom layer add");      
   
             let gl = this.context;
   
@@ -12490,14 +12545,14 @@ var ASM_CONSTS = {
   
   function _initWebglCanvas(canvas) {
       if (!Module.emInitialized) {
-        console.log("Deferring Map Init");
+        // console.log("Deferring Map Init");
         Module.doMapInit = true;
         return;
       }
   
       Module.canvas = canvas
   
-      console.log("Initializing WebGL Canvas Overlay");
+      // console.log("Initializing WebGL Canvas Overlay");
   
       const gl = canvas.getContext("webgl2");
       if (!gl) {

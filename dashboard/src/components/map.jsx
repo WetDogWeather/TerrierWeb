@@ -4,13 +4,13 @@ import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-export default function Map({stackName,readyFunc,fullScreen,onClick}) {
+export default function Map({stackName,readyFunc,fullScreen,mapName,onClick}) {
   const mapContainer = useRef(null);
   const [map,setMap] = useState(null);
   const [lng] = useState(-100);
   const [lat] = useState(35.6844);
   const [zoom] = useState(3);
-  const [API_KEY] = useState('shArXuSxvZazDjMsjkIm');
+  const [API_KEY] = useState('cc323035-fcde-415b-b043-f7ada67d4723');
   const [navControl,setNavControl] = useState(null)
 
   // Called when the stackName changes
@@ -29,7 +29,7 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
 
     let newMap = new maplibregl.Map({
       container: mapContainer.current,
-      style: `https://api.maptiler.com/maps/dataviz/style.json?key=${API_KEY}`,
+      style: `https://tiles.stadiamaps.com/styles/${mapName}.json?api_key=${API_KEY}`,
       center: [lng, lat],
       zoom: zoom
     });
@@ -41,21 +41,56 @@ export default function Map({stackName,readyFunc,fullScreen,onClick}) {
       onClick(e)
     })
 
-    // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre(stackName, newMap, (ovl) => {
-        readyFunc(ovl)
-
-        // Tell us what's in the stack
-        // ovl.fetchStackContents((contents) => {
-        //   console.log("Stack contains:\n" + contents)
-        // });
-
-    return () => {
-        console.log("Asked to shut map down, which we don't know how to do.")
-    }
-    },[mapContainer])
+    newMap.on('load', () => {
+      // Find the index of the first symbol layer in the map style
+      const layers = newMap.getStyle().layers;
+      let symbolLayerId;
+      for (let i = 0; i < layers.length; i++) {
+          if (layers[i].type === 'symbol') {
+            symbolLayerId = layers[i].id;
+            break;
+          }
+      }
       
+      // Tell Terrier to hook itself into MapLibre
+      Terrier.startMapLibre(stackName, newMap, (ovl) => {
+          readyFunc(ovl)
+
+          // Tell us what's in the stack
+          // ovl.fetchStackContents((contents) => {
+          //   console.log("Stack contains:\n" + contents)
+          // });
+          return () => {
+            console.log("Asked to shut map down, which we don't know how to do.")
+          }
+      }, symbolLayerId)
+    })
+          
   }, [API_KEY, lng, lat, zoom]);
+
+  useEffect(() => {
+    // Style can change from Settings)
+    if (map && mapName.length > 0) {
+        map.on('styledata', () => {
+          // Find the index of the first symbol layer in the map style
+          const layers = map.getStyle().layers;
+          let symbolLayerId = null;
+          for (let i = 0; i < layers.length; i++) {
+              if (layers[i].type === 'symbol') {
+                symbolLayerId = layers[i].id;
+                break;
+              }
+          }
+
+          // If we switch styles, we may need to move the custom layer
+          let maplibreLayer = Terrier.getMapLibreLayer()
+          if (maplibreLayer && symbolLayerId) {
+            map.moveLayer(maplibreLayer.id,symbolLayerId)
+          }
+      })
+      map.setStyle(`https://tiles.stadiamaps.com/styles/${mapName}.json?api_key=${API_KEY}`)
+    }
+  }, [mapName])
 
   // Add or remove little zoom control in the upper right
   useEffect(() => {

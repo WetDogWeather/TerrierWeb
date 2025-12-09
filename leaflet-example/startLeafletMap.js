@@ -48,9 +48,13 @@ function startMap() {
         //     importFactor: 5.0
         // })
 
+        // setTimeout(() => {
+        //     tempLayer.setOpacity(1.0)
+        // }, 5000)
+
         // let cloudCeiling = ovl.startLayer('cloud_ceiling')
 
-        ovl.timePlay({period: 10.0})
+        // ovl.timePlay({period: 10.0})
     })
 
     canvasLayer.addTo(map)

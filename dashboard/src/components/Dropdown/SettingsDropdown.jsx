@@ -9,7 +9,8 @@ function SettingsDropdown({legendVisible, setLegendVisible,
                             displayAllLayers, setDisplayAllLayers,
                             source, sources, setSource,
                             region, regions, setRegion,
-                            stackName, setStackName}) 
+                            stackName, setStackName,
+                            baseMapName, basemaps, setBaseMapName}) 
 {
     const [localStackName,setLocalStackName] = useState(stackName)
 
@@ -41,6 +42,19 @@ function SettingsDropdown({legendVisible, setLegendVisible,
                         selected={region} onChange={(e) => setRegion(e.target.value)}>
             {regions.map( (region) => {
                         return (<option value={region}>{region}</option>)
+            })}
+            </select>   
+            </>
+    )
+
+    const baseMapContent = (
+        <>
+            <label htmlFor="Basemap">Basemap: </label>
+
+            <select name="basemap-select" key="basemap-select" 
+                        selected={baseMapName} onChange={(e) => setBaseMapName(e.target.value)}>
+            {basemaps.map( (basemap) => {
+                        return (<option value={basemap}>{basemap}</option>)
             })}
             </select>   
             </>
@@ -93,6 +107,10 @@ function SettingsDropdown({legendVisible, setLegendVisible,
                 <button className="stack-name-clear" onClick={() => {setLocalStackName('')}}>Clear</button>
                 <button className="stack-name-save" onClick={() => {setStackName(localStackName)}}>Save</button>
             </div>
+            <br /><br />
+
+            {baseMapContent}
+
             <br /><br />
 
         </div>

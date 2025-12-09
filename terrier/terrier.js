@@ -51,6 +51,28 @@ class TerrierLayer {
         this.setup(params)
     }
 
+    /**
+     * This draws an arrow into a canvas and then returns a raw image.
+     * Not something you need to be calling, we use it for wind arrows
+     */
+    drawArrowIntoCanvas() {
+        var canvas = document.createElement('canvas');
+        canvas.id     = "temp";
+        canvas.width  = 190;
+        canvas.height = 235;
+        canvas.style.zIndex   = 9;
+        canvas.style.position = "absolute";
+        canvas.style.border   = "0px";
+        let ctx = canvas.getContext('2d');
+        var path = new Path2D('m0 80 79-80 81 80-14.1 14.1-55.9-55.8v181.7h-20v-181.7l-55.8 55.8z');
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 20.0;
+        ctx.translate(15.0,-10.0);
+        ctx.stroke(path);
+        let url = canvas.toDataURL("image/png");
+        return url
+    }
+
     // Internal param parsing.  Don't call this.
     setup(params) {
         if (params === undefined) {
@@ -75,6 +97,9 @@ class TerrierLayer {
         if ('importFactor' in params) {
             this.importScale = params['importFactor']
             hasImportScale = true
+        }
+        if ('arrows' in params) {
+            this.arrows = params['arrows']
         }
         if ('loadCallback' in params) {
             this.loadCallback = params['loadCallback']
@@ -124,6 +149,7 @@ class TerrierLayer {
                 jsonSource.depth,
                 jsonSource.isGlobal,
                 jsonSource.hasMissingValues,
+                jsonSource.zeroNoData,
                 jsonSource.importanceScale,
             )
             sources.push(source)
@@ -161,6 +187,51 @@ class TerrierLayer {
                 if (this.loadCallback !== null && this.loadCallback !== undefined) {
                     globalThis.Module.windCallback = this.loadCallback
                 }
+                if (this.arrows !== null && this.arrows !== undefined) {
+                    // Start loading an image and we'll set up the arrows when it arrives
+                    var imageUrl
+                    if ('image' in this.arrows)
+                        imageUrl = this.arrows['image']
+                    else
+                        imageUrl = this.drawArrowIntoCanvas()
+                    // Set up arrows fields
+                    var cutoff = 2.57
+                    if ('cutoff' in this.arrows) {
+                        cutoff = this.arrows['cutoff']
+                    }
+                    var speed = [2.57, 40.0];
+                    if ('speed' in this.arrows) {
+                        speed = this.arrows['speed']
+                    }
+                    var minSize = [5,10]
+                    var maxSize = [20,40]
+                    if ('size' in this.arrows) {
+                        minSize = this.arrows.size[0]
+                        maxSize = this.arrows.size[1]
+                    }
+                    var layout = [100,100]
+                    if ('layout' in this.arrows) {
+                        layout = this.arrows['layout']
+                    }
+                    var colors = [0xFF000000,0xFF000000]
+                    if ('colors' in this.arrows) {
+                        colors = this.arrows['colors']
+                    }
+                    let windArrows = new globalThis.Module.TrrWindArrows(cutoff, 
+                                                            speed[0], speed[1], 
+                                                            minSize[0], minSize[1], maxSize[0], maxSize[1],
+                                                            layout[0], layout[1],
+                                                            colors[0], colors[1], 
+                                                            imageUrl)
+                    setTimeout(() => {
+                        let windControl = findControllerState("winduv")
+                        if (windControl) {
+                            windControl.controller.setWindArrows(windArrows)    
+                            windArrows.delete();                        
+                        }
+                    }, 0)
+                }
+
                 globalThis.Module.windSources = sources
                 foundState = findControllerState("winduv")
                 break;
@@ -468,13 +539,14 @@ class TerrierLayer {
      * 
      * @param {float} x Horizontal fraction across the OpenGL window, from 0 to 1.
      * @param {float} y Vertical fraction across the OpenGL window, from 0 to 1.
-     * @returns An array with one or two values, depending on what you queried.  Wind returns two.
+     * @returns A structure containing "value" with one or two values (two for wind) and lon and lat in degrees.
      */
     queryValue(x,y) {
         if (globalThis.Module === undefined || globalThis.Module.canvas === undefined) {
             return null
         }
         var ret = this.state.controller.queryValue(x / globalThis.Module.canvas.width, y / globalThis.Module.canvas.height)
+        var loc = this.state.controller.queryLocation(x, y);
         if (!Array.isArray(ret)) {
             ret = [ret]
         }
@@ -484,7 +556,29 @@ class TerrierLayer {
         return {
             // Can return one or more values
             "value": ret,
-            // Will add lat/lon later
+            "lon": loc[0]*180.0/Math.PI,
+            "lat": loc[1]*180.0/Math.PI
+        }
+    }
+
+    /**
+     * Return a geographic location given a point on the screen.
+     * Any of the map toolkits can do this for you too, but this is only Terrier dependent.
+     * @param {*} x Horizontal location in screen pixels.
+     * @param {*} y Vertical location in screen pixels.
+     * @returns lon and lat in degrees
+     */
+    queryLocation(x,y) {
+        if (globalThis.Module === undefined || globalThis.Module.canvas === undefined) {
+            return null
+        }
+        var ret = this.state.controller.queryLocation(x, y);
+        if (!Array.isArray(ret)) {
+            ret = []
+        }
+        return {
+            "lon": loc[0]*180.0/Math.PI,
+            "lat": loc[1]*180.0/Math.PI
         }
     }
 }
@@ -554,7 +648,30 @@ class TerrierOverlay {
      * 'startFrame' will set the starting frame to either 'first' or 'last' or 'current.
      * 'current' just sets the current time where 'first' or 'last' will snap to the appropriate
      * frame time.  You would use 'last' for radar, for example to show the most recent radar.
-     * s
+     * 
+     * 'arrows' is a set of parameters to control directional arrows for a wind layer.
+     * That can contain the following parameters:
+     * 'cutoff' in m/s below which no arrow is displayed.
+     * 'speed' is a 2 component array of the min and max speed for scaling arrows.
+     * 'size' is 2 2 component arrays defining the mix and max size in x and y.
+     * 'layout' is a 2 component array defining a grid to lay the arrows out on.
+     * 'colors' is a 2 component array of standard 3 component color values (with alpha defined first)
+     * that will be used to scale from min to max.
+     * 'image' is an optional URL for the PNG you'd like to use rather than our default arrow.
+     * 
+     * 'loadCallback' is a Javascript function you pass in that will be called as soon as the 
+     * layer has loaded its manifest.  Your function's only argument is the manifest object.
+     * The manifest is a JSON return from the Boxer service and it contains everything you
+     * might want to know about the data layer you just started.  Of particular use are the
+     * timeSlices array which describe the individual time slices the layer can display.
+     * From that you can select the forecastEpoch of the first and last slice, for example
+     * to set your scrubber to cover only the exact time range available.  This is very useful
+     * for radar.
+     * 
+     * On the visual side you can pass in 'opacity', 'interpMode', and 'importFactor'. Those
+     * will call setOpacity(), setInterpMode(), and setImportanceScale(), respectively on
+     * startup.
+     * 
      * @returns {TerrierLayer} The layer object you can interact with directly to make
      * real-time changes.
      */
@@ -576,6 +693,10 @@ class TerrierOverlay {
      * @param {TerrierLayer} layer The layer to stop displaying.
      */
     stopLayer(layer) {
+        if (!this.activeLayers.has(layer)) {
+            console.log("Terrier: Tried to delete layer more than once.  Ignoring.");
+            return;
+        }
         layer.stop()
 
         this.activeLayers.delete(layer)
@@ -799,17 +920,59 @@ class TerrierModule {
 
     // Wire in the global colormaps
     setupColorMaps() {
-        Terrier.TEMP_COLORS_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [255.372, 316.483], [0xFF000000, 0xFFFFFFFF]);
-        Terrier.TEMP_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.TEMP_COLORS_GREY = Terrier.createColorMap([255.372, 316.483], [0xFF000000, 0xFFFFFFFF]);
+        Terrier.TEMP_COLORS_NOT_GREY = Terrier.createColorMap(
             [255.372, 260.928, 266.483, 272.039, 277.594, 283.15, 288.706, 294.261, 299.817, 305.372, 310.928, 316.483],
             [0xFFFFBFFF, 0xFFD873DB, 0xFF913ABB, 0xFF372398, 0xFF00B6DC, 0xFF02D786, 0xFF40C604, 0xFFFFFF00, 0xFFFB7700, 0xFFD22402, 0xFFA20902, 0xFFEED9D8]);
-        Terrier.WIND_COLORS_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [0, 40], [0xFF000000, 0xFFFFFFFF]);
-        Terrier.WIND_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.WIND_COLORS_GREY = Terrier.createColorMap([0, 40], [0xFF000000, 0xFFFFFFFF]);
+        Terrier.WIND_COLORS_NOT_GREY = Terrier.createColorMap(
         [0, 5, 10, 15, 20, 25, 30, 35, 40],
             [0xFFAED5FF, 0xFF86B4E6, 0xFF66E2D6, 0xFF00CC05, 0xFFECF006, 0xFFFF6B00, 0xFFE11511, 0xFFE111C1, 0xFFFFCEF7]);
-        
-        Terrier.RADAR_COLORS_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [-30, 5, 70], [0x00000000, 0xFF111111, 0xFFFFFFFF]);
-        Terrier.RADAR_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [
+        const MeterstoKnots = 0.514444
+        Terrier.WIND_NOAA = Terrier.createColorMap(
+            [0*MeterstoKnots, 5*MeterstoKnots, 
+             5*MeterstoKnots, 10*MeterstoKnots,
+             10*MeterstoKnots, 15*MeterstoKnots, 
+             15*MeterstoKnots, 20*MeterstoKnots,
+             20*MeterstoKnots, 25*MeterstoKnots, 
+             25*MeterstoKnots, 30*MeterstoKnots,
+             30*MeterstoKnots, 35*MeterstoKnots, 
+             35*MeterstoKnots, 40*MeterstoKnots,
+             40*MeterstoKnots, 45*MeterstoKnots,
+             45*MeterstoKnots, 50*MeterstoKnots,
+             50*MeterstoKnots, 55*MeterstoKnots,
+             55*MeterstoKnots, 60*MeterstoKnots,
+             60*MeterstoKnots, 65*MeterstoKnots,
+             65*MeterstoKnots, 70*MeterstoKnots,
+             70*MeterstoKnots, 75*MeterstoKnots,
+             75*MeterstoKnots, 80*MeterstoKnots,
+             80*MeterstoKnots, 85*MeterstoKnots,
+             85*MeterstoKnots, 90*MeterstoKnots,
+             90*MeterstoKnots
+             ],
+            [0x0000000, 0x00f8d4f9,
+             0xfff8d4f9, 0xfff8d4f9,
+             0xfff1a5f4, 0xfff1a5f4,
+             0xffe074f1, 0xffe074f1,
+             0xff0045ff, 0xff0045ff,
+             0xff0099ff, 0xff0099ff,
+             0xff00ceff, 0xff00ceff,
+             0xff00e8ff, 0xff00e8ff,
+             0xff07ffe6, 0xff07ffe6,
+             0xff66d400, 0xff66d400,
+             0xff80fa04, 0xff80fa04,
+             0xffb4ff36, 0xffb4ff36,
+             0xffeaff13, 0xffeaff13,
+             0xffffe501, 0xffffe501,
+             0xffffc808, 0xffffc808,
+             0xfffe8708, 0xfffe8708,
+             0xffff3300, 0xffff3300,
+             0xffff0139, 0xffff0139,
+             0xfff704fc
+            ]);
+                
+        Terrier.RADAR_COLORS_GREY = Terrier.createColorMap([-30, 5, 70], [0x00000000, 0xFF111111, 0xFFFFFFFF]);
+        Terrier.RADAR_COLORS_NOT_GREY = Terrier.createColorMap([
         -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
         ], [
             0xFFAAAAAA,   // Not actually present in the data
@@ -825,30 +988,48 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
-        Terrier.SEVERE_HAIL_INDEX_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.REFLECTIVITY_HRRR_COMPATIBLE = Terrier.createColorMap([
+            -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+            ], [
+                0x00000000,   // Not actually present in the data
+                0x00000000,   // "
+                0x00FFFFFF,   // Data present but no returns
+                0x0010E6E7, 0x0010E6E7, 0xBB10E6E7, // Not visible either
+                0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
+                0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA,
+            ], [
+                false, false, false,
+                false, false, false,
+                true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true
+            ]);
+        Terrier.SEVERE_HAIL_INDEX_COLORS = Terrier.createColorMap(
             [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
-            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+            [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
                 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe55dc, 0xff7e32a7]);
-        Terrier.PROB_SEVERE_HAIL_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.PROB_SEVERE_HAIL_COLORS = Terrier.createColorMap(
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
+            [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
                 0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
-        Terrier.HAIL_SIZE_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
-            [0, 1, 2, 4, 6, 8, 10, 15, 20, 30, 40, 50, 75, 100],
-            [0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
-                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xffbe5, 0xff7e32a7]);                
-        Terrier.QPE_FFG_RATIO_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        let feetToMm = 25.4;
+        Terrier.HAIL_SIZE_COLORS = Terrier.createColorMap(
+            [0.0*feetToMm, 0.05*feetToMm, 0.1*feetToMm, 0.15*feetToMm, 0.20*feetToMm, 0.25*feetToMm, 0.40*feetToMm, 
+                0.5*feetToMm, 0.6*feetToMm, 0.75*feetToMm, 1.0*feetToMm, 1.5*feetToMm, 2.0*feetToMm, 3.0*feetToMm, 4.0*feetToMm],
+            [0x0006ecec, 0xff06ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
+                0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffc00100, 0xffff01ff, 0xfffffbe5, 0xff7e32a7]);                
+        Terrier.QPE_FFG_RATIO_COLORS = Terrier.createColorMap(
             [0.0, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.00, 2.25, 2.50, 2.75, 3.00, 3.50, 4.00, 5.00],
             [0xffbebebe, 0xff8c8c8c, 0xff6e6e6e, 0xff505050, 0xff01b500, 0xff009b01, 
                 0xffffff04, 0xffffe102, 0xffffc802, 0xffffb400, 0xffffa100, 0xffb40100, 0xffc80200, 
                 0xffe20100, 0xffff0100, 0xffff01ff, 0xffd300d2, 0xffaa00ab, 0xff800080]);                
-        Terrier.PRECIP_FLAG_COLORS = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.PRECIP_FLAG_COLORS = Terrier.createColorMap(
             [0, 1, 2, 3, 4, 5, 6, 7],
             [0x00000000, 0xFFffffff, 0xFF960096, 0xFFff3332, 0xFF0350a5, 0xFF6effff, 0xff00ff00, 0xff00ff00]);
         
 
         // A placeholder for an index value we haven't made a proper colormap for yet
-        Terrier.INDEXPLACE_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false,
+        Terrier.INDEXPLACE_COLORS_NOT_GREY = Terrier.createColorMap(
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
             [0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 
                 0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF,
@@ -897,6 +1078,56 @@ class TerrierModule {
         Terrier.PERCENT_COLORS_NOT_GREY = Terrier.createColorMap(
             [0.0,100.0],
             [0x00666666,0xff666666]
+        )
+        Terrier.PERCENT_COLORS_WARN = Terrier.createColorMap(
+            [0.0,5.0,
+                5.0,10,
+                10,20,
+                20,30,
+                30,40,
+                40,50,
+                50,60,
+                60,70,
+                70,80,
+                80,90,
+                90,100],
+            [0x00000000,0x00008C00,
+             0xff008C00,0xff008C00,
+             0xff00C800,0xff00C800,
+             0xff00FF00,0xff00FF00,
+             0xffFFFF00,0xffFFFF00,
+             0xffE0C26A,0xffE0C26A,
+             0xffA56E2A,0xffA56E2A,
+             0xffFFA500,0xffFFA500,
+             0xffFF0000,0xffFF0000,
+             0xff8C0000,0xff8C0000,
+             0xffFF00FF,0xffFF00FF
+            ]
+        )
+        Terrier.TIME_CLEAR_COLORS = Terrier.createColorMap(
+            [0.0,1*60,
+                1*60,6*60,
+                6*60,12*60,
+                12*60,18*60,
+                18*60,24*60,
+                24*60,30*60,
+                30*60,36*60,
+                36*60,42*60,
+                42*60,48*60,
+                48*60,54*60,
+                54*60,60*60],
+            [0x00000000,0x00008C00,
+             0xff008C00,0xff008C00,
+             0xff00C800,0xff00C800,
+             0xff00FF00,0xff00FF00,
+             0xffFFFF00,0xffFFFF00,
+             0xffE0C26A,0xffE0C26A,
+             0xffA56E2A,0xffA56E2A,
+             0xffFFA500,0xffFFA500,
+             0xffFF0000,0xffFF0000,
+             0xff8C0000,0xff8C0000,
+             0xffFF00FF,0xffFF00FF
+            ]
         )
         let hgToPa = 3386.39
         Terrier.PRESSURE_COLORS_NOT_GREY = Terrier.createColorMap(
@@ -1114,17 +1345,21 @@ class TerrierModule {
      * converter online to map from your favorite color system to hex values.
      * @returns TrrShaderColorMap
      */
-    createColorMap(values, colors) {
+    createColorMap(values, colors, visibles) {
         if (values.length != colors.length) {
             console.log("createColorMap: Values and colors array must be same length.")
             return
         }
-        return new globalThis.Module.TrrShaderColorMap(0, false, values, colors)
+        if (visibles !== undefined) {
+            return new globalThis.Module.TrrShaderColorMap(0, false, values, colors, visibles)
+        } else {
+            return new globalThis.Module.TrrShaderColorMap(0, false, values, colors)
+        }
     }
 
     // Internal setup logic
     setupModule(initFunc, readyFunc) {
-        console.log("setupModule() called.")
+        // console.log("setupModule() called.")
         Terrier.initFunc = initFunc
         Terrier.readyFunc = readyFunc
 
@@ -1135,9 +1370,23 @@ class TerrierModule {
                 if (initFunc !== undefined) {
                     Terrier.initFunc()
                 }
-                if (readyFunc !== undefined) {
-                    // Let things settle a beat and then let the dev get set up
-                    setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                // This means the CustomLayer (or whatever) has not yet been invoked
+                //  So we need to delay the readyFunc callback, which is typically
+                //   when users set up their layers
+                if (readyFunc) {
+                    if (!Terrier.isReady) {
+                        globalThis.Module.onOverlayInitialized = function() {
+                            Terrier.isReady = true
+                            if (readyFunc !== undefined) {
+                                // Let things settle a beat and then let the dev get set up
+                                setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                            }
+                            globalThis.Module.onOverlayInitialized = null
+                        }        
+                    } else {
+                        // Let things settle a beat and then let the dev get set up
+                        setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
+                    }
                 }
             } else {
                 // This happens if they somehow do two start-map actions in a row
@@ -1186,7 +1435,7 @@ class TerrierModule {
             onRuntimeInitialized: function () {
                 Terrier.setupColorMaps()
                         
-                console.log("Runtime Initialized");
+                // console.log("Runtime Initialized");
                 if (window.mobile) {
                     const text = document.getElementById("frameText");
                     text.innerHTML = "Mobile not supported";
@@ -1210,7 +1459,9 @@ class TerrierModule {
             },
             onOverlayInitialized: function() {
                 Terrier.isReady = true
+                // console.log("onOverlayInitialized called")
                 if (readyFunc !== undefined) {
+                    // console.log("onOverlayInitialized calling readyFunc")
                     // Let things settle a beat and then let the dev get set up
                     setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                 }
@@ -1224,6 +1475,7 @@ class TerrierModule {
     // Internal setup logic
     loadLibrary() {
         if (!this.libraryLoaded) {
+            // console.log("loadLibrary() called")
             // Have the main WhirlyGlobe web module load itself
             //  this also kicks off Emscriten
             var s = document.createElement('script');
@@ -1282,17 +1534,20 @@ class TerrierModule {
         }
         switch (variable.dataType.toLowerCase()) {
             case "reflectivity":
-                return Terrier.RADAR_COLORS_NOT_GREY;
+                return Terrier.REFLECTIVITY_HRRR_COMPATIBLE;
             case "temperature":
                 return Terrier.TEMP_COLORS_NOT_GREY;
             case "wind_uv":
             case "velocity":
-                return Terrier.WIND_COLORS_NOT_GREY;
+                return Terrier.WIND_NOAA;
             case "probability":
                 if (variable.name == "probability_severe_hail") {
                     return Terrier.PROB_SEVERE_HAIL_COLORS;
                 }
             case "percentage":
+                if (variable.name.includes('lightning')) {
+                    return Terrier.PERCENT_COLORS_WARN;
+                }
                 return Terrier.PERCENT_COLORS_NOT_GREY;
             case "visibility":
                 return Terrier.VISIBILITY_COLORS_NOT_GREY;
@@ -1314,6 +1569,8 @@ class TerrierModule {
                 if (variable.name.includes("qpe_ffg")) {
                     return Terrier.QPE_FFG_RATIO_COLORS;
                 }
+            case "time":
+                return Terrier.TIME_CLEAR_COLORS;
             default:
                 return Terrier.INDEXPLACE_COLORS_NOT_GREY
                 break;
@@ -1362,19 +1619,58 @@ class TerrierModule {
                 endpoint = "https://"+this.stackName+".api.wetdogweather.com"
             }
         }
+        // console.log("fetchStackContents() called")
 
-        fetch(endpoint + "/manifest/v2/getvisualvarkeys")
-            .then((response) =>  {
-                if (response.ok) {
-                    return response.json()
-                } else {
-                    failFunc()
-                }
-            })
-            .then((data) => {
-                Terrier.stackContents = data
-                fetchFunc(Terrier.stackContents)
-            })
+        let outie = this;
+        setTimeout( () => {
+            if (outie.shuttingDown) {
+                // console.log("fetchStackContents() short circuited by shuttingDown")
+                return
+            }
+            fetch(endpoint + "/manifest/v2/getvisualvarkeys")
+                .then((response) =>  {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        console.log("fetchStackContents() fetch failed")
+                        failFunc()
+                    }
+                })
+                .then((data) => {
+                    // Note: We're going to do a little hacking here to fix some older stacks
+                    data.sources.forEach( source =>
+                        source.regions.forEach( region =>
+                            region.products.forEach( product =>
+                                product.variables.forEach( variable => {
+                                    if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
+                                        variable.hasEmptyVals = true
+                                    }
+                                    if (source.name == 'mrms') {
+                                        variable.hasEmptyVals = true
+                                        variable.zeroNoData = true
+                                    }
+                                    if (source.name == 'ndfd') {
+                                        variable.hasEmptyVals = true
+                                        variable.zeroNoData = false
+                                    }
+                                    if (variable.temporalType == '' || source.name == 'flashwx') {
+                                        variable.temporalType = 'both'
+                                    }
+                                    if (source.name == 'airnow' && variable.name.includes('particulate')) {
+                                        variable.hasEmptyVals = false
+                                    }
+                                }
+                                )
+                            )
+                        )            
+                        )
+                    Terrier.stackContents = data
+                    if (!outie.shuttingDown) {
+                        // console.log("fetchStackContents() calling fetchFunc()")
+                        fetchFunc(Terrier.stackContents)
+                    }
+                })
+            },0)
     }
 
     // Search through the stack contents to return all the various levels for a variable
@@ -1426,17 +1722,6 @@ class TerrierModule {
                 region.products.forEach( product =>
                     product.variables.forEach( variable => {
                             variable.source = source
-                            // Note: We can get rid of these hacks once the stacks are updated
-                            if (variable.dataType == 'visibility' || variable.name == 'cloud_ceiling') {
-                                variable.hasEmptyVals = true
-                            }
-                            if (variable.source.name == 'mrms') {
-                                variable.hasEmptyVals = true
-                            }
-                            // Note: This one too
-                            if (variable.temporalType == '') {
-                                variable.temporalType = 'forecast'
-                            }
                             if (variable.dataType == 'visual') {
                                 variables['visual ' + variable.name + ' ' + source.name] = variable
                             } else {
@@ -1620,9 +1905,11 @@ class TerrierModule {
                                                 interval: intervalName,
                                                 temporalType: variable.temporalType,
                                                 dataType: variable.dataType,
+                                                units: variable.units,
                                                 depth: variable.bits,
                                                 isGlobal: region.isglobal,
                                                 hasMissingValues: variable.hasEmptyVals,
+                                                zeroNoData: variable.zeroNoData,
                                                 importanceScale: 1.0,
                                                 drawOrder: source.order
                                             }
@@ -1778,6 +2065,21 @@ class TerrierModule {
     }
 
     /**
+     * If Terrier has a layer in a MapLibre map, you can get a handle to it here.
+     * This will be null if the MapLibre map style has not yet loaded or the
+     * Terrier layer is not present.
+     * 
+     * This is useful if you need to reorder the layer.
+     */
+    getMapLibreLayer() {
+        if ('Module' in globalThis && 'maplibreLayer' in globalThis.Module){
+            return globalThis.Module.maplibreLayer;
+        }
+
+        return null;
+    }
+
+    /**
      * If you're using MapLibre as your base map package, this is the method
      * to call to kick off Terrier.  The system does a lot on initialization,
      * including load its WebAssembly.  
@@ -1794,25 +2096,36 @@ class TerrierModule {
      * @param {function(TerrierOverlay): void} readyFunc When Terrier is properly initialized it will
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
+     * @param belowLayer If set, we'll ask MapLibre to put our new layer below this one.
+     * Typically this lets you put the weather below the labels.
      */
-    startMapLibre(stackName, maplibreMap, readyFunc) {
+    startMapLibre(stackName, maplibreMap, readyFunc, belowLayer) {
         this.stackName = stackName
         if (maplibreMap == undefined) {
             console.log('Need to pass the MapLibre map into TerrierInit.  Not starting.')
             return
         }
+        this.shuttingDown = false
+        // console.log("startMapLibre() called")
 
         // Already started, so just call them back
         if (this.isReady) {
             if (readyFunc !== undefined) {
+                // console.log("startMapLibre() calling readyFunc directly")
                 readyFunc(this.ovl)
             }
             return
         }
 
         this.fetchStackContents( () => {
+            // console.log("startMapLibre() fetchStackContents() callback called")
             this.setupModule(() => {
-                _initMapLibre(maplibreMap)
+                // console.log("startMapLibre() setupModule() callback called")
+                if (belowLayer === undefined) {
+                    _initMapLibre(maplibreMap)
+                } else {
+                    _initMapLibre(maplibreMap,belowLayer)
+                }
             }, readyFunc)
             this.loadLibrary()
         },
@@ -1955,10 +2268,25 @@ class TerrierModule {
      * on the TerrierOverlay.
      */
     stop() {
-        this.shuttingDown = false
+        this.shuttingDown = true
+        if (!('Module' in globalThis)) {
+            console.log("Terrier.stop() called but Terrier was not set up.")
+            return
+        }
+
+        // console.log("Terrier.stop() called")
+        globalThis.Module.enableWind = false
+        globalThis.Module.enableTemp = false
+        globalThis.Module.enableRadar = false
+        globalThis.Module.enableVisual = false
+        for (var key in globalThis.Module.controllerState) {
+            globalThis.Module.controllerState[key].enabled = false
+        }
+    
         if (this.webglCanvasMode) {
             _shutdownWebglCanvas()
         }
+        _stopWhirlyGlobe()
         this.isReady = false
     }
 

@@ -81,6 +81,7 @@ export default class Layer {
         this.renderScale = this._teaseOutParam(params,'renderScale',0.5)
         this.timeRange = this._teaseOutParam(params,'timeRange',null)
         this.startFrame = this._teaseOutParam(params,'startFrame','current')
+        this.arrows = this._teaseOutParam(params,'arrows',null)
 
         this.source = this._teaseOutParam(params,'source',null)
         this.sources = this._teaseOutParam(params,'sources',null)
@@ -99,6 +100,9 @@ export default class Layer {
                 params['startFrame'] = this.startFrame
                 if (this.loadCallback) {
                     params['loadCallback'] = this.loadCallback
+                }
+                if (this.arrows) {
+                    params['arrows'] = this.arrows
                 }
                 if (this.source) {
                     // Start with a hard defined visual layer

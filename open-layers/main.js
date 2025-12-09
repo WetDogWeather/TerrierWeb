@@ -36,25 +36,57 @@ Terrier.startOpenLayers("dev", map, canvasLayer, (ovl) => {
   let region = ['conus']
 
   // Temperature for just the US
-  let sources = Terrier.sourcesForVariable({source: normalSources, region: region, variable: 'temperature', level: '2m'})
-  // let sources = Terrier.sourcesForVariable({source: 'mrms', product: 'mcr', variable: 'reflectivity'})
+  // let sources = Terrier.sourcesForVariable({source: normalSources, variable: 'temperature', level: '2m'})
+  let swathSources = Terrier.sourcesForVariable({source: 'mrms', variable: 'hail_swath_1440min'})
+  // let humidSources = Terrier.sourcesForVariable({variable: 'relative_humidity'})
 
   // Colormaps can be applied separately (and changed later)
-  let colorMap = Terrier.colorMapForVariable(sources[0]);
+  let swathColorMap = Terrier.colorMapForVariable(swathSources[0]);
+  // let humidColorMap = Terrier.colorMapForVariable(humidSources[0]);
 
   // For this source, let's look at yesterday through tomorrow
   let cadence = [-1*60*60*24,1*60*60*24,64]
 
   // Turn on temperature as a layer
-  let tempLayer = ovl.startLayer('myLayer', {
-      colorMap: colorMap,
+  let swathLayer = ovl.startLayer('swathLayer', {
+      colorMap: swathColorMap,
       interpMode: 'linear',
-      sources: sources,
+      sources: swathSources,
       opacity: 0.5,
       importFactor: 8.0,
       renderScale: 4.0,
       cadence: cadence
     })
+  
+    // A bit of test code for tracking down start/stop problems
+  // setTimeout( () => {
+  //   ovl.stopLayer(swathLayer);
+  //   ovl.stopLayer(swathLayer);
 
-  ovl.timePlay({period: 10.0})
+  //   let humidLayer = ovl.startLayer('humidLayer', {
+  //     colorMap: humidColorMap,
+  //     interpMode: 'linear',
+  //     sources: humidSources,
+  //     opacity: 0.5,
+  //     importFactor: 8.0,
+  //     renderScale: 4.0,
+  //     cadence: cadence
+  //   })
+
+  //   setTimeout( () => {
+  //     ovl.stopLayer(humidLayer);
+
+  //     let swathLayer = ovl.startLayer('swathLayer', {
+  //       colorMap: swathColorMap,
+  //       interpMode: 'linear',
+  //       sources: swathSources,
+  //       opacity: 0.5,
+  //       importFactor: 8.0,
+  //       renderScale: 4.0,
+  //       cadence: cadence
+  //     })  
+  //   }, 2000)
+
+  // }, 2000)
+
 })

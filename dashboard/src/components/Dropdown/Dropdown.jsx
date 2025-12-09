@@ -25,7 +25,8 @@ function Dropdown({layers,
                     source, sources, setSource,
                     region, regions, setRegion,
                     stackName, setStackName,
-                    units, setUnits}) {
+                    units, setUnits,
+                    baseMapName, basemaps, setBaseMapName}) {
     const [settingsMode,setSettingsMode] = useState(0)
     const numLayers = layers.length
 
@@ -90,6 +91,7 @@ function Dropdown({layers,
                               source={source} sources={sources} setSource={setSource}
                               region={region} regions={regions} setRegion={setRegion}
                               stackName={stackName} setStackName={setStackName}
+                              baseMapName={baseMapName} basemaps={basemaps} setBaseMapName={setBaseMapName}
              />
         )    
         dropdown = [dropdown, settingsContent]

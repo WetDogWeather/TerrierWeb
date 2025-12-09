@@ -89,7 +89,26 @@ function interpForVariable(variable) {
 // Come up with a good time range for a variable
 // This is mostly obvious except for a few weird cases
 function  timeRangeForVariable(variable) {
-  switch (variable.dataType) {
+  if (variable.source == 'flashwx') {
+    switch (variable.name) {
+        case "lightning_probability":
+          return [-1*3600,1*3600,48]
+        case "lightning_probability_extended":
+          return [0,24*3600,48]
+        case "lightning_firststrike":
+        case "lightning_allclear":
+          return [-4*3600,0,48]
+        case "golf_playability_index":
+          return [-12*3600,48*3600,96]
+    }
+  }
+  if (variable.source == 'airnow') {
+    switch (variable.name) {
+        case "forecasted_air_quality_index":
+          return [-14*24*3600,1*24*3600,32];
+    }
+}
+switch (variable.dataType) {
     case "temperature":
     case "wind_uv":
     case "velocity":
@@ -124,6 +143,7 @@ function App() {
   const [displayAllLayers,setDisplayAllLayers] = useState(false)
   const [sources,setSources] = useState(["All"])
   const [regions,setRegions] = useState(["All"])
+  const [basemaps,setBasemaps] = useState([""])
   const [source,_setSource] = useState("All")
   const [region,_setRegion] = useState("All")
   const [animSpeed, setAnimSpeed] = useState(4.0)
@@ -133,15 +153,14 @@ function App() {
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
   const [stackName, setStackName] = useState('dev')
+  const [baseMapName, setBaseMapName] = useState('alidade_smooth')
 
   function setRegion(newRegion) {
     _setRegion(newRegion)
-    _setSource("All")
   }
 
   function setSource(newSource) {
     _setSource(newSource)
-    _setRegion("All")
   }
 
   // React to stackName changes
@@ -348,6 +367,27 @@ function App() {
       let levels = Terrier.variableLevelsForStack(sources[0].name)
       let interp = interpForVariable(sources[0])
       switch (variable.dataType) {
+      case 'wind_uv':
+        newLayer = new Layer(terrierOvl, 
+            {'displayName': variable.name,
+            'layerName': variable.name,
+            'icon': icon,
+            'sources': sources,
+            'levels': levels,
+            'units': variable.units,
+            'colorsGrey': colorMap,
+            'colors': colorMap,
+            'arrows': {
+              'cutoff': 1.0,
+              'speed': [2.57, 40.0],
+              'size': [[10,20],[40,80]],
+              'layout': [80,80],
+              'colors': [0xAA000000,0xFF000000],
+            },
+            'timeRange': timeRange,
+            'interpMode': interp
+            })                        
+      break;
       case 'reflectivity':
         if (radarOnly) {
           timeRange = [-4*60*60,0.0,64]
@@ -470,6 +510,7 @@ function App() {
 
     setSources(["All"].concat(Terrier.sourcesForStack()))
     setRegions(["All"].concat(Terrier.regionsForStack()))
+    setBasemaps(["alidade_smooth","alidade_smooth_dark","alidade_satellite","outdoors","stamen_toner","stamen_terrain","osm_bright"])
 
     const now = Date.now() / 1000
     setCurTime(now)
@@ -485,7 +526,7 @@ function App() {
       const ret = layer.queryValue(x, y)
       if (ret != null) {
         setLegendValue(ret['value'])
-        console.log("Map clicked %d, %d: " + ret['value'].toString(), x, y)
+        console.log("Map clicked at pix:(%d,%d), geo:(%f,%f) " + ret['value'].toString(), x, y, ret['lon'], ret['lat'])
       } else {
         setLegendValue(null)
         console.log("No data at %d, %d: ", x, y)
@@ -520,7 +561,8 @@ function App() {
                           source={source} sources={sources} setSource={setSource}
                           region={region} regions={regions} setRegion={setRegion}
                           stackName={stackName} setStackName={setStackName}
-                          units={units} setUnits={setUnits} />
+                          units={units} setUnits={setUnits}
+                          baseMapName={baseMapName} basemaps={basemaps} setBaseMapName={setBaseMapName} />
               </Burger>
             </Header>
 
@@ -538,6 +580,7 @@ function App() {
              stackName={stackName} 
              readyFunc={terrierReady} 
              fullScreen={!controlsVisible}
+             mapName={baseMapName}
              onClick={onMapClick} />
     </>
   )

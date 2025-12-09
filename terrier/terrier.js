@@ -812,8 +812,8 @@ class TerrierModule {
         Terrier.RADAR_COLORS_NOT_GREY = new globalThis.Module.TrrShaderColorMap(0, false, [
         -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
         ], [
-            0x00000000,   // Not actually present in the data
-            0x00000000,   // "
+            0xFFAAAAAA,   // Not actually present in the data
+            0xFF000000,   // "
             0x11FFFFFF,   // Data present but no returns
             0x4410E6E7, 0x7710E6E7, 0xBB10E6E7, // Not visible either
             0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 

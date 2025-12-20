@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  246356: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 246800: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  249092: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 249536: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -11906,6 +11906,10 @@ var ASM_CONSTS = {
         console.log("Stop Radar");
       }
       _removeControllerId(Module.radarCtl.getId());
+      tempId = Module.radarCtl.getTemperatureControllerId();
+      if (tempId) {
+        _removeControllerId(tempId);
+      }
       Module.radarCtl.removeOnFrameChange(Module.radarCtlFrameChange|0);
       Module.radarCtl.stop(null);
       Module.radarCtl.delete();
@@ -11915,8 +11919,12 @@ var ASM_CONSTS = {
       if (Module.debugLayers) {
         console.log("Start Radar");
       }
-      Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker, Module.radarSources);
+      Module.radarCtl = new Module.TrrRadarController(Module.service, rc, Module.tracker, Module.radarSources, Module.tempSources);
       _addControllerId(Module.radarCtl.getId());
+      tempId = Module.radarCtl.getTemperatureControllerId();
+      if (tempId) {
+        _addControllerId(tempId);
+      }
       Module.radarCtl.debugMode = !!Module.debugRadar;
       Module.radarCtl.scale = Module.radarScale || 0.25;
       Module.radarCtl.opacity = 0.75;

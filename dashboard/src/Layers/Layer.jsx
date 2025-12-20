@@ -70,6 +70,7 @@ export default class Layer {
         this.level = this._teaseOutParam(params,'level',null)
         this.colorsGrey = this._teaseOutParam(params,'colorsGrey',null)
         this.colorsNotGrey = this._teaseOutParam(params,'colors',null)
+        this.snowColors = this._teaseOutParam(params,'snowColors',null)
         this.units = this._teaseOutParam(params,'units','C')
 
         // Default variables
@@ -85,6 +86,7 @@ export default class Layer {
 
         this.source = this._teaseOutParam(params,'source',null)
         this.sources = this._teaseOutParam(params,'sources',null)
+        this.temperatureSources = this._teaseOutParam(params,'temperatureSources',null)
         this.loadCallback = this._teaseOutParam(params,'loadCallback',null)
     }
 
@@ -111,6 +113,9 @@ export default class Layer {
                 } else {
                     if (!this.sources) {
                         this.sources = this.terrierOvl.terrierModule.sourcesFromLayerName(this.layerName)
+                    }
+                    if (this.temperatureSources) {
+                        params['temperatureSources'] = this.temperatureSources                   
                     }
                     params['sources'] = this.sources
                     this.layer = this.terrierOvl.startLayer(this.layerName, params)
@@ -141,6 +146,9 @@ export default class Layer {
 
         if (this.layer != null) {
             this.layer.setColorMap(newShaderColorMap)
+            if (this.snowColors) {
+                this.layer.setSnowColorMap(this.snowColors)
+            }
         }
 
         this.colored = isNowColored;

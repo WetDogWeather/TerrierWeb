@@ -357,11 +357,22 @@ function App() {
       }
       let sources = Terrier.sourcesForVariable(searchParams)
 
+      // For reflectivity we have the option of adding a temperature source for precip type
+      var temperatureSources = null
+      if (varName.includes('reflectivity')) {
+        temperatureSources = Terrier.sourcesForVariable(
+          {"source": ["gfs","hrrr"],
+            "level": "2m",
+           "variable": "temperature",
+          })
+      }
+
       // This can happen if we're filtering other things
       if (sources.length == 0) {
         continue
       }
       let colorMap = Terrier.colorMapForVariable(sources[0])
+      let snowColorMap = Terrier.SNOW_COLORS_NOT_GREY
       let icon = iconForVariable(sources[0])
       let timeRange = timeRangeForVariable(sources[0])
       let levels = Terrier.variableLevelsForStack(sources[0].name)
@@ -399,10 +410,13 @@ function App() {
           'layerName': variable.name,
           'icon': radarIcon,
           'sources': sources,
+          // Turn this on to display snow
+          // 'temperatureSources': temperatureSources,
           'levels': levels,
           'units': 'dBz',
           'colorsGrey': colorMap,
           'colors': colorMap,
+          'snowColors': snowColorMap,
           'importanceScale': 16.0,
           'timeRange': timeRange,
           // The load callback lets us insert some logic when the manifest for a

@@ -121,6 +121,9 @@ class TerrierLayer {
             console.log("TerrierLayer: No sources set.  Giving up.")
             return
         }
+        // Optional temperature sources for reflectivity precip type
+        let temperatureJsonSources = params['temperatureSources']
+
         let dataType = jsonSources[0].dataType
         this.dataType = dataType
 
@@ -154,6 +157,29 @@ class TerrierLayer {
             )
             sources.push(source)
         })
+        var temperatureSources = null
+        if (temperatureJsonSources != undefined && temperatureJsonSources && temperatureJsonSources.length > 0) {
+            temperatureSources = []
+            temperatureJsonSources.forEach(jsonSource => {
+                let source = new globalThis.Module.TrrDataSource(
+                    jsonSource.source,
+                    jsonSource.region,
+                    jsonSource.product,
+                    jsonSource.variable,
+                    jsonSource.level,
+                    jsonSource.interval,
+                    jsonSource.temporalType,
+                    jsonSource.dataType,
+                    jsonSource.projection,
+                    jsonSource.depth,
+                    jsonSource.isGlobal,
+                    jsonSource.hasMissingValues,
+                    jsonSource.zeroNoData,
+                    jsonSource.importanceScale,
+                )
+                temperatureSources.push(source)
+            })
+        }
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -276,6 +302,10 @@ class TerrierLayer {
                 }
                 globalThis.Module.radarScale = this.renderScale
                 globalThis.Module.radarSources = sources
+                if (temperatureSources)
+                    globalThis.Module.tempSources = temperatureSources
+                else
+                    globalThis.Module.tempSources = null
                 foundState = findControllerState("radar")
                 break;
             case "visual":
@@ -511,6 +541,21 @@ class TerrierLayer {
         }
         this.colorMap = colorMap
         this.state.controller.colorMap = colorMap
+        globalThis.Module.repaint()
+    }
+
+    /**
+     * If you'd like to set the color map directly, which you're allowed to
+     * do at run time, you can do so here.  The method is expecting a TrrShaderColorMap
+     * object which you'll need to set up yourself.
+     * @param {TrrShaderColorMap} colorMap The color map to set for this layer.
+     */
+    setSnowColorMap(colorMap) {
+        if (!colorMap) {
+            return
+        }
+        this.snowColorMap = colorMap
+        this.state.controller.snowColorMap = colorMap
         globalThis.Module.repaint()
     }
 
@@ -981,6 +1026,22 @@ class TerrierModule {
             0x4410E6E7, 0x7710E6E7, 0xBB10E6E7, // Not visible either
             0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
             0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA,
+        ], [
+            false, false, false,
+            false, false, false,
+            true, true, true, true, true, true,
+            true, true, true, true, true, true, true, true,
+            true, true, true, true, true, true, true, true
+        ]);
+        Terrier.SNOW_COLORS_NOT_GREY = Terrier.createColorMap([
+        -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+        ], [
+            0x00000000,   // Not actually present in the data
+            0x00000000,   // "
+            0x00FFFFFF,   // Data present but no returns
+            0x00cffcfc, 0x00cffcfc, 0xBBcffcfc, // Not visible either
+            0xFFcffcfc, 0xFFcffcfc, 0xFFcdedfe, 0xFFcdccff, 0xFFccffce, 0xFFccffcc, 0xFFceffcc, 0xFFfefecd, 
+            0xFFfef4cd, 0xFFfeeacd, 0xFFFE0002, 0xFFffcccc, 0xFFffcdcc, 0xFFfecdfe, 0xFFe9d8f3, 0xFFece6df,
         ], [
             false, false, false,
             false, false, false,

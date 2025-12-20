@@ -84,6 +84,9 @@ class TerrierLayer {
         if ('colorMap' in params) {
             this.colorMap = params['colorMap']
         }
+        if ('snowColorMap' in params) {
+            this.snowColorMap = params['snowColorMap']
+        }
         if ('renderScale' in params) {
             this.renderScale = params['renderScale']
         }
@@ -302,9 +305,10 @@ class TerrierLayer {
                 }
                 globalThis.Module.radarScale = this.renderScale
                 globalThis.Module.radarSources = sources
-                if (temperatureSources)
+                if (temperatureSources) {
                     globalThis.Module.tempSources = temperatureSources
-                else
+                    globalThis.Module.radarSnowColorMap = this.snowColorMap ? this.snowColorMap : Terrier.SNOW_COLORS_NOT_GREY;
+                } else
                     globalThis.Module.tempSources = null
                 foundState = findControllerState("radar")
                 break;

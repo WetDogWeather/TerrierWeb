@@ -11946,6 +11946,9 @@ var ASM_CONSTS = {
       if (Module.radarColorMap) {
         Module.radarCtl.colorMap = Module.radarColorMap;
       }
+      if (Module.radarSnowColorMap) {
+        Module.radarCtl.snowColorMap = Module.radarSnowColorMap;
+      }
       if (Module.radarCallback) {
         Module.radarCtl.addLoadCallback(Module.radarCallback)
       }

@@ -411,7 +411,7 @@ function App() {
           'icon': radarIcon,
           'sources': sources,
           // Turn this on to display snow
-          // 'temperatureSources': temperatureSources,
+          'temperatureSources': temperatureSources,
           'levels': levels,
           'units': 'dBz',
           'colorsGrey': colorMap,

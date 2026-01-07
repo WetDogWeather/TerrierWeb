@@ -1053,6 +1053,21 @@ class TerrierModule {
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
         ]);
+        Terrier.WEATHER_COLORS = Terrier.createColorMap([
+            // Fair, Rain, Mix, Snow, Sleet, Freezing Rain, Severe, Unknown
+            0, 1, 2, 3, 4, 5, 6, 7
+        ], [
+            0x00000000,
+            0xFF009100,
+            0xFFa01a93,
+            0xFF124e82,
+            0xFFffbe71,
+            0xFFf98407,
+            0xFFe4333d,
+            0xFFff00ff
+        ], [
+            false, true, true, true, true, true, true, true
+        ]);
         Terrier.REFLECTIVITY_HRRR_COMPATIBLE = Terrier.createColorMap([
             -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
             ], [
@@ -1561,6 +1576,9 @@ class TerrierModule {
      * @returns A trrColorMap you can pass to the Layer creation.
      */
     colorMapForVariable(variable) {
+        if (variable.name == 'weather') {
+            return Terrier.WEATHER_COLORS;
+        }
         if (variable.source == 'flashwx') {
             switch (variable.name) {
                 case "lightning_probability":

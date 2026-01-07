@@ -78,6 +78,8 @@ export default class Layer {
         this.dataSampleType = this._teaseOutParam(params,'interpMode',1);      // 0 = Nearest, 1 = Linear, 2 = Cubic.
         this.opacity = 192;           // 0 - 255.
 
+        this.snapToFrame = this._teaseOutParam(params,'snapToFrame',false);
+
         this.minImportance = this._teaseOutParam(params,'importanceScale',4)      // 5 - 100.
         this.renderScale = this._teaseOutParam(params,'renderScale',0.5)
         this.timeRange = this._teaseOutParam(params,'timeRange',null)
@@ -119,6 +121,7 @@ export default class Layer {
                     }
                     params['sources'] = this.sources
                     this.layer = this.terrierOvl.startLayer(this.layerName, params)
+                    this.terrierOvl.setNearestFrame(this.snapToFrame)
                 }
             }
         } else {

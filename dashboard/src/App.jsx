@@ -82,8 +82,20 @@ function interpForVariable(variable) {
         return 0;
       }
   }
+  if (variable.name == 'weather') {
+    return 0;
+  }
 
   return 1
+}
+
+// Some variables need to be snapped to a frame.  Mostly types.
+function snapForVariable(variable) {
+  if (variable.name == 'weather') {
+      return 1
+  }
+
+  return 0
 }
 
 // Come up with a good time range for a variable
@@ -377,6 +389,7 @@ function App() {
       let timeRange = timeRangeForVariable(sources[0])
       let levels = Terrier.variableLevelsForStack(sources[0].name)
       let interp = interpForVariable(sources[0])
+      let snap = snapForVariable(sources[0])
       switch (variable.dataType) {
       case 'wind_uv':
         newLayer = new Layer(terrierOvl, 
@@ -491,7 +504,8 @@ function App() {
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
-            'interpMode': interp
+            'interpMode': interp,
+            'snapToFrame': snap
             })                        
             break;
       }

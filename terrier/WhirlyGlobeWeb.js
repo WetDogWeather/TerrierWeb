@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  249092: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 249536: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  249124: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 249568: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -12090,14 +12090,17 @@ var ASM_CONSTS = {
         Module.useWebGL = true;
         Browser.init();
   
+        if (!Module.service) {
+          Module.service = new Module.TrrService();
+          Module.service.stackName = "dev";
+          Module.service.apiKey = "";
+        }
+  
         // todo: delete old overlay?
-        Module.overlay = new Module.MapOverlay();
+        Module.overlay = new Module.MapOverlay(Module.service);
         Module.overlay.setup();
   
         //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
-  
-        Module.service = new Module.TrrService();
-        Module.service.stackName = "dev";
   
         Module.updateOverlay();
       } else {
@@ -12264,19 +12267,20 @@ var ASM_CONSTS = {
           Module.useWebGL = true;
           Browser.init();
     
+          if (!Module.service) {
+            Module.service = new Module.TrrService();
+            Module.service.stackName = "dev";
+            Module.service.apiKey = "";
+          }
+  
           // todo: delete old overlay?
           if (!Module.overlay) {
-            Module.overlay = new Module.MapOverlay();
+            Module.overlay = new Module.MapOverlay(Module.service);
             Module.overlay.setup();
           }
     
           //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
-    
-          if (!Module.service) {
-            Module.service = new Module.TrrService();
-            Module.service.stackName = "dev";
-          }
-    
+      
           Module.updateOverlay();
   
           if (Module.onOverlayInitialized) {
@@ -12451,15 +12455,16 @@ var ASM_CONSTS = {
               Module.glHandle = handle;
               Browser.init();
   
-              // todo: delete old overlay?
-              if (!Module.overlay) {
-                Module.overlay = new Module.MapOverlay();
-                Module.overlay.setup();
-              }
-  
               if (!Module.service) {
                 Module.service = new Module.TrrService();
                 Module.service.stackName = "dev";
+                Module.service.apiKey = "";
+              }
+  
+              // todo: delete old overlay?
+              if (!Module.overlay) {
+                Module.overlay = new Module.MapOverlay(Module.service);
+                Module.overlay.setup();
               }
         
               Module.updateOverlay();
@@ -12578,7 +12583,7 @@ var ASM_CONSTS = {
           Module.ctx = GL.getContext(handle).GLctx;
           GL.makeContextCurrent(handle);
   
-          Module.overlay = new Module.MapOverlay();
+          Module.overlay = new Module.MapOverlay(Module.service);
           Module.overlay.setup();
         }
   
@@ -12595,18 +12600,19 @@ var ASM_CONSTS = {
           Module.useWebGL = true;
           Browser.init();
   
+          if (!Module.service) {
+            Module.service = new Module.TrrService();
+            Module.service.stackName = "dev";
+            Module.service.apiKey = "";
+          }
+  
           // todo: delete old overlay?
           if (!Module.overlay) {
-            Module.overlay = new Module.MapOverlay();
+            Module.overlay = new Module.MapOverlay(Module.service);
             Module.overlay.setup();
           }
   
           //Module.mainThreadInfo = new Module.PlatformThreadInfoEms();
-  
-          if (!Module.service) {
-            Module.service = new Module.TrrService();
-            Module.service.stackName = "dev";
-          }
   
           Module.updateOverlay();
   
@@ -12675,7 +12681,7 @@ var ASM_CONSTS = {
   Module['_initMap'] = _initMap;
 
   function _jsAsyncFetchJSON(url,controllerId,ctx) {
-          fetch(url).then(  // async fetch, attach handler to the resulting promise
+          fetch(url, {headers: {'Authorization': 'Bearer ' + Module.service.apiKey}}).then(  // async fetch, attach handler to the resulting promise
               function(fetchResult) { // Got a result, see if it's valid...
                 if (Module.controllerIds.has(controllerId)) {
                   if (fetchResult.status == 200) {

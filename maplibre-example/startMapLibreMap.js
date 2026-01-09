@@ -11,7 +11,7 @@ function startMap() {
     });
 
     // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre('dev', map, (ovl) => {
+    Terrier.startMapLibre('dev', "5f399f64-af7a-4902-a147-db4da405017c", map, (ovl) => {
         let mrms_refl = Terrier.sourcesForVariable({source:'mrms',region:'conus',product:'mbr',variable:'reflectivity'})
         let temperature = Terrier.sourcesForVariable({source:['hrrr','gfs'],regions:'conus',variable:'temperature'})
         let hrrr_refl = Terrier.sourcesForVariable({source:'hrrr',region:'conus',variable:'reflectivity'})

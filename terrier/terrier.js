@@ -1528,6 +1528,7 @@ class TerrierModule {
 
                 globalThis.Module.service = new globalThis.Module.TrrService();
                 globalThis.Module.service.stackName = Terrier.stackName;
+                globalThis.Module.service.apiKey = Terrier.apiKey;
                 globalThis.Module.service.apiVersion = 2;
                 globalThis.Module.tempCadence = [-24 * 3600, 24 * 3600, 40];
                 globalThis.Module.windCadence = [-25 * 3600, 24 * 3600, 40];
@@ -1710,7 +1711,8 @@ class TerrierModule {
                 // console.log("fetchStackContents() short circuited by shuttingDown")
                 return
             }
-            fetch(endpoint + "/manifest/v2/getvisualvarkeys")
+            fetch(endpoint + "/manifest/v2/getvisualvarkeys",
+                  {headers: {'Authorization': 'Bearer ' + Terrier.apiKey}})
                 .then((response) =>  {
                     if (response.ok) {
                         return response.json()
@@ -2064,13 +2066,20 @@ class TerrierModule {
      * @param {function(): void} failedFunc If the stack can't be reached, for whatever
      * reason, we call this function with no arguments.
      */
-    changeStack(stackName, readyFunc, failedFunc) {
+    changeStack(stackName, apiKey, readyFunc, failedFunc) {
         // If they call it too early, just ignore it
         if (!this.isReady) { return }
         if (this.stackName == stackName) { return }
-
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        if (apiKey) {
+            this.apiKey = apiKey
+        }
         this.stackName = stackName
         globalThis.Module.service.stackName = Terrier.stackName;
+        globalThis.Module.service.apiKey = Terrier.apiKey;
 
         this.fetchStackContents( () => {
             readyFunc(Terrier.ovl)
@@ -2095,8 +2104,13 @@ class TerrierModule {
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
      */
-    startLeaflet(stackName, canvasLayer, readyFunc) {
+    startLeaflet(stackName, apiKey, canvasLayer, readyFunc) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
 
         // Already started, so just call them back
         this.shuttingDown = false;
@@ -2182,8 +2196,13 @@ class TerrierModule {
      * @param belowLayer If set, we'll ask MapLibre to put our new layer below this one.
      * Typically this lets you put the weather below the labels.
      */
-    startMapLibre(stackName, maplibreMap, readyFunc, belowLayer) {
+    startMapLibre(stackName, apiKey, maplibreMap, readyFunc, belowLayer) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
         if (maplibreMap == undefined) {
             console.log('Need to pass the MapLibre map into TerrierInit.  Not starting.')
             return
@@ -2234,8 +2253,13 @@ class TerrierModule {
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
      */
-    startArcGIS(stackName, arcGISMapView, readyFunc) {
+    startArcGIS(stackName, apiKey, arcGISMapView, readyFunc) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
         if (arcGISMapView == undefined) {
             console.log('Need to pass the ArcGIS map into TerrierInit.  Not starting.')
             return
@@ -2278,8 +2302,13 @@ class TerrierModule {
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
      */
-    startOpenLayers(stackName, openLayersMap, canvasLayer, readyFunc) {
+    startOpenLayers(stackName, apiKey, openLayersMap, canvasLayer, readyFunc) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
         if (openLayersMap == undefined || canvasLayer == undefined) {
             console.log('Need to pass the OpenLayers map and the canvasLayer into TerrierInit.  Not starting.')
             return

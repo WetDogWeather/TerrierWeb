@@ -47,6 +47,7 @@ class TerrierLayer {
         this.colorMap = null
         this.renderScale = 0.5
         this.importScale = 8.0
+        this.startupParams = params
 
         this.setup(params)
     }
@@ -417,7 +418,7 @@ class TerrierLayer {
     refresh() {
         this.stop()
         globalThis.Module.updateOverlay()
-        this.setup({})
+        this.setup(this.startupParams)
     }
 
     // Don't call this directly.  Use the TerrierOverlay
@@ -1054,19 +1055,39 @@ class TerrierModule {
             true, true, true, true, true, true, true, true
         ]);
         Terrier.WEATHER_COLORS = Terrier.createColorMap([
-            // Fair, Rain, Mix, Snow, Sleet, Freezing Rain, Severe, Unknown
-            0, 1, 2, 3, 4, 5, 6, 7
+            // Fair, Rain, Mix, Snow, Sleet, Freezing Rain, Severe, Thunderstorm, Hail = 8, HIWIND = 9
+            // SVRWND = 10, BLZRD = 11, ICING = 12, ICEFOG = 13, FZFOG = 14, FOG = 15, WINDY = 16
+            // HAZE = 17, MIST = 18, FZDZ = 19, DRZL = 20, BLSNOW = 21, FIREWX = 22, XHEAT = 23, XCOLD = 24, UNKNOWN
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
         ], [
-            0x00000000,
-            0xFF009100,
-            0xFFa01a93,
-            0xFF124e82,
-            0xFFffbe71,
-            0xFFf98407,
-            0xFFe4333d,
-            0xFFff00ff
+            0x00000000, // Fair
+            0xFF009100, // Rain
+            0xFFa01a93, // Mix
+            0xFF124e82, // Snow
+            0xFFffbe71, // Sleet
+            0xFFf98407, // Freezing Rain
+            0xFFe4333d, // Severe
+            0xFFff00ff, // thunrderstorm
+            0xFF950000, // Hail = 8
+            0xFF777777, // HIWIND = 9
+            0xFF777777, // SVRWND = 10
+            0xFF777777, // BLZRD = 11
+            0xFF777777, // ICING = 12
+            0xFF777777, // ICEFOG = 13
+            0xFF777777, // FZFOG = 14
+            0xFF777777, // FOG = 15
+            0xFF777777, // WINDY = 16
+            0xFF777777, // HAZE = 17
+            0xFF777777, // MIST = 18
+            0xFF777777, // FZDZ = 19
+            0xFF777777, // DRZL = 20
+            0xFF777777, // BLSNOW = 21
+            0xFF777777, // FIREWX = 22
+            0xFF777777, // XHEAT = 23
+            0xFF777777, // XCOLD = 24
+            0xFFff00ff  // Unknown
         ], [
-            false, true, true, true, true, true, true, true
+            false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true
         ]);
         Terrier.REFLECTIVITY_HRRR_COMPATIBLE = Terrier.createColorMap([
             -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75

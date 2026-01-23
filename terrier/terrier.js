@@ -1733,7 +1733,9 @@ class TerrierModule {
                 return
             }
             fetch(endpoint + "/manifest/v2/getvisualvarkeys",
-                  {headers: {'Authorization': 'Bearer ' + Terrier.apiKey}})
+                  {headers: {'Authorization': 'Bearer ' + Terrier.apiKey,
+                             'Access-Control-Request-Method': 'GET'
+                  }})
                 .then((response) =>  {
                     if (response.ok) {
                         return response.json()

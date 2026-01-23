@@ -361,6 +361,7 @@ class TerrierLayer {
 
         foundState.sources = sources
         this.sources = sources
+        this.temperatureSources = temperatureSources
         this.state = foundState
 
         if (this.cadence) {
@@ -428,6 +429,12 @@ class TerrierLayer {
                 source.delete()
             });
             this.sources = undefined
+        }
+        if (this.temperatureSources) {
+            this.temperatureSources.forEach(source => {
+                source.delete()
+            });
+            this.temperatureSources = undefined
         }
         switch (this.dataType) {
             // Three of these are special
@@ -1735,7 +1742,8 @@ class TerrierModule {
             fetch(endpoint + "/manifest/v2/getvisualvarkeys",
                   {headers: {'Authorization': 'Bearer ' + Terrier.apiKey,
                              'Access-Control-Request-Method': 'GET'
-                  }})
+                            }}
+                )
                 .then((response) =>  {
                     if (response.ok) {
                         return response.json()

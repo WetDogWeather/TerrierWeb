@@ -14103,7 +14103,9 @@ if (typeof window == "object" && (typeof ENVIRONMENT_IS_PTHREAD == 'undefined' |
     // If the address contains localhost, or we are running the page from port
     // 6931, we can assume we're running the test runner and should post stdout
     // logs.
-    if (document.URL.search("localhost") != -1 || document.URL.search(":6931/") != -1) {
+    // Note: This was causing too many random 404s
+    // if (document.URL.search("localhost") != -1 || document.URL.search(":6931/") != -1) {
+    if (false) {
       var emrun_http_sequence_number = 1;
       var prevPrint = out;
       var prevErr = err;

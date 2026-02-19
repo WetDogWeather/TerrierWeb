@@ -1595,7 +1595,7 @@ class TerrierModule {
             //  this also kicks off Emscriten
             var s = document.createElement('script');
             s.type = 'text/javascript';
-            // Note: May case problems if you need an absolute path
+            // Note: May cause problems if you need an absolute path
             s.src = 'WhirlyGlobeWeb.js';
             s.defer = 'defer';
             document.body.appendChild(s);            

@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  249124: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 249568: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  249188: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 249632: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js

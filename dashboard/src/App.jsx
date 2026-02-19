@@ -345,6 +345,7 @@ function App() {
             if (radarOnly) {
               searchParams['source'] = ["mrms"]
               searchParams['product'] = ["mbr"]
+              searchParams['region'] = ["conus"]
             } else {
               searchParams['source'] = ["gfs", "mrms", "hrrr"]
               searchParams['product'] = ["mbr", "atmos"]

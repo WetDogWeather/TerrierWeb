@@ -417,9 +417,9 @@ class TerrierLayer {
      * call this yourself.
      */
     refresh() {
-        this.stop()
-        globalThis.Module.updateOverlay()
-        this.setup(this.startupParams)
+        if (this.state && this.state.controller) {
+            this.state.controller.refresh(null)
+        }
     }
 
     // Don't call this directly.  Use the TerrierOverlay
@@ -581,7 +581,7 @@ class TerrierLayer {
             return
         }
         this.cadence = cadence
-        this.state.controller.cadence = new Module.TrrSourceCadence(...cadence)
+        this.state.controller.setCadence(cadence[0],cadence[1],cadence[2])
     }
 
     /**

@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  249188: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 249632: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  249140: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 249584: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -11340,22 +11340,20 @@ var ASM_CONSTS = {
       // watch for devicePixelRatio changes
       GLFW.devicePixelRatioMQL = window.matchMedia('(resolution: ' + GLFW.getDevicePixelRatio() + 'dppx)');
       GLFW.devicePixelRatioMQL.addEventListener('change', GLFW.onDevicePixelRatioChange);
-      
-      if ("canvas" in Module) {
-        Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
-        Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
-        Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
-        Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
-        Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
-        Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
-        Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
-        Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
-        Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
-        Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
-        Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
-      }
+  
+      Module["canvas"].addEventListener("touchmove", GLFW.onMousemove, true);
+      Module["canvas"].addEventListener("touchstart", GLFW.onMouseButtonDown, true);
+      Module["canvas"].addEventListener("touchcancel", GLFW.onMouseButtonUp, true);
+      Module["canvas"].addEventListener("touchend", GLFW.onMouseButtonUp, true);
+      Module["canvas"].addEventListener("mousemove", GLFW.onMousemove, true);
+      Module["canvas"].addEventListener("mousedown", GLFW.onMouseButtonDown, true);
+      Module["canvas"].addEventListener("mouseup", GLFW.onMouseButtonUp, true);
+      Module["canvas"].addEventListener('wheel', GLFW.onMouseWheel, true);
+      Module["canvas"].addEventListener('mousewheel', GLFW.onMouseWheel, true);
+      Module["canvas"].addEventListener('mouseenter', GLFW.onMouseenter, true);
+      Module["canvas"].addEventListener('mouseleave', GLFW.onMouseleave, true);
+      Module["canvas"].addEventListener('drop', GLFW.onDrop, true);
+      Module["canvas"].addEventListener('dragover', GLFW.onDragover, true);
   
       // Overriding implementation to account for HiDPI
       Browser.requestFullscreen = GLFW.requestFullscreen;
@@ -11474,9 +11472,9 @@ var ASM_CONSTS = {
       if (Module.tracker && Module.tracker.isPlaying) {
         return true;
       }
-      if (Module.animateUntilTime && (new Date().getTime()) < Module.animateUntilTime) {
-        return true;
-      }
+      // if (Module.animateUntilTime && (new Date().getTime()) < Module.animateUntilTime) {
+      //   return true;
+      // }
       return false;
     };
     Module.lastRenderTime = 0;
@@ -12193,6 +12191,14 @@ var ASM_CONSTS = {
   function _stopWhirlyGlobe() {
     if ('maplibreLayer' in Module) {
       mapLibreStartAttempt = Module.mapLibreStartAttempt + 1
+      const hasLayer = Module.map && Module.map.getLayer && Module.map.getLayer('terrier');
+      if (hasLayer) {
+        try {
+          Module.map.removeLayer('terrier');
+        } catch (e) {
+          console.warn('Error removing terrier layer:', e);
+        }
+      }
       Module.maplibreLayer = null
     }
     if (Module.stopOverlay) {
@@ -12202,6 +12208,15 @@ var ASM_CONSTS = {
       Module.overlay.teardown()
       Module.overlay.delete()
       Module.overlay = null
+    }
+    // Delete the GL context so it can be re-registered on next init
+    if (Module._glContextHandle) {
+      try {
+        GL.deleteContext(Module._glContextHandle);
+      } catch (e) {
+        console.warn('Error deleting GL context:', e);
+      }
+      Module._glContextHandle = null;
     }
   }
   function _initMapLibre(map,belowLayer) {
@@ -12220,11 +12235,13 @@ var ASM_CONSTS = {
         Module.map.triggerRepaint();
       }
     };
-    _initUI(() => Module.animateFor(5000));
+    // _initUI(() => Module.animateFor(5000));
+    // Pass repaint as the update callback instead of animateFor
+    // animateFor was causing constant repaints by extending animateUntilTime on every updateOverlay() call
+    _initUI(() => Module.repaint());
   
       // We'll check our own renderer periodically to see if it has changes to
       //  draw and keep drawing until it doesn't
-      // TODO: Have some way to shut this down
       Module.animationFrameRequested = false
       let repaintAndSchedule = () => {
         Module.repaint()
@@ -12261,6 +12278,8 @@ var ASM_CONSTS = {
         _glfwInit();
   
         const handle = GL.registerContext(gl, gl.getContextAttributes());
+        // Store handle so we can delete context on cleanup
+        Module._glContextHandle = handle;
         if (handle) {
           Module.ctx = GL.getContext(handle).GLctx;
           GL.makeContextCurrent(handle);

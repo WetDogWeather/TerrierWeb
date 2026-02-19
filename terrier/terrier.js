@@ -426,12 +426,17 @@ class TerrierLayer {
     stop() {
         if (this.sources) {
             this.sources.forEach(source => {
+            // Call shutdown() before delete() to properly release WASM resources
+            // and prevent memory leaks when switching between radar layers
+            try { source.shutdown(); } catch (e) { }
                 source.delete()
             });
             this.sources = undefined
         }
         if (this.temperatureSources) {
             this.temperatureSources.forEach(source => {
+                // Call shutdown() before delete() to properly release WASM resources
+                try { source.shutdown(); } catch (e) { }
                 source.delete()
             });
             this.temperatureSources = undefined
@@ -1474,13 +1479,10 @@ class TerrierModule {
         // Already initialized the module, so just call them back
         if ('Module' in globalThis) {
             if ('_initMap' in globalThis) {
-                // This is the normal case where the Module is properly set up
-                if (initFunc !== undefined) {
-                    Terrier.initFunc()
-                }
-                // This means the CustomLayer (or whatever) has not yet been invoked
-                //  So we need to delay the readyFunc callback, which is typically
-                //   when users set up their layers
+                // Set onOverlayInitialized BEFORE calling initFunc, because
+                // initFunc calls _initMapLibre which may synchronously call onAdd (when style
+                // is already loaded), and onAdd checks for this callback. If we set it after
+                // initFunc returns, the callback is missed on re-initialization after stop().
                 if (readyFunc) {
                     if (!Terrier.isReady) {
                         globalThis.Module.onOverlayInitialized = function() {
@@ -1495,6 +1497,10 @@ class TerrierModule {
                         // Let things settle a beat and then let the dev get set up
                         setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                     }
+                }
+                // This is the normal case where the Module is properly set up
+                if (initFunc !== undefined) {
+                    Terrier.initFunc()
                 }
             } else {
                 // This happens if they somehow do two start-map actions in a row
@@ -1589,6 +1595,7 @@ class TerrierModule {
             //  this also kicks off Emscriten
             var s = document.createElement('script');
             s.type = 'text/javascript';
+            // Note: May case problems if you need an absolute path
             s.src = 'WhirlyGlobeWeb.js';
             s.defer = 'defer';
             document.body.appendChild(s);            
@@ -1685,10 +1692,7 @@ class TerrierModule {
                 return Terrier.TIME_CLEAR_COLORS;
             default:
                 return Terrier.INDEXPLACE_COLORS_NOT_GREY
-                break;
         }
-        // Don't know what it is.  Obviously not the best.
-        return null
     }
 
     /**
@@ -2424,6 +2428,41 @@ class TerrierModule {
         globalThis.Module.enableVisual = false
         for (var key in globalThis.Module.controllerState) {
             globalThis.Module.controllerState[key].enabled = false
+            // Properly delete controller to avoid WASM memory leaks
+            const ctl = globalThis.Module.controllerState[key].controller;
+            if (ctl) {
+                try {
+                    ctl.stop(null);
+                    ctl.delete();
+                } catch (e) { console.warn('Error deleting controller:', e); }
+            }
+            globalThis.Module.controllerState[key].controller = null
+        }
+
+        // Clear controller references (already deleted above via controllerState)
+        globalThis.Module.radarCtl = null;
+        globalThis.Module.windCtl = null;
+        globalThis.Module.tempCtl = null;
+        globalThis.Module.visualCtl = null;
+
+        // Stop all active layers to release WASM resources
+        if (this.ovl) {
+            this.ovl.getLayers().forEach(l => {
+                try {
+                    this.ovl.stopLayer(l);
+                } catch (error) {
+                    console.warn('Error stopping layer during cleanup:', error);
+                }
+            });
+            this.ovl.activeLayers.clear();
+        }
+
+        // Delete the tracker to free WASM memory
+        if (globalThis.Module.tracker) {
+            try {
+                globalThis.Module.tracker.delete();
+            } catch (e) { console.warn("Error deleting tracker", e); }
+            globalThis.Module.tracker = null;
         }
     
         if (this.webglCanvasMode) {

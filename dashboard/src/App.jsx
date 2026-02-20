@@ -181,7 +181,7 @@ function App() {
     setLayers([])
     setCurLayer(-1)
 
-    Terrier.changeStack(stackName, null, (ovl) => {
+    Terrier.changeStack(stackName, "placeholderkey", (ovl) => {
       terrierReady(ovl)
     }, () => {
       console.log("Stack name was invalid.  Terrier won't work.")

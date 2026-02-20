@@ -1139,6 +1139,12 @@ class TerrierModule {
         Terrier.PRECIP_FLAG_COLORS = Terrier.createColorMap(
             [0, 1, 2, 3, 4, 5, 6, 7],
             [0x00000000, 0xFFffffff, 0xFF960096, 0xFFff3332, 0xFF0350a5, 0xFF6effff, 0xff00ff00, 0xff00ff00]);
+        Terrier.TURBULENCE_COLORS = Terrier.createColorMap(
+            [0, .10, .20, .30, .40, .50, .60, .70, .80, .90, 1.00],
+            [0x00000000, 0xFFd0fffe, 0xFFcbff06, 0xFFfacf00, 0xFFffa100, 0xFFff6800, 0xFFfb0c00, 0xFFcf0000, 0xFF9e0000, 0xFF6f0001, 0xFF220206]);
+        Terrier.CLOUD_COVER = Terrier.createColorMap(
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            [0xFF7db4ff, 0xFF81bcfc, 0xFF90c0ff, 0xFFa6c9fe, 0xFFbfd8fd, 0xFFc0d9fd, 0xFFb3c0d6, 0xFFa7aeb3, 0xFFa5acb1, 0xFF919191, 0xFF888888]);
         
 
         // A placeholder for an index value we haven't made a proper colormap for yet
@@ -1639,8 +1645,11 @@ class TerrierModule {
                     return Terrier.AEROSOLTYPE;
             }
         }
-        if (variable.name == 'uv_index') {
-            return Terrier.UVINDEX;
+        switch (variable.name.toLowerCase()) {
+            case "uv_index":
+                return Terrier.UVINDEX;
+            case "cloud_cover":
+                return Terrier.CLOUD_COVER;
         }
         if (variable.name == 'column_integrated_smoke') {
             return Terrier.SMOKE;
@@ -1680,6 +1689,8 @@ class TerrierModule {
                 return Terrier.HAIL_SIZE_COLORS;
             case "pressure":
                 return Terrier.PRESSURE_COLORS_NOT_GREY;
+            case "turbulence":
+                return Terrier.TURBULENCE_COLORS;
             case "none":
                 if (variable.name.includes("hail_swath")) {
                     return Terrier.HAIL_SIZE_COLORS;

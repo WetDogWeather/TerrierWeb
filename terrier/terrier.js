@@ -1145,7 +1145,10 @@ class TerrierModule {
         Terrier.CLOUD_COVER = Terrier.createColorMap(
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             [0xFF7db4ff, 0xFF81bcfc, 0xFF90c0ff, 0xFFa6c9fe, 0xFFbfd8fd, 0xFFc0d9fd, 0xFFb3c0d6, 0xFFa7aeb3, 0xFFa5acb1, 0xFF919191, 0xFF888888]);
-        
+        Terrier.CLOUD_COVER = Terrier.createColorMap(
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            [0xFF7db4ff, 0xFF81bcfc, 0xFF90c0ff, 0xFFa6c9fe, 0xFFbfd8fd, 0xFFc0d9fd, 0xFFb3c0d6, 0xFFa7aeb3, 0xFFa5acb1, 0xFF919191, 0xFF888888]);
+
 
         // A placeholder for an index value we haven't made a proper colormap for yet
         Terrier.INDEXPLACE_COLORS_NOT_GREY = Terrier.createColorMap(
@@ -1193,6 +1196,31 @@ class TerrierModule {
             0xff3A8323,
             0xff113208,0xff113208,
             0x00000000
+            ])
+        Terrier.VISIBILITY2 = Terrier.createColorMap(
+            [0.0*statMileToMeters,0.2*statMileToMeters,0.4*statMileToMeters,0.6*statMileToMeters,0.8*statMileToMeters,
+             1.0*statMileToMeters,1.4*statMileToMeters,1.8*statMileToMeters,
+             2.2*statMileToMeters,2.6*statMileToMeters,
+             3.0*statMileToMeters,3.9*statMileToMeters,
+             4.0*statMileToMeters,4.1*statMileToMeters,4.2*statMileToMeters,4.3*statMileToMeters,4.4*statMileToMeters,4.5*statMileToMeters,4.6*statMileToMeters,4.7*statMileToMeters,4.8*statMileToMeters,4.9*statMileToMeters,
+             5.0*statMileToMeters,5.5*statMileToMeters,
+             6.0*statMileToMeters,
+             7.0*statMileToMeters,
+             8.0*statMileToMeters,
+             9.0*statMileToMeters,9.9*statMileToMeters,
+             10.0*statMileToMeters
+            ],
+            [0xFF5D0E63,0xFF8C1A94,0xFFBB27C6,0xFFEA33F7,0xFFF19EFA,
+             0xFFA02015,0xFFEA3323,0xFFEC5B29,
+             0xFFEE8044,0xFFF3AE3D,
+             0xFFE6E687,0xFFA02015,
+             0xFF91FCFE,0xFF74FBFD,0xFF68E0FB,0xFF57BEF9,0xFF469DF8,0xFF367BF7,0xFF255AF6,0xFF0616F5,0xFF0600F5,0xFF1D4AF6,
+             0xFF1E4B10,0xFF255915,
+             0xFF30701D,
+             0xFF44982A,
+             0xFF58C038,
+             0xFF6CE846,0xFF77FC4C,
+             0x00000000
             ])
         Terrier.PERCENT_COLORS_NOT_GREY = Terrier.createColorMap(
             [0.0,100.0],
@@ -1651,6 +1679,9 @@ class TerrierModule {
             case "cloud_cover":
                 return Terrier.CLOUD_COVER;
         }
+        if (variable.name.toLowerCase().includes("cloud_cover")) {
+                return Terrier.CLOUD_COVER;            
+        }
         if (variable.name == 'column_integrated_smoke') {
             return Terrier.SMOKE;
         }
@@ -1678,7 +1709,7 @@ class TerrierModule {
                 }
                 return Terrier.PERCENT_COLORS_NOT_GREY;
             case "visibility":
-                return Terrier.VISIBILITY_COLORS_NOT_GREY;
+                return Terrier.VISIBILITY2;
             case "cloudceiling":
                 return Terrier.CLOUD_COLORS_NOT_GREY;
             case "preciptype":

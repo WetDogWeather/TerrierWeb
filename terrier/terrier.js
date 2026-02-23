@@ -1117,6 +1117,17 @@ class TerrierModule {
                 true, true, true, true, true, true, true, true,
                 true, true, true, true, true, true, true, true
             ]);
+        // Convert to mm/hr: 0.036 x 10^(0.0625 x dBZ)
+        Terrier.RAINFALL_RATE = Terrier.createColorMap([
+            0, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+            ].map((dbz) => { return 0.036 * Math.pow(10.0,0.0625*dbz) }), [
+                0x0010E6E7,
+                0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
+                0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA
+            ], [
+                true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true
+            ]);
         Terrier.SEVERE_HAIL_INDEX_COLORS = Terrier.createColorMap(
             [0, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 250, 500, 1500],
             [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 0xff009000, 
@@ -1179,6 +1190,39 @@ class TerrierModule {
             0xff2A6318,0xff2A6318,
             0x00000000
             ])
+        let hfeetToMeters = 100.0/3.28084
+        Terrier.CLOUD_CEILING2 = Terrier.createColorMap(
+            [0.0*hfeetToMeters,0.1*hfeetToMeters,0.2*hfeetToMeters,0.3*hfeetToMeters,0.4*hfeetToMeters,0.5*hfeetToMeters,0.6*hfeetToMeters,0.7*hfeetToMeters,0.8*hfeetToMeters,0.9*hfeetToMeters,
+             1.0*hfeetToMeters,1.2*hfeetToMeters,1.4*hfeetToMeters,1.6*hfeetToMeters,1.8*hfeetToMeters,
+             2.0*hfeetToMeters,2.2*hfeetToMeters,2.4*hfeetToMeters,2.6*hfeetToMeters,2.8*hfeetToMeters,
+             3.0*hfeetToMeters,3.5*hfeetToMeters,
+             4.0*hfeetToMeters,
+             5.0*hfeetToMeters,
+             6.0*hfeetToMeters,
+             7.0*hfeetToMeters,
+             8.0*hfeetToMeters,
+             9.0*hfeetToMeters,
+             10.0*hfeetToMeters,
+             11.0*hfeetToMeters,
+             12.0*hfeetToMeters,
+             12.0*hfeetToMeters
+            ],
+            [0xFF5D0E63,0xFF8C1A94,0xFFBB27C6,0xFFEA33F7,0xFFF19EFA,0xFFA02015,0xFFEA3323,0xFFEC5B29,0xFFEE8044,0xFFF3AE3D,      
+             0xFFE6E687,0xFFFBE779,0xFFFFFF79,0xFFFFFF65,0xFFFEF852,
+             0xFF91FCFE,0xFF68E0FB,0xFF469DF8,0xFF255AF6,0xFF0600F5,
+             0xFF1D4A0F,
+             0xFF215112,
+             0xFF275D16,
+             0xFF30701D,
+             0xFF3A8424,
+             0xFF44982A,
+             0xFF4EAC31,
+             0xFF57BF38,
+             0xAA61D33F,
+             0xDD6BE745,
+             0x006BE745,
+             0x00000000                 
+            ])
         let statMileToMeters = 1609.34
         Terrier.VISIBILITY_COLORS_NOT_GREY = Terrier.createColorMap(
             [0*statMileToMeters,1*statMileToMeters,
@@ -1222,6 +1266,10 @@ class TerrierModule {
              0xFF6CE846,0xFF77FC4C,
              0x00000000
             ])
+        Terrier.ICING = Terrier.createColorMap(
+            [0,1,1,2,3,4,5],
+            [0x00000000,0x00D8FDFD,0xFFD8FDFD,0xFFA4CCFB,0xFF7398F8,0xFF3334F3,0xFFEF8582]
+        )
         Terrier.PERCENT_COLORS_NOT_GREY = Terrier.createColorMap(
             [0.0,100.0],
             [0x00666666,0xff666666]
@@ -1678,9 +1726,14 @@ class TerrierModule {
                 return Terrier.UVINDEX;
             case "cloud_cover":
                 return Terrier.CLOUD_COVER;
+            case "icing_severity":
+                return Terrier.ICING;
         }
         if (variable.name.toLowerCase().includes("cloud_cover")) {
                 return Terrier.CLOUD_COVER;            
+        }
+        if (variable.name.toLowerCase().includes("precipitation_rate")) {
+                return Terrier.RAINFALL_RATE;            
         }
         if (variable.name == 'column_integrated_smoke') {
             return Terrier.SMOKE;
@@ -1711,7 +1764,7 @@ class TerrierModule {
             case "visibility":
                 return Terrier.VISIBILITY2;
             case "cloudceiling":
-                return Terrier.CLOUD_COLORS_NOT_GREY;
+                return Terrier.CLOUD_CEILING2;
             case "preciptype":
                 return Terrier.PRECIP_FLAG_COLORS;
             case "severehailindex":

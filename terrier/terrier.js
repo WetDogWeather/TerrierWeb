@@ -47,6 +47,7 @@ class TerrierLayer {
         this.colorMap = null
         this.renderScale = 0.5
         this.importScale = 8.0
+        this.startupParams = params
 
         this.setup(params)
     }
@@ -83,6 +84,9 @@ class TerrierLayer {
         }
         if ('colorMap' in params) {
             this.colorMap = params['colorMap']
+        }
+        if ('snowColorMap' in params) {
+            this.snowColorMap = params['snowColorMap']
         }
         if ('renderScale' in params) {
             this.renderScale = params['renderScale']
@@ -121,6 +125,9 @@ class TerrierLayer {
             console.log("TerrierLayer: No sources set.  Giving up.")
             return
         }
+        // Optional temperature sources for reflectivity precip type
+        let temperatureJsonSources = params['temperatureSources']
+
         let dataType = jsonSources[0].dataType
         this.dataType = dataType
 
@@ -154,6 +161,29 @@ class TerrierLayer {
             )
             sources.push(source)
         })
+        var temperatureSources = null
+        if (temperatureJsonSources != undefined && temperatureJsonSources && temperatureJsonSources.length > 0) {
+            temperatureSources = []
+            temperatureJsonSources.forEach(jsonSource => {
+                let source = new globalThis.Module.TrrDataSource(
+                    jsonSource.source,
+                    jsonSource.region,
+                    jsonSource.product,
+                    jsonSource.variable,
+                    jsonSource.level,
+                    jsonSource.interval,
+                    jsonSource.temporalType,
+                    jsonSource.dataType,
+                    jsonSource.projection,
+                    jsonSource.depth,
+                    jsonSource.isGlobal,
+                    jsonSource.hasMissingValues,
+                    jsonSource.zeroNoData,
+                    jsonSource.importanceScale,
+                )
+                temperatureSources.push(source)
+            })
+        }
 
         // Look for a matching controller state below
         let findControllerState = (name) => {
@@ -276,6 +306,11 @@ class TerrierLayer {
                 }
                 globalThis.Module.radarScale = this.renderScale
                 globalThis.Module.radarSources = sources
+                if (temperatureSources) {
+                    globalThis.Module.tempSources = temperatureSources
+                    globalThis.Module.radarSnowColorMap = this.snowColorMap ? this.snowColorMap : Terrier.SNOW_COLORS_NOT_GREY;
+                } else
+                    globalThis.Module.tempSources = null
                 foundState = findControllerState("radar")
                 break;
             case "visual":
@@ -326,6 +361,7 @@ class TerrierLayer {
 
         foundState.sources = sources
         this.sources = sources
+        this.temperatureSources = temperatureSources
         this.state = foundState
 
         if (this.cadence) {
@@ -381,18 +417,29 @@ class TerrierLayer {
      * call this yourself.
      */
     refresh() {
-        this.stop()
-        globalThis.Module.updateOverlay()
-        this.setup({})
+        if (this.state && this.state.controller) {
+            this.state.controller.refresh(null)
+        }
     }
 
     // Don't call this directly.  Use the TerrierOverlay
     stop() {
         if (this.sources) {
             this.sources.forEach(source => {
+            // Call shutdown() before delete() to properly release WASM resources
+            // and prevent memory leaks when switching between radar layers
+            try { source.shutdown(); } catch (e) { }
                 source.delete()
             });
             this.sources = undefined
+        }
+        if (this.temperatureSources) {
+            this.temperatureSources.forEach(source => {
+                // Call shutdown() before delete() to properly release WASM resources
+                try { source.shutdown(); } catch (e) { }
+                source.delete()
+            });
+            this.temperatureSources = undefined
         }
         switch (this.dataType) {
             // Three of these are special
@@ -515,6 +562,21 @@ class TerrierLayer {
     }
 
     /**
+     * If you'd like to set the color map directly, which you're allowed to
+     * do at run time, you can do so here.  The method is expecting a TrrShaderColorMap
+     * object which you'll need to set up yourself.
+     * @param {TrrShaderColorMap} colorMap The color map to set for this layer.
+     */
+    setSnowColorMap(colorMap) {
+        if (!colorMap) {
+            return
+        }
+        this.snowColorMap = colorMap
+        this.state.controller.snowColorMap = colorMap
+        globalThis.Module.repaint()
+    }
+
+    /**
      * Change the cadence (time range and time steps).
      * If the data has already loaded, this will only change the start/end
      * times of the display.
@@ -524,7 +586,7 @@ class TerrierLayer {
             return
         }
         this.cadence = cadence
-        this.state.controller.cadence = new Module.TrrSourceCadence(...cadence)
+        this.state.controller.setCadence(cadence[0],cadence[1],cadence[2])
     }
 
     /**
@@ -975,8 +1037,8 @@ class TerrierModule {
         Terrier.RADAR_COLORS_NOT_GREY = Terrier.createColorMap([
         -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
         ], [
-            0x00000000,   // Not actually present in the data
-            0x00000000,   // "
+            0xFFAAAAAA,   // Not actually present in the data
+            0xFF000000,   // "
             0x11FFFFFF,   // Data present but no returns
             0x4410E6E7, 0x7710E6E7, 0xBB10E6E7, // Not visible either
             0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
@@ -987,6 +1049,57 @@ class TerrierModule {
             true, true, true, true, true, true,
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
+        ]);
+        Terrier.SNOW_COLORS_NOT_GREY = Terrier.createColorMap([
+        -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+        ], [
+            0x00000000,   // Not actually present in the data
+            0x00000000,   // "
+            0x00FFFFFF,   // Data present but no returns
+            0x00cffcfc, 0x00cffcfc, 0xBBcffcfc, // Not visible either
+            0xFFcffcfc, 0xFFcffcfc, 0xFFcdedfe, 0xFFcdccff, 0xFFccffce, 0xFFccffcc, 0xFFceffcc, 0xFFfefecd, 
+            0xFFfef4cd, 0xFFfeeacd, 0xFFFE0002, 0xFFffcccc, 0xFFffcdcc, 0xFFfecdfe, 0xFFe9d8f3, 0xFFece6df,
+        ], [
+            false, false, false,
+            false, false, false,
+            true, true, true, true, true, true,
+            true, true, true, true, true, true, true, true,
+            true, true, true, true, true, true, true, true
+        ]);
+        Terrier.WEATHER_COLORS = Terrier.createColorMap([
+            // Fair, Rain, Mix, Snow, Sleet, Freezing Rain, Severe, Thunderstorm, Hail = 8, HIWIND = 9
+            // SVRWND = 10, BLZRD = 11, ICING = 12, ICEFOG = 13, FZFOG = 14, FOG = 15, WINDY = 16
+            // HAZE = 17, MIST = 18, FZDZ = 19, DRZL = 20, BLSNOW = 21, FIREWX = 22, XHEAT = 23, XCOLD = 24, UNKNOWN
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
+        ], [
+            0x00000000, // Fair
+            0xFF009100, // Rain
+            0xFFa01a93, // Mix
+            0xFF124e82, // Snow
+            0xFFffbe71, // Sleet
+            0xFFf98407, // Freezing Rain
+            0xFFe4333d, // Severe
+            0xFFff00ff, // thunrderstorm
+            0xFF950000, // Hail = 8
+            0xFF777777, // HIWIND = 9
+            0xFF777777, // SVRWND = 10
+            0xFF777777, // BLZRD = 11
+            0xFF777777, // ICING = 12
+            0xFF777777, // ICEFOG = 13
+            0xFF777777, // FZFOG = 14
+            0xFF777777, // FOG = 15
+            0xFF777777, // WINDY = 16
+            0xFF777777, // HAZE = 17
+            0xFF777777, // MIST = 18
+            0xFF777777, // FZDZ = 19
+            0xFF777777, // DRZL = 20
+            0xFF777777, // BLSNOW = 21
+            0xFF777777, // FIREWX = 22
+            0xFF777777, // XHEAT = 23
+            0xFF777777, // XCOLD = 24
+            0xFFff00ff  // Unknown
+        ], [
+            false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true
         ]);
         Terrier.REFLECTIVITY_HRRR_COMPATIBLE = Terrier.createColorMap([
             -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
@@ -1001,6 +1114,17 @@ class TerrierModule {
                 false, false, false,
                 false, false, false,
                 true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true
+            ]);
+        // Convert to mm/hr: 0.036 x 10^(0.0625 x dBZ)
+        Terrier.RAINFALL_RATE = Terrier.createColorMap([
+            0, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+            ].map((dbz) => { return 0.036 * Math.pow(10.0,0.0625*dbz) }), [
+                0x0010E6E7,
+                0xFF10E6E7, 0xFF10E6E7, 0xFF069FF3, 0xFF0400F0, 0xFF01FC08, 0xFF02C701, 0xFF068D01, 0xFFF6F602, 
+                0xFFE6BA03, 0xFFF79505, 0xFFFE0002, 0xFFD60401, 0xFFBB0200, 0xFFF807F6, 0xFF9A52C8, 0xFFFCFBFA
+            ], [
                 true, true, true, true, true, true, true, true,
                 true, true, true, true, true, true, true, true
             ]);
@@ -1026,7 +1150,16 @@ class TerrierModule {
         Terrier.PRECIP_FLAG_COLORS = Terrier.createColorMap(
             [0, 1, 2, 3, 4, 5, 6, 7],
             [0x00000000, 0xFFffffff, 0xFF960096, 0xFFff3332, 0xFF0350a5, 0xFF6effff, 0xff00ff00, 0xff00ff00]);
-        
+        Terrier.TURBULENCE_COLORS = Terrier.createColorMap(
+            [0, .10, .20, .30, .40, .50, .60, .70, .80, .90, 1.00],
+            [0x00000000, 0xFFd0fffe, 0xFFcbff06, 0xFFfacf00, 0xFFffa100, 0xFFff6800, 0xFFfb0c00, 0xFFcf0000, 0xFF9e0000, 0xFF6f0001, 0xFF220206]);
+        Terrier.CLOUD_COVER = Terrier.createColorMap(
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            [0xFF7db4ff, 0xFF81bcfc, 0xFF90c0ff, 0xFFa6c9fe, 0xFFbfd8fd, 0xFFc0d9fd, 0xFFb3c0d6, 0xFFa7aeb3, 0xFFa5acb1, 0xFF919191, 0xFF888888]);
+        Terrier.CLOUD_COVER = Terrier.createColorMap(
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            [0xFF7db4ff, 0xFF81bcfc, 0xFF90c0ff, 0xFFa6c9fe, 0xFFbfd8fd, 0xFFc0d9fd, 0xFFb3c0d6, 0xFFa7aeb3, 0xFFa5acb1, 0xFF919191, 0xFF888888]);
+
 
         // A placeholder for an index value we haven't made a proper colormap for yet
         Terrier.INDEXPLACE_COLORS_NOT_GREY = Terrier.createColorMap(
@@ -1057,6 +1190,39 @@ class TerrierModule {
             0xff2A6318,0xff2A6318,
             0x00000000
             ])
+        let hfeetToMeters = 100.0/3.28084
+        Terrier.CLOUD_CEILING2 = Terrier.createColorMap(
+            [0.0*hfeetToMeters,0.1*hfeetToMeters,0.2*hfeetToMeters,0.3*hfeetToMeters,0.4*hfeetToMeters,0.5*hfeetToMeters,0.6*hfeetToMeters,0.7*hfeetToMeters,0.8*hfeetToMeters,0.9*hfeetToMeters,
+             1.0*hfeetToMeters,1.2*hfeetToMeters,1.4*hfeetToMeters,1.6*hfeetToMeters,1.8*hfeetToMeters,
+             2.0*hfeetToMeters,2.2*hfeetToMeters,2.4*hfeetToMeters,2.6*hfeetToMeters,2.8*hfeetToMeters,
+             3.0*hfeetToMeters,3.5*hfeetToMeters,
+             4.0*hfeetToMeters,
+             5.0*hfeetToMeters,
+             6.0*hfeetToMeters,
+             7.0*hfeetToMeters,
+             8.0*hfeetToMeters,
+             9.0*hfeetToMeters,
+             10.0*hfeetToMeters,
+             11.0*hfeetToMeters,
+             12.0*hfeetToMeters,
+             12.0*hfeetToMeters
+            ],
+            [0xFF5D0E63,0xFF8C1A94,0xFFBB27C6,0xFFEA33F7,0xFFF19EFA,0xFFA02015,0xFFEA3323,0xFFEC5B29,0xFFEE8044,0xFFF3AE3D,      
+             0xFFE6E687,0xFFFBE779,0xFFFFFF79,0xFFFFFF65,0xFFFEF852,
+             0xFF91FCFE,0xFF68E0FB,0xFF469DF8,0xFF255AF6,0xFF0600F5,
+             0xFF1D4A0F,
+             0xFF215112,
+             0xFF275D16,
+             0xFF30701D,
+             0xFF3A8424,
+             0xFF44982A,
+             0xFF4EAC31,
+             0xFF57BF38,
+             0xAA61D33F,
+             0xDD6BE745,
+             0x006BE745,
+             0x00000000                 
+            ])
         let statMileToMeters = 1609.34
         Terrier.VISIBILITY_COLORS_NOT_GREY = Terrier.createColorMap(
             [0*statMileToMeters,1*statMileToMeters,
@@ -1075,6 +1241,35 @@ class TerrierModule {
             0xff113208,0xff113208,
             0x00000000
             ])
+        Terrier.VISIBILITY2 = Terrier.createColorMap(
+            [0.0*statMileToMeters,0.2*statMileToMeters,0.4*statMileToMeters,0.6*statMileToMeters,0.8*statMileToMeters,
+             1.0*statMileToMeters,1.4*statMileToMeters,1.8*statMileToMeters,
+             2.2*statMileToMeters,2.6*statMileToMeters,
+             3.0*statMileToMeters,3.9*statMileToMeters,
+             4.0*statMileToMeters,4.1*statMileToMeters,4.2*statMileToMeters,4.3*statMileToMeters,4.4*statMileToMeters,4.5*statMileToMeters,4.6*statMileToMeters,4.7*statMileToMeters,4.8*statMileToMeters,4.9*statMileToMeters,
+             5.0*statMileToMeters,5.5*statMileToMeters,
+             6.0*statMileToMeters,
+             7.0*statMileToMeters,
+             8.0*statMileToMeters,
+             9.0*statMileToMeters,9.9*statMileToMeters,
+             10.0*statMileToMeters
+            ],
+            [0xFF5D0E63,0xFF8C1A94,0xFFBB27C6,0xFFEA33F7,0xFFF19EFA,
+             0xFFA02015,0xFFEA3323,0xFFEC5B29,
+             0xFFEE8044,0xFFF3AE3D,
+             0xFFE6E687,0xFFA02015,
+             0xFF91FCFE,0xFF74FBFD,0xFF68E0FB,0xFF57BEF9,0xFF469DF8,0xFF367BF7,0xFF255AF6,0xFF0616F5,0xFF0600F5,0xFF1D4AF6,
+             0xFF1E4B10,0xFF255915,
+             0xFF30701D,
+             0xFF44982A,
+             0xFF58C038,
+             0xFF6CE846,0xFF77FC4C,
+             0x00000000
+            ])
+        Terrier.ICING = Terrier.createColorMap(
+            [0,1,1,2,3,4,5],
+            [0x00000000,0x00D8FDFD,0xFFD8FDFD,0xFFA4CCFB,0xFF7398F8,0xFF3334F3,0xFFEF8582]
+        )
         Terrier.PERCENT_COLORS_NOT_GREY = Terrier.createColorMap(
             [0.0,100.0],
             [0x00666666,0xff666666]
@@ -1294,6 +1489,41 @@ class TerrierModule {
                ]    
            )
 
+            Terrier.SMOKE = Terrier.createColorMap(
+            [0.0, 1,
+             1, 4,
+             4, 7,
+             7, 11,
+             11, 15,
+             15, 20,
+             20, 25,
+             25, 30,
+             30,40,
+             40, 50,
+             50, 75,
+             75, 150,
+             150, 250,
+             250, 500,
+             500
+            ],
+            [0x00000000, 0x00000000,
+                0xffd0e2f3, 0xffd0e2f3,
+                0xff94c4df, 0xff94c4df,
+                0xff4998c9, 0xff4998c9,
+                0xff1564ab, 0xff1564ab,
+                0xff108446, 0xff108446,
+                0xff55b45f, 0xff55b45f,
+                0xffa2d86a, 0xffa2d86a,
+                0xfffff7b0, 0xfffff7b0,
+                0xfffcab5f, 0xfffcab5f,
+                0xfff7844e, 0xfff7844e,
+                0xffed5f3d, 0xffed5f3d,
+                0xffc21d27, 0xffc21d27,
+                0xffa50026, 0xffa50026,
+                0xffa50026
+               ]    
+           )
+
         }
 
     /**
@@ -1331,13 +1561,10 @@ class TerrierModule {
         // Already initialized the module, so just call them back
         if ('Module' in globalThis) {
             if ('_initMap' in globalThis) {
-                // This is the normal case where the Module is properly set up
-                if (initFunc !== undefined) {
-                    Terrier.initFunc()
-                }
-                // This means the CustomLayer (or whatever) has not yet been invoked
-                //  So we need to delay the readyFunc callback, which is typically
-                //   when users set up their layers
+                // Set onOverlayInitialized BEFORE calling initFunc, because
+                // initFunc calls _initMapLibre which may synchronously call onAdd (when style
+                // is already loaded), and onAdd checks for this callback. If we set it after
+                // initFunc returns, the callback is missed on re-initialization after stop().
                 if (readyFunc) {
                     if (!Terrier.isReady) {
                         globalThis.Module.onOverlayInitialized = function() {
@@ -1352,6 +1579,10 @@ class TerrierModule {
                         // Let things settle a beat and then let the dev get set up
                         setTimeout( () => {Terrier.readyFunc(Terrier.ovl) }, 0)
                     }
+                }
+                // This is the normal case where the Module is properly set up
+                if (initFunc !== undefined) {
+                    Terrier.initFunc()
                 }
             } else {
                 // This happens if they somehow do two start-map actions in a row
@@ -1413,6 +1644,7 @@ class TerrierModule {
 
                 globalThis.Module.service = new globalThis.Module.TrrService();
                 globalThis.Module.service.stackName = Terrier.stackName;
+                globalThis.Module.service.apiKey = Terrier.apiKey;
                 globalThis.Module.service.apiVersion = 2;
                 globalThis.Module.tempCadence = [-24 * 3600, 24 * 3600, 40];
                 globalThis.Module.windCadence = [-25 * 3600, 24 * 3600, 40];
@@ -1445,6 +1677,7 @@ class TerrierModule {
             //  this also kicks off Emscriten
             var s = document.createElement('script');
             s.type = 'text/javascript';
+            // Note: May cause problems if you need an absolute path
             s.src = 'WhirlyGlobeWeb.js';
             s.defer = 'defer';
             document.body.appendChild(s);            
@@ -1461,6 +1694,9 @@ class TerrierModule {
      * @returns A trrColorMap you can pass to the Layer creation.
      */
     colorMapForVariable(variable) {
+        if (variable.name == 'weather') {
+            return Terrier.WEATHER_COLORS;
+        }
         if (variable.source == 'flashwx') {
             switch (variable.name) {
                 case "lightning_probability":
@@ -1485,8 +1721,22 @@ class TerrierModule {
                     return Terrier.AEROSOLTYPE;
             }
         }
-        if (variable.name == 'uv_index') {
-            return Terrier.UVINDEX;
+        switch (variable.name.toLowerCase()) {
+            case "uv_index":
+                return Terrier.UVINDEX;
+            case "cloud_cover":
+                return Terrier.CLOUD_COVER;
+            case "icing_severity":
+                return Terrier.ICING;
+        }
+        if (variable.name.toLowerCase().includes("cloud_cover")) {
+                return Terrier.CLOUD_COVER;            
+        }
+        if (variable.name.toLowerCase().includes("precipitation_rate")) {
+                return Terrier.RAINFALL_RATE;            
+        }
+        if (variable.name == 'column_integrated_smoke') {
+            return Terrier.SMOKE;
         }
         if (variable.units) {
             switch(variable.units.toLowerCase()) {
@@ -1512,9 +1762,9 @@ class TerrierModule {
                 }
                 return Terrier.PERCENT_COLORS_NOT_GREY;
             case "visibility":
-                return Terrier.VISIBILITY_COLORS_NOT_GREY;
+                return Terrier.VISIBILITY2;
             case "cloudceiling":
-                return Terrier.CLOUD_COLORS_NOT_GREY;
+                return Terrier.CLOUD_CEILING2;
             case "preciptype":
                 return Terrier.PRECIP_FLAG_COLORS;
             case "severehailindex":
@@ -1523,6 +1773,8 @@ class TerrierModule {
                 return Terrier.HAIL_SIZE_COLORS;
             case "pressure":
                 return Terrier.PRESSURE_COLORS_NOT_GREY;
+            case "turbulence":
+                return Terrier.TURBULENCE_COLORS;
             case "none":
                 if (variable.name.includes("hail_swath")) {
                     return Terrier.HAIL_SIZE_COLORS;
@@ -1535,10 +1787,7 @@ class TerrierModule {
                 return Terrier.TIME_CLEAR_COLORS;
             default:
                 return Terrier.INDEXPLACE_COLORS_NOT_GREY
-                break;
         }
-        // Don't know what it is.  Obviously not the best.
-        return null
     }
 
     /**
@@ -1589,7 +1838,11 @@ class TerrierModule {
                 // console.log("fetchStackContents() short circuited by shuttingDown")
                 return
             }
-            fetch(endpoint + "/manifest/v2/getvisualvarkeys")
+            fetch(endpoint + "/manifest/v2/getvisualvarkeys",
+                  {headers: {'Authorization': 'Bearer ' + Terrier.apiKey,
+                             'Access-Control-Request-Method': 'GET'
+                            }}
+                )
                 .then((response) =>  {
                     if (response.ok) {
                         return response.json()
@@ -1943,13 +2196,20 @@ class TerrierModule {
      * @param {function(): void} failedFunc If the stack can't be reached, for whatever
      * reason, we call this function with no arguments.
      */
-    changeStack(stackName, readyFunc, failedFunc) {
+    changeStack(stackName, apiKey, readyFunc, failedFunc) {
         // If they call it too early, just ignore it
         if (!this.isReady) { return }
         if (this.stackName == stackName) { return }
-
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        if (apiKey) {
+            this.apiKey = apiKey
+        }
         this.stackName = stackName
         globalThis.Module.service.stackName = Terrier.stackName;
+        globalThis.Module.service.apiKey = Terrier.apiKey;
 
         this.fetchStackContents( () => {
             readyFunc(Terrier.ovl)
@@ -1974,8 +2234,13 @@ class TerrierModule {
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
      */
-    startLeaflet(stackName, canvasLayer, readyFunc) {
+    startLeaflet(stackName, apiKey, canvasLayer, readyFunc) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
 
         // Already started, so just call them back
         this.shuttingDown = false;
@@ -2061,8 +2326,13 @@ class TerrierModule {
      * @param belowLayer If set, we'll ask MapLibre to put our new layer below this one.
      * Typically this lets you put the weather below the labels.
      */
-    startMapLibre(stackName, maplibreMap, readyFunc, belowLayer) {
+    startMapLibre(stackName, apiKey, maplibreMap, readyFunc, belowLayer) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
         if (maplibreMap == undefined) {
             console.log('Need to pass the MapLibre map into TerrierInit.  Not starting.')
             return
@@ -2113,8 +2383,13 @@ class TerrierModule {
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
      */
-    startArcGIS(stackName, arcGISMapView, readyFunc) {
+    startArcGIS(stackName, apiKey, arcGISMapView, readyFunc) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
         if (arcGISMapView == undefined) {
             console.log('Need to pass the ArcGIS map into TerrierInit.  Not starting.')
             return
@@ -2157,8 +2432,13 @@ class TerrierModule {
      * call this function back with the TerrierOverlay you can use to start new
      * layer displays.
      */
-    startOpenLayers(stackName, openLayersMap, canvasLayer, readyFunc) {
+    startOpenLayers(stackName, apiKey, openLayersMap, canvasLayer, readyFunc) {
         this.stackName = stackName
+        if (typeof apiKey !== 'string') {
+            console.log("apiKey must be set to string")
+            return
+        }
+        this.apiKey = apiKey
         if (openLayersMap == undefined || canvasLayer == undefined) {
             console.log('Need to pass the OpenLayers map and the canvasLayer into TerrierInit.  Not starting.')
             return
@@ -2243,6 +2523,41 @@ class TerrierModule {
         globalThis.Module.enableVisual = false
         for (var key in globalThis.Module.controllerState) {
             globalThis.Module.controllerState[key].enabled = false
+            // Properly delete controller to avoid WASM memory leaks
+            const ctl = globalThis.Module.controllerState[key].controller;
+            if (ctl) {
+                try {
+                    ctl.stop(null);
+                    ctl.delete();
+                } catch (e) { console.warn('Error deleting controller:', e); }
+            }
+            globalThis.Module.controllerState[key].controller = null
+        }
+
+        // Clear controller references (already deleted above via controllerState)
+        globalThis.Module.radarCtl = null;
+        globalThis.Module.windCtl = null;
+        globalThis.Module.tempCtl = null;
+        globalThis.Module.visualCtl = null;
+
+        // Stop all active layers to release WASM resources
+        if (this.ovl) {
+            this.ovl.getLayers().forEach(l => {
+                try {
+                    this.ovl.stopLayer(l);
+                } catch (error) {
+                    console.warn('Error stopping layer during cleanup:', error);
+                }
+            });
+            this.ovl.activeLayers.clear();
+        }
+
+        // Delete the tracker to free WASM memory
+        if (globalThis.Module.tracker) {
+            try {
+                globalThis.Module.tracker.delete();
+            } catch (e) { console.warn("Error deleting tracker", e); }
+            globalThis.Module.tracker = null;
         }
     
         if (this.webglCanvasMode) {

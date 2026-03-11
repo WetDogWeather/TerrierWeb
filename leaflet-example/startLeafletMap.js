@@ -14,7 +14,7 @@ function startMap() {
 	}).addTo(map);
 
     var canvasLayer = L.realtimeCanvasLayer()
-    Terrier.startLeaflet('dev', canvasLayer, (ovl) => {
+    Terrier.startLeaflet('dev', "5f399f64-af7a-4902-a147-db4da405017c", canvasLayer, (ovl) => {
         // Toss in country/state outlines
         // ["ne_50m_admin_0_countries", "ne_50m_admin_1_states_provinces"].forEach(c =>
         //     fetch("geojson/" + c + ".geojson").then(result =>

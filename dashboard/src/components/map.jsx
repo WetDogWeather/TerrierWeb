@@ -16,7 +16,7 @@ export default function Map({stackName,readyFunc,fullScreen,mapName,onClick}) {
   // Called when the stackName changes
   useEffect(() => {
     if (stackName == Terrier.stackName) { return  }
-    Terrier.changeStack(stackName, (ovl) => {
+    Terrier.changeStack(stackName, null, (ovl) => {
         readyFunc(ovl)
     }, () => {
         console.log("Unable to use stack named: " + stackName)
@@ -53,7 +53,8 @@ export default function Map({stackName,readyFunc,fullScreen,mapName,onClick}) {
       }
       
       // Tell Terrier to hook itself into MapLibre
-      Terrier.startMapLibre(stackName, newMap, (ovl) => {
+      let apiKey = "5f399f64-af7a-4902-a147-db4da405017c"
+      Terrier.startMapLibre(stackName, apiKey, newMap, (ovl) => {
           readyFunc(ovl)
 
           // Tell us what's in the stack

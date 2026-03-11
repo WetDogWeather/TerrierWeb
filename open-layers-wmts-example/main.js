@@ -18,6 +18,7 @@ let service='WMTS'
 // Note: Our dev stack isn't provisioned for performant WMS queries.  Use your own, which is.
 const stackName = "dev"
 const tileServer = "https://" + stackName + ".api.wetdogweather.com/"
+// const tileServer = "http://ec2-35-94-175-139.us-west-2.compute.amazonaws.com:9009/"
 
 // This is the important bit, the getCapabilities call
 const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SERVICE=" + service
@@ -25,7 +26,7 @@ const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SE
 if (service == 'WMS') {
   // Create a layer from WMS data
   let data = new WMSData(capURL);
-  let dataLayer = await data.getLayer('hrrr-conus-sfcf-temperature-2m-16-projected');
+  let dataLayer = await data.getLayer('myradar-global-none-reflectivity-none-32-epsg_3857');
   let bbox = data.getBBox();
 
   const imgLayer = new ImageLayer({
@@ -37,14 +38,15 @@ if (service == 'WMS') {
 } else {
   // Create a layer from WMTS data
   let data = new WMTSData(capURL)
-  let dataLayer = await data.getLayer('hrrr-conus-sfcf-cloud_ceiling-none-16-projected',
+  let dataLayer = await data.getLayer('rtma-conus-ru-wind_speed_gust-10m-16-epsg_3857',
                   {opacity: 0.5,
-                   style: 'truwx_ceiling'})
+                   style: 'truwx_wind'})
   // dataLayer.updateDimensions({'style': 'mp_viridis'});
   
   const dataTileLayer =  new TileLayer({opacity: 0.5, source: dataLayer});
 
   // Iterate through the list of times available
+  dataLayer.curTimeDim = dataLayer.timeDim.Value.length-1
   setInterval(()=> {
     let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
     console.log("Switching time to " + newDim)
@@ -52,8 +54,10 @@ if (service == 'WMS') {
     dataLayer.curTimeDim = dataLayer.curTimeDim + 1
     if (dataLayer.curTimeDim >= dataLayer.timeDim.Value.length) {
       dataLayer.curTimeDim = 0
+    } else {
+      dataLayer.curTimeDim = dataLayer.curTimeDim + 1
     }
-  }, 2000)
+  }, 1000)
 
   layers.push(dataTileLayer);
 }

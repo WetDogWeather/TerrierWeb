@@ -28,7 +28,7 @@ canvasLayer.setZIndex(99)
 
 // Call into Terrier with our interface layer and OpenLayers map
 // Terrier will get set up and then call us back for the rest
-Terrier.startOpenLayers("dev", map, canvasLayer, (ovl) => {
+Terrier.startOpenLayers("dev", "5f399f64-af7a-4902-a147-db4da405017c", map, canvasLayer, (ovl) => {
   // Standard sources for north america
   let normalSources = ['rtma', 'gfs', 'hrrr']
 

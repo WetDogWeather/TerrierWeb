@@ -11,30 +11,51 @@ function startMap() {
     });
 
     // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre('dev', map, (ovl) => {
+    Terrier.startMapLibre('dev', "5f399f64-af7a-4902-a147-db4da405017c", map, (ovl) => {
         let mrms_refl = Terrier.sourcesForVariable({source:'mrms',region:'conus',product:'mbr',variable:'reflectivity'})
+        let temperature = Terrier.sourcesForVariable({source:['hrrr'],region:'conus',variable:'temperature'})
         let hrrr_refl = Terrier.sourcesForVariable({source:'hrrr',region:'conus',variable:'reflectivity'})
 
-        // let mrmsLayer = ovl.startLayer('reflectivity', {
-        //     sources: mrms_refl,
-        //     colorMap: Terrier.RADAR_COLORS_NOT_GREY,
-        //     timeRange: [-4*60*60,0,64],
-        //     interpMode: 'linear',
-        //     opacity: 0.5,
-        //     importFactor: 16.0,
-        // })
-
-        let hrrrLayer = ovl.startLayer('reflectivity', {
-            sources: hrrr_refl,
-            colorMap: Terrier.RADAR_COLORS_NOT_GREY,
-            timeRange: [0,4*60*60,64],
+        let mrmsLayer = ovl.startLayer('reflectivity', {
+            sources: mrms_refl,
+            temperatureSources: temperature,
+            colorMap: Terrier.REFLECTIVITY_HRRR_COMPATIBLE,
+            snowColorMap: Terrier.SNOW_COLORS_NOT_GREY,
+            cadence: [-4*60*60,0,64],
             interpMode: 'linear',
             opacity: 0.5,
             importFactor: 16.0,
         })
 
+        // Refresh every two minutes
+        let recurringTimeout = () => {
+        setTimeout(() => {
+            console.log("Refreshing")
+            // Tell the layer to refresh with a new time range
+            let newCadence = [-4*60*60,0,64]
+            mrmsLayer.setCadence(newCadence);
+
+            // Update the overlay with the same
+            let now = Date.now()
+            ovl.setTimeRange(now+newCadence[0]*1000,now+newCadence[1]*1000)
+
+            recurringTimeout()
+        }, 2*60*1000)
+    }
+
+        // let hrrrLayer = ovl.startLayer('reflectivity', {
+        //     sources: hrrr_refl,
+        //     colorMap: Terrier.RADAR_COLORS_NOT_GREY,
+        //     timeRange: [0,4*60*60,64],
+        //     interpMode: 'linear',
+        //     opacity: 0.5,
+        //     importFactor: 16.0,
+        // })
+
         // Animate the results
         ovl.timePlay({period: 10.0})
+
+        recurringTimeout()
     })
 
     return map

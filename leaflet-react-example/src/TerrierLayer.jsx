@@ -122,7 +122,7 @@ function TerrierLayer() {
 
     // Tell Terrier to hook itself into the canvas and start loading itself
     // This calls the Leaflet variant
-    Terrier.startLeaflet('dev',canvasLayer, (ovl) => {
+    Terrier.startLeaflet('dev',"5f399f64-af7a-4902-a147-db4da405017c",canvasLayer, (ovl) => {
       startupFunc(ovl)
     })
 

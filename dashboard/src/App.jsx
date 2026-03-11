@@ -82,8 +82,20 @@ function interpForVariable(variable) {
         return 0;
       }
   }
+  if (variable.name == 'weather') {
+    return 0;
+  }
 
   return 1
+}
+
+// Some variables need to be snapped to a frame.  Mostly types.
+function snapForVariable(variable) {
+  if (variable.name == 'weather') {
+      return 1
+  }
+
+  return 0
 }
 
 // Come up with a good time range for a variable
@@ -169,7 +181,7 @@ function App() {
     setLayers([])
     setCurLayer(-1)
 
-    Terrier.changeStack(stackName, (ovl) => {
+    Terrier.changeStack(stackName, "placeholderkey", (ovl) => {
       terrierReady(ovl)
     }, () => {
       console.log("Stack name was invalid.  Terrier won't work.")
@@ -333,6 +345,7 @@ function App() {
             if (radarOnly) {
               searchParams['source'] = ["mrms"]
               searchParams['product'] = ["mbr"]
+              searchParams['region'] = ["conus"]
             } else {
               searchParams['source'] = ["gfs", "mrms", "hrrr"]
               searchParams['product'] = ["mbr", "atmos"]
@@ -357,15 +370,27 @@ function App() {
       }
       let sources = Terrier.sourcesForVariable(searchParams)
 
+      // For reflectivity we have the option of adding a temperature source for precip type
+      var temperatureSources = null
+      if (varName.includes('reflectivity')) {
+        temperatureSources = Terrier.sourcesForVariable(
+          {"source": ["gfs","hrrr"],
+            "level": "2m",
+           "variable": "temperature",
+          })
+      }
+
       // This can happen if we're filtering other things
       if (sources.length == 0) {
         continue
       }
       let colorMap = Terrier.colorMapForVariable(sources[0])
+      let snowColorMap = Terrier.SNOW_COLORS_NOT_GREY
       let icon = iconForVariable(sources[0])
       let timeRange = timeRangeForVariable(sources[0])
       let levels = Terrier.variableLevelsForStack(sources[0].name)
       let interp = interpForVariable(sources[0])
+      let snap = snapForVariable(sources[0])
       switch (variable.dataType) {
       case 'wind_uv':
         newLayer = new Layer(terrierOvl, 
@@ -399,10 +424,13 @@ function App() {
           'layerName': variable.name,
           'icon': radarIcon,
           'sources': sources,
+          // Turn this on to display snow
+          'temperatureSources': temperatureSources,
           'levels': levels,
           'units': 'dBz',
           'colorsGrey': colorMap,
           'colors': colorMap,
+          'snowColors': snowColorMap,
           'importanceScale': 16.0,
           'timeRange': timeRange,
           // The load callback lets us insert some logic when the manifest for a
@@ -477,7 +505,8 @@ function App() {
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
-            'interpMode': interp
+            'interpMode': interp,
+            'snapToFrame': snap
             })                        
             break;
       }

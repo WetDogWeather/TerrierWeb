@@ -24,7 +24,7 @@ const view = new MapView({
   center: [-100, 40.5],
 });
 
-Terrier.startArcGIS("dev", view, (ovl) => {
+Terrier.startArcGIS("dev", "5f399f64-af7a-4902-a147-db4da405017c", view, (ovl) => {
   // All the available variables sorted by source/region/product
   console.log(Terrier.variablesForStack())
 

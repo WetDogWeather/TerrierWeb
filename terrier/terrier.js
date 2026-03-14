@@ -159,6 +159,10 @@ class TerrierLayer {
                 jsonSource.zeroNoData,
                 jsonSource.importanceScale,
             )
+            if ('cadence' in jsonSource) {
+                let cadence = jsonSource['cadence']
+                source.setClipCadence(cadence[0],cadence[1],cadence[2])
+            }
             sources.push(source)
         })
         var temperatureSources = null
@@ -181,6 +185,10 @@ class TerrierLayer {
                     jsonSource.zeroNoData,
                     jsonSource.importanceScale,
                 )
+                if ('cadence' in jsonSource) {
+                    let cadence = jsonSource['cadence']
+                    source.setClipCadence(cadence[0],cadence[1],cadence[2])
+                }
                 temperatureSources.push(source)
             })
         }

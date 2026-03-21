@@ -11,18 +11,26 @@ function startMap() {
     });
 
     // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre('dev', "5f399f64-af7a-4902-a147-db4da405017c", map, (ovl) => {
+    Terrier.startMapLibre('watchduty-tile-service-houndshark', "5f399f64-af7a-4902-a147-db4da405017c", map, (ovl) => {
+        let regions = ["conus","alaska","carib","hawaii"]
+        let region = regions[0]
         let mrms_refl = Terrier.sourcesForVariable({source:'mrms',
-                                                    region:'conus',
+                                                    region:region,
                                                     product:'mcr',
                                                     variable:'reflectivity'})
-        mrms_refl.forEach((src) => src['cadence'] = [-4*60*60,0,32])
+        mrms_refl.forEach((src) => {
+            src['cadence'] = [-2*60*60,0.0,32]
+            src['enableForRange'] = [false,false]
+        })
         
         let advect_mrms_refl = Terrier.sourcesForVariable({source:'mrms',
-                                                    region:'conus',
+                                                    region:region,
                                                     product:'mcr',
                                                     variable:'reflectivity_advected'})
-        advect_mrms_refl.forEach((src) => src['cadence'] = [0,1*60*60,32])
+        advect_mrms_refl.forEach((src) => {
+            src['cadence'] = [0.0,1*60*60,32]
+            src['enableForRange'] = [true,false]
+        })
         let all_sources = mrms_refl.concat(advect_mrms_refl)
 
         let mrmsLayer = ovl.startLayer('reflectivity', {

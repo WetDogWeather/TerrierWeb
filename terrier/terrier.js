@@ -158,6 +158,8 @@ class TerrierLayer {
                 jsonSource.hasMissingValues,
                 jsonSource.zeroNoData,
                 jsonSource.importanceScale,
+                jsonSource.enableForRange[0],
+                jsonSource.enableForRange[1]
             )
             if ('cadence' in jsonSource) {
                 let cadence = jsonSource['cadence']
@@ -184,6 +186,8 @@ class TerrierLayer {
                     jsonSource.hasMissingValues,
                     jsonSource.zeroNoData,
                     jsonSource.importanceScale,
+                    jsonSource.enableForRange[0],
+                    jsonSource.enableForRange[1]
                 )
                 if ('cadence' in jsonSource) {
                     let cadence = jsonSource['cadence']
@@ -2134,7 +2138,8 @@ class TerrierModule {
                                                 hasMissingValues: variable.hasEmptyVals,
                                                 zeroNoData: variable.zeroNoData,
                                                 importanceScale: 1.0,
-                                                drawOrder: source.order
+                                                drawOrder: source.order,
+                                                enableForRange: [false,false]
                                             }
                                             if (variable.projection) {
                                                 newVar.projection = variable.projection

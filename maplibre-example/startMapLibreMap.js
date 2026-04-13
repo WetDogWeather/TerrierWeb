@@ -11,7 +11,7 @@ function startMap() {
     });
 
     // Tell Terrier to hook itself into MapLibre
-    Terrier.startMapLibre('watchduty-tile-service-houndshark', "5f399f64-af7a-4902-a147-db4da405017c", map, (ovl) => {
+    Terrier.startMapLibre('dev', "empty-auth-string", map, (ovl) => {
         let regions = ["conus","alaska","carib","hawaii"]
         let region = regions[0]
         let mrms_refl = Terrier.sourcesForVariable({source:'mrms',
@@ -19,7 +19,7 @@ function startMap() {
                                                     product:'mcr',
                                                     variable:'reflectivity'})
         mrms_refl.forEach((src) => {
-            src['cadence'] = [-2*60*60,0.0,32]
+            src['cadence'] = [-2*60*60,0.0,50]
             src['enableForRange'] = [false,false]
         })
         
@@ -28,7 +28,7 @@ function startMap() {
                                                     product:'mcr',
                                                     variable:'reflectivity_advected'})
         advect_mrms_refl.forEach((src) => {
-            src['cadence'] = [0.0,1*60*60,32]
+            src['cadence'] = [0.0,1*60*60,15]
             src['enableForRange'] = [true,false]
         })
         let all_sources = mrms_refl.concat(advect_mrms_refl)
@@ -44,20 +44,20 @@ function startMap() {
         })
 
         // Refresh every two minutes
-        // let recurringTimeout = () => {
-        // setTimeout(() => {
-        //     console.log("Refreshing")
-        //     // Tell the layer to refresh with a new time range
-        //     let newCadence = [-4*60*60,0,64]
-        //     mrmsLayer.setCadence(newCadence);
+        let recurringTimeout = () => {
+        setTimeout(() => {
+            console.log("Refreshing")
+            // Tell the layer to refresh with a new time range
+            let newCadence = [-4*60*60,1*60*60,64]
+            mrmsLayer.setCadence(newCadence);
 
-        //     // Update the overlay with the same
-        //     let now = Date.now()
-        //     ovl.setTimeRange(now+newCadence[0]*1000,now+newCadence[1]*1000)
+            // Update the overlay with the same
+            let now = Date.now()
+            ovl.setTimeRange(now+newCadence[0]*1000,now+newCadence[1]*1000)
 
-        //     recurringTimeout()
-        // }, 2*60*1000)
-        // }
+            recurringTimeout()
+        }, 2*60*1000)
+        }
 
         // let hrrrLayer = ovl.startLayer('reflectivity', {
         //     sources: hrrr_refl,
@@ -69,9 +69,9 @@ function startMap() {
         // })
 
         // Animate the results
-        ovl.timePlay({period: 10.0})
+        ovl.timePlay({period: 6.0})
 
-        // recurringTimeout()
+        recurringTimeout()
     })
 
     return map

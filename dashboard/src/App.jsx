@@ -334,6 +334,7 @@ function App() {
     for (let varName in variables) {
       let variable = variables[varName]
       var newLayer = null
+      var sources = null
       // We can filter by region or source, optionally
       var searchParams = {variable: variable.name}
       // Filter to only a familiar set of sources that work well together
@@ -343,9 +344,31 @@ function App() {
           if (varName == 'reflectivity') {
             // Note: We can set radarOnly here to just see radar data
             if (radarOnly) {
-              searchParams['source'] = ["mrms"]
-              searchParams['product'] = ["mbr"]
-              searchParams['region'] = ["conus"]
+              var radarRegion = region
+              if (region == "All") {
+                radarRegion = "conus"
+              }
+
+              // For radar we also want advected
+              let mrms_refl = Terrier.sourcesForVariable({source:'mrms',
+                                                          region:radarRegion,
+                                                          product:'mcr',
+                                                          variable:'reflectivity'})
+              mrms_refl.forEach((src) => {
+                  src['cadence'] = [-7200,-120,50]
+                  src['enableForRange'] = [false,false]
+              })
+              
+              let advect_mrms_refl = Terrier.sourcesForVariable({source:'mrms',
+                                                          region:radarRegion,
+                                                          product:'mcr',
+                                                          variable:'reflectivity_advected'})
+              advect_mrms_refl.forEach((src) => {
+                  src['cadence'] = [-120,3600,15]
+                  src['enableForRange'] = [true,false]
+              })
+              sources = mrms_refl.concat(advect_mrms_refl)
+
             } else {
               searchParams['source'] = ["gfs", "mrms", "hrrr"]
               searchParams['product'] = ["mbr", "atmos"]
@@ -368,7 +391,9 @@ function App() {
         searchParams['variable'] = 'radar'
         searchParams['source'] = variable.source.name
       }
-      let sources = Terrier.sourcesForVariable(searchParams)
+      if (!sources) {
+        sources = Terrier.sourcesForVariable(searchParams)
+      }
 
       // For reflectivity we have the option of adding a temperature source for precip type
       var temperatureSources = null
@@ -415,7 +440,7 @@ function App() {
       break;
       case 'reflectivity':
         if (radarOnly) {
-          timeRange = [-4*60*60,0.0,64]
+          timeRange = [-2*60*60,1*60*60,64]
         } else {
           timeRange = [-4*60*60,4*60*60,64]
         }
@@ -440,25 +465,25 @@ function App() {
           //  data (first and last frame of radar) and then we want to snap current
           //  time to the last frame.
           'loadCallback': (manifest) => {
-            if (radarOnly) {
-              // Ignore everything but the biggest region
-              if (manifest.region != 'conus') {
-                return
-              }
+            // if (radarOnly) {
+            //   // Ignore everything but the biggest region
+            //   if (manifest.region != 'conus') {
+            //     return
+            //   }
 
-              // The manifest has a list of time slices which we can interrogate
-              let firstSlice = manifest.timeSlices[0]
-              let lastSlice = manifest.timeSlices.slice(-1)[0]
+            //   // The manifest has a list of time slices which we can interrogate
+            //   let firstSlice = manifest.timeSlices[0]
+            //   let lastSlice = manifest.timeSlices.slice(-1)[0]
 
-              // Construct a new relative time range to display
-              // Snap to the available time slices
-              let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
-              terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
-              setTimeRange(newTimeRange)
+            //   // Construct a new relative time range to display
+            //   // Snap to the available time slices
+            //   let newTimeRange = [firstSlice.forecastEpoch,lastSlice.forecastEpoch]
+            //   terrierOvl.setTimeRange(newTimeRange[0]*1000,newTimeRange[1]*1000)
+            //   setTimeRange(newTimeRange)
 
-              // And snap to the end for the current time
-              terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
-            }
+            //   // And snap to the end for the current time
+            //   terrierOvl.setCurrentTime(lastSlice.forecastEpoch)
+            // }
           }
           })
         break;

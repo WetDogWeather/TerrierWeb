@@ -26,7 +26,7 @@ const capURL = tileServer + "geoservice?VERSION=1.1.0&REQUEST=GetCapabilities&SE
 if (service == 'WMS') {
   // Create a layer from WMS data
   let data = new WMSData(capURL);
-  let dataLayer = await data.getLayer('myradar-global-none-reflectivity-none-32-epsg_3857');
+  let dataLayer = await data.getLayer('rtma-conus-wexp-wind_uv-16-epsg_4326');
   let bbox = data.getBBox();
 
   const imgLayer = new ImageLayer({
@@ -38,28 +38,28 @@ if (service == 'WMS') {
 } else {
   // Create a layer from WMTS data
   let data = new WMTSData(capURL)
-  let dataLayer = await data.getLayer('rtma-conus-ru-wind_speed_gust-10m-16-epsg_3857',
-                  {opacity: 0.5,
-                   style: 'truwx_wind'})
-  // dataLayer.updateDimensions({'style': 'mp_viridis'});
-  
+  let dataLayer = await data.getLayer('mrms-conus-mbr-reflectivity-8-epsg_3857',
+                  {opacity: 0.5,})
+  dataLayer.updateDimensions({'style': 'mp_tab20b'});
+
   const dataTileLayer =  new TileLayer({opacity: 0.5, source: dataLayer});
-
-  // Iterate through the list of times available
-  dataLayer.curTimeDim = dataLayer.timeDim.Value.length-1
-  setInterval(()=> {
-    let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
-    console.log("Switching time to " + newDim)
-    dataLayer.updateDimensions({'time': newDim});
-    dataLayer.curTimeDim = dataLayer.curTimeDim + 1
-    if (dataLayer.curTimeDim >= dataLayer.timeDim.Value.length) {
-      dataLayer.curTimeDim = 0
-    } else {
-      dataLayer.curTimeDim = dataLayer.curTimeDim + 1
-    }
-  }, 1000)
-
   layers.push(dataTileLayer);
+  dataLayer.curTimeDim = 0
+
+  setInterval(()=> {
+    // Iterate through the list of times available
+    // dataLayer.curTimeDim = dataLayer.timeDim.Value.length-1
+    setInterval(()=> {
+      if (dataLayer.curTimeDim+1 >= dataLayer.timeDim.Value.length) {
+        // dataLayer.curTimeDim = 0
+      } else {
+        dataLayer.curTimeDim = dataLayer.curTimeDim + 1
+        let newDim = dataLayer.timeDim.Value[dataLayer.curTimeDim]
+        console.log("Switching time to " + newDim)
+        dataLayer.updateDimensions({'TIME': newDim});
+      }
+    }, 1)
+  }, 5000)
 }
 
 const map = new Map({

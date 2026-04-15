@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import maplibregl from 'maplibre-gl';
-import Terrier from "../../terrier.js"
+import Terrier from '@wetdogweather/terrier'
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 

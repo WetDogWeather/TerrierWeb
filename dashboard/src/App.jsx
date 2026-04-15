@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useRef, createRef } from 'react'
-import Terrier from "../terrier.js"
+import Terrier from '@wetdogweather/terrier'
 
 import Header from './components/Header/Header'
 import Burger from './components/Header/Burger'

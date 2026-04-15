@@ -9,14 +9,6 @@ export default defineConfig({
     viteStaticCopy({ // 'Manually' copies files that aren't bundled into the dist folder.
       targets: [
         {
-          src: 'WhirlyGlobeWeb.js',
-          dest: ''
-        },
-        {
-          src: 'WhirlyGlobeWeb.wasm',
-          dest: ''
-        },
-        {
           src: 'geojson',
           dest: ''
         },

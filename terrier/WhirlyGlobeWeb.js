@@ -12204,6 +12204,10 @@ var ASM_CONSTS = {
     if (Module.stopOverlay) {
       Module.stopOverlay()
     }
+    if (Module.tracker) {
+      Module.tracker.delete()
+      Module.tracker = null
+    }
     if (Module.overlay) {
       Module.overlay.teardown()
       Module.overlay.delete()

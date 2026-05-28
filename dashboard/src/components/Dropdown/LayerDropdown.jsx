@@ -45,7 +45,7 @@ function LayerDropdown({layer, level, setLevel, extraFields}) {
                 <label htmlFor='variable-linear'>Linear</label>
                 <input type='radio' id='variable-cubic' key={'variable-cubic-'+layerName} name='variable' 
                     onClick={() => layer.dataSampleUpdate(2)} 
-                    defaultChecked={(layer.dataSampleType == 2)} disabled />
+                    defaultChecked={(layer.dataSampleType == 2)} />
                 <label htmlFor='variable-cubic'>Cubic</label><br />
             </div>
             <p key={'p-opacity-'+layerName}>Opacity</p>

@@ -502,10 +502,10 @@ class TerrierLayer {
                 this.state.controller.visInterp = globalThis.Module.TexInterpType.Linear
                 this.state.controller.varInterp = globalThis.Module.TexInterpType.Linear
                 break;
-            // case TerrierModule.InterpType.Bicubic:
-            //     this.ctl.visInterp = Module.TexInterpType.Nearest
-            //     this.ctl.varInterp = Module.TexInterpType.Nearest
-            //     break;
+            case 'cubic':
+                this.state.controller.visInterp = globalThis.Module.TexInterpType.Cubic
+                this.state.controller.varInterp = globalThis.Module.TexInterpType.Cubic
+                break;
         }
         globalThis.Module.repaint()
     }
@@ -989,7 +989,7 @@ class TerrierModule {
     InterpType = {
         Nearest: 'nearest',
         Linear: 'linear',
-        // Bicubic: 'bicubic',
+        Bicubic: 'bicubic',
     };
 
     // Wire in the global colormaps

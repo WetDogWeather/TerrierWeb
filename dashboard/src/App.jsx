@@ -330,6 +330,28 @@ function App() {
       variables = newVariables
     }
 
+    // Fake color map used for debugging
+    function getRandomColor() {
+      var letters = '0123456789ABCDEF';
+      var color = '0xFF';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function fakeColorMap() {
+      var reflVal = []
+      var colors = []
+      var cmDisp = []
+      for (let ii = 0; ii < 64; ii++) {
+        reflVal.push(0.0 + ii)
+        colors.push(getRandomColor())
+        cmDisp.push(true)
+      }
+        return Terrier.createColorMap(reflVal, colors, cmDisp);
+    }
+
     var newLayers = []
     for (let varName in variables) {
       let variable = variables[varName]

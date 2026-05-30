@@ -1,7 +1,7 @@
 {
   "name": "react",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "host": "vite --host"
   },
   "dependencies": {
-    "@wetdogweather/terrier": "^1.0.0",
+    "@wetdogweather/terrier": "^1.0.1",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "maplibre-gl": "^5.3.0",

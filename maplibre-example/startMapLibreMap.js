@@ -41,6 +41,9 @@ function startMap() {
             interpMode: 'linear',
             opacity: 0.5,
             importFactor: 16.0,
+          'loadCallback': (manifest) => {
+            console.log("loadCallback called")
+          }
         })
 
         // Refresh every two minutes

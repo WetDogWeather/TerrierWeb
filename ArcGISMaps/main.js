@@ -11,7 +11,7 @@ globalThis.mat4 = mat4
 globalThis.vec3 = vec3
 globalThis.vec4 = vec4
 import "./style.css";
-import Terrier from "./terrier.js"
+import Terrier from '@wetdogweather/terrier'
 
 const map = new Map({
   basemap: "streets-night-vector",

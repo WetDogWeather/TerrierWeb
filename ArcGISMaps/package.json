@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@arcgis/core": "^4.30.9",
+    "@wetdogweather/terrier": "^1.0.4",
     "gl-matrix": "^3.4.3"
   }
 }

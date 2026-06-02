@@ -55,6 +55,8 @@ Here's how we generate the terrier.js docs in markdown and HTML.
 
 #### Uploading the Dashboard App
 
+This section is just here for us.
+
 Building and uploading the test app works like so.  Obviously you have to have the right credentials set up with the aws CLI.
 
     cd dashboard

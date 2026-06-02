@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useMap, useMapEvents } from "react-leaflet";
-import Terrier from "./terrier.js"
+import Terrier from "@wetdogweather/terrier"
 import './L.RealtimeCanvasLayer.js'
 import './terrierLayer.css'
 
@@ -141,7 +141,9 @@ function TerrierLayer() {
         const x = e.originalEvent.layerX
         const y = e.originalEvent.layerY
         const ret = layer.queryValue(x,y)
-        console.log("Click event: %d %d: ",x,y,ret['value'].toString())
+        if (ret) {
+          console.log("Click event: %d %d: ",x,y,ret['value'].toString())
+        }
       }
     },
   })  

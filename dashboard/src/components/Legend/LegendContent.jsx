@@ -1,27 +1,33 @@
 import './legend.css'
 
 // Convert a value based on the units
-function convertValue(oldVal,units) {
-    var newVal = oldVal
+function convertValueToString(oldVal,enumValues,units) {
+    if (enumValues && enumValues.length > 0) {
+        var enumVal = Math.round(oldVal)
+        enumVal = Math.max(enumVal,0)
+        enumVal = Math.min(enumVal,enumValues.length-1)
+        return enumValues[enumVal]
+    } else {
+        var newVal = oldVal
 
-    // May want to consider moving this logic into TemperatureLayer.
-    switch (units) {
-        case 'F':
-            newVal = (((oldVal - 273.15) * (9 / 5)) + 32); // Kelvin to Fahrenheit formula
-            break;
-        case 'C':
-            newVal = (oldVal - 273.15);                    // Kelvin to Celsius formula
-            break;
+        // May want to consider moving this logic into TemperatureLayer.
+        switch (units) {
+            case 'F':
+                newVal = (((oldVal - 273.15) * (9 / 5)) + 32); // Kelvin to Fahrenheit formula
+                break;
+            case 'C':
+                newVal = (oldVal - 273.15);                    // Kelvin to Celsius formula
+                break;
+        }
+        return newVal.toFixed(2) + units
     }
-
-    return newVal
 }
 
 //
 //  Takes in the colorMap and units passed form Legend.jsx, then generates the legend based on that information.
 //
 
-function LegendContent({colorMap,units,value}) {
+function LegendContent({colorMap,enumValues,units,value}) {
     var legend = []
 
     if (colorMap) {
@@ -34,11 +40,11 @@ function LegendContent({colorMap,units,value}) {
             let visible = visibles[i];
 
             if (visible) {
-                let newValue = convertValue(thisValue, units)
+                let newValue = convertValueToString(thisValue, enumValues, units)
                 var newLegendBox = (
                     <div className='legend-background' key={'legend-background-'+i} >
                         <p className='legend-box' key={'legend-box-'+i} 
-                            style={{ backgroundColor: color.str }}> {newValue.toFixed(2)} {units}</p>
+                            style={{ backgroundColor: color.str }}> {newValue}</p>
                     </div>
                 )
                 legend = [legend, newLegendBox]
@@ -51,13 +57,12 @@ function LegendContent({colorMap,units,value}) {
             if (valueStr.length > 0) {
                 valueStr = valueStr + ' '
             }
-            let newValue = convertValue(theVal, units)
-            valueStr = valueStr + newValue.toFixed(2)
+            valueStr = valueStr + convertValueToString(theVal, enumValues, units)
         });
         var valueBox = (
             <div className='legend-background' key='value-background' >
                 <p className='legend-box' key='value-box'
-                    style={{ backgroundColor: 0xffffff }}> {valueStr} {units}</p>
+                    style={{ backgroundColor: 0xffffff }}> {valueStr}</p>
             </div>
         )
         legend = [legend, valueBox]

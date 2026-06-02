@@ -1803,6 +1803,24 @@ class TerrierModule {
     }
 
     /**
+     * If the variable is an enumerated type, this will
+     * return a list of strings for that enumerated type.
+     * 
+     * @param {Dictionary} variable 
+     * @returns A list of strings.
+     */
+    enumValuesForVariable(variable) {
+        if (variable.name == 'weather') {
+            return ['Fair', 'Rain', 'Mixed', 'Snow', 'Sleet', 'Freezing Rain', 'Severe', 'Thunderstorm',
+                    'Hail', 'Extreme Wind', 'Severe Wind', 'Blizzard', 'Icing', 'Ice Fog', 'Freezing Fog',
+                    'Fog', 'Very Windy', 'Haze', 'Mist', 'Freezing Drizzle', 'Drizzle', 'Blowing Snow',
+                    'Fire Weather', 'Heat Advisory', 'Extreme Cold', 'Smoke', 'Uknown']
+        }
+
+        return []
+    }
+
+    /**
      * Boxer stacks know what is in them and we can ask for that information to figure
      * out which layers to display and what levels they may have.  We don't get that
      * information by default, but if you ask for it, Terrier will fetch it and

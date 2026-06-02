@@ -164,6 +164,7 @@ function App() {
   const [displayedTime, setDisplayedTime] = useState(Number.NEGATIVE_INFINITY)
   const [terrierOvl, setTerrierOvl] = useState(null)
   const [units, _setUnits] = useState('')
+  const [enumValues, setEnumValues] = useState([])
   const [stackName, setStackName] = useState('dev')
   const [baseMapName, setBaseMapName] = useState('alidade_smooth')
 
@@ -222,12 +223,14 @@ function App() {
 
       // And update the units of whatever is being displayed
       _setUnits(layer.units)
+      setEnumValues(layer.enumValues)
       setLevel(null)
     } else {
       // Reset to empty
       setCurTime(now)
       setTimeRange([0.0,0.0])
       _setUnits('')
+      setEnumValues([])
       setLevel(null)
     }
   },[curLayer, layers])
@@ -432,6 +435,7 @@ function App() {
         continue
       }
       let colorMap = Terrier.colorMapForVariable(sources[0])
+      let enumValues = Terrier.enumValuesForVariable(sources[0])
       let snowColorMap = Terrier.SNOW_COLORS_NOT_GREY
       let icon = iconForVariable(sources[0])
       let timeRange = timeRangeForVariable(sources[0])
@@ -447,6 +451,7 @@ function App() {
             'sources': sources,
             'levels': levels,
             'units': variable.units,
+            'enumValues': [],
             'colorsGrey': colorMap,
             'colors': colorMap,
             'arrows': {
@@ -475,6 +480,7 @@ function App() {
           'temperatureSources': temperatureSources,
           'levels': levels,
           'units': 'dBz',
+          'enumValues': [],
           'colorsGrey': colorMap,
           'colors': colorMap,
           'snowColors': snowColorMap,
@@ -518,6 +524,7 @@ function App() {
             'sources': sources,
             'levels': levels,
             'units': variable.units,
+            'enumValues': [],
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
@@ -549,6 +556,7 @@ function App() {
             'sources': sources,
             'levels': levels,
             'units': variable.units,
+            'enumValues': enumValues,
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
@@ -566,6 +574,7 @@ function App() {
     if (newLayers.length > 0) {
       setCurLayer(0)
       _setUnits(newLayers[0].units)    
+      setEnumValues(newLayers[0].enumValues)    
     }
   }, [displayAllLayers, source,sources,region,regions])
 
@@ -650,7 +659,7 @@ function App() {
           </>
         }
         {canDisplayLegend 
-          && <Legend colorMap={layers[curLayer].getColorMap()} units={units} value={legendValue}/>
+          && <Legend colorMap={layers[curLayer].getColorMap()} enumValues={enumValues} units={units} value={legendValue} />
         }
         <Map ref={map} 
              stackName={stackName} 

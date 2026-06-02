@@ -13,6 +13,8 @@
   justify-content: center;
   margin: 0px;
   font-weight: 900;
+  white-space: nowrap;
+  text-overflow: ellipsis; 
   -webkit-text-stroke-width: 0.3px;
   -webkit-text-stroke-color: white;
 }

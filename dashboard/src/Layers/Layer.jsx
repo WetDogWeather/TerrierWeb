@@ -90,6 +90,7 @@ export default class Layer {
         this.sources = this._teaseOutParam(params,'sources',null)
         this.temperatureSources = this._teaseOutParam(params,'temperatureSources',null)
         this.loadCallback = this._teaseOutParam(params,'loadCallback',null)
+        this.enumValues = this._teaseOutParam(params,'enumValues',[])
     }
 
     enable(onOff) {

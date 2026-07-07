@@ -1207,24 +1207,29 @@ class TerrierModule {
             ])
         let hfeetToMeters = 100.0/3.28084
         Terrier.CLOUD_CEILING2 = Terrier.createColorMap(
-            [0.0*hfeetToMeters,0.1*hfeetToMeters,0.2*hfeetToMeters,0.3*hfeetToMeters,0.4*hfeetToMeters,0.5*hfeetToMeters,0.6*hfeetToMeters,0.7*hfeetToMeters,0.8*hfeetToMeters,0.9*hfeetToMeters,
-             1.0*hfeetToMeters,1.2*hfeetToMeters,1.4*hfeetToMeters,1.6*hfeetToMeters,1.8*hfeetToMeters,
-             2.0*hfeetToMeters,2.2*hfeetToMeters,2.4*hfeetToMeters,2.6*hfeetToMeters,2.8*hfeetToMeters,
-             3.0*hfeetToMeters,3.5*hfeetToMeters,
-             4.0*hfeetToMeters,
-             5.0*hfeetToMeters,
-             6.0*hfeetToMeters,
-             7.0*hfeetToMeters,
-             8.0*hfeetToMeters,
-             9.0*hfeetToMeters,
-             10.0*hfeetToMeters,
-             11.0*hfeetToMeters,
-             12.0*hfeetToMeters,
-             12.0*hfeetToMeters
+            [0.0*hfeetToMeters,1*hfeetToMeters,2*hfeetToMeters,3*hfeetToMeters,4*hfeetToMeters,5*hfeetToMeters,6*hfeetToMeters,7*hfeetToMeters,8*hfeetToMeters,9*hfeetToMeters,
+             10*hfeetToMeters,1.*hfeetToMeters,14*hfeetToMeters,16*hfeetToMeters,18*hfeetToMeters,
+             20*hfeetToMeters,22*hfeetToMeters,24*hfeetToMeters,26*hfeetToMeters,28*hfeetToMeters,
+             30*hfeetToMeters,35*hfeetToMeters,
+
+             40.0*hfeetToMeters,
+             50.0*hfeetToMeters,
+             60.0*hfeetToMeters,
+             80.0*hfeetToMeters,
+             100.0*hfeetToMeters,
+             140.0*hfeetToMeters,
+             180.0*hfeetToMeters,
+             220.0*hfeetToMeters,
+             260.0*hfeetToMeters,
+             300.0*hfeetToMeters,
             ],
             [0xFF5D0E63,0xFF8C1A94,0xFFBB27C6,0xFFEA33F7,0xFFF19EFA,0xFFA02015,0xFFEA3323,0xFFEC5B29,0xFFEE8044,0xFFF3AE3D,      
              0xFFE6E687,0xFFFBE779,0xFFFFFF79,0xFFFFFF65,0xFFFEF852,
              0xFF91FCFE,0xFF68E0FB,0xFF469DF8,0xFF255AF6,0xFF0600F5,
+             0xFF1D4A0F,
+             0xFF215112,
+
+             0xFF1D4A0F,
              0xFF1D4A0F,
              0xFF215112,
              0xFF275D16,
@@ -1233,10 +1238,7 @@ class TerrierModule {
              0xFF44982A,
              0xFF4EAC31,
              0xFF57BF38,
-             0xAA61D33F,
-             0xDD6BE745,
-             0x006BE745,
-             0x00000000                 
+             0xFFFFFFFF
             ])
         let statMileToMeters = 1609.34
         Terrier.VISIBILITY_COLORS_NOT_GREY = Terrier.createColorMap(

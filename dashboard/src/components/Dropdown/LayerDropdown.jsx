@@ -6,11 +6,14 @@ function LayerDropdown({layer, level, setLevel, extraFields}) {
 
     var levelsContent = ""
     if (layer.levels.length > 0) {
+        var levelStr = ""
+        if (level)
+            levelStr = level
         levelsContent = (
             <>
                 <h3 key={'levels-'+layerName}>Levels</h3>
                 <select name="dropdown-level-select" key="dropdown-level-select" 
-                        selected={level} onChange={(e) => setLevel(e.target.value)}>
+                        value={levelStr} onChange={(e) => setLevel(e.target.value)}>
                     {layer.levels.map( (level) => {
                         return (<option value={level}>{level}</option>)
                     })}

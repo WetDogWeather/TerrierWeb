@@ -143,6 +143,20 @@ switch (variable.dataType) {
   return [-1*24*60*60,1*24*60*60,32]
 }
 
+// Sort an array 
+function unitSort(a,b) {
+  return parseInt(a.replace(/[^0-9]/g, '')) - parseInt(b.replace(/[^0-9]/g, ''))
+}
+
+// Have to change the sources to load the proper level
+function setLevelOnLayer(layer,newLevel) {
+  let levelStr = newLevel ? newLevel : ""
+  layer.level = levelStr
+  layer.sources.forEach( (source) => {
+    source.level = levelStr
+  })
+}
+
 function App() {
   const [controlsVisible, setControlsVisible] = useState(true)
   const [legendVisible, setLegendVisible] = useState(true)
@@ -206,6 +220,8 @@ function App() {
       const layer = layers[curLayer]
       layer.enable(true)
 
+      terrierOvl.setNearestFrame(snapFrame)
+
       // Update the time range
       let timeRange = layer.layer.ovl.getTimeRange()
       if (timeRange[0] != timeRange[1]) {
@@ -224,21 +240,27 @@ function App() {
       // And update the units of whatever is being displayed
       _setUnits(layer.units)
       setEnumValues(layer.enumValues)
-      setLevel(null)
+      setLevelOnLayer(layer,layer.level)
     } else {
       // Reset to empty
       setCurTime(now)
       setTimeRange([0.0,0.0])
       _setUnits('')
       setEnumValues([])
-      setLevel(null)
     }
   },[curLayer, layers])
 
   // React to level changes
   useEffect(() => {
     if (curLayer >= 0 && curLayer < layers.length) {
-      layers[curLayer].setLevel(level)
+      const layer = layers[curLayer]
+      // Force a reload of the layer
+      let oldCurLayer = curLayer
+      setLevelOnLayer(layer,level)
+      layer.enable(false)
+      setTimeout(() => {
+        layer.enable(true)
+      }, 1);
     }
   },[level])
 
@@ -439,7 +461,20 @@ function App() {
       let snowColorMap = Terrier.SNOW_COLORS_NOT_GREY
       let icon = iconForVariable(sources[0])
       let timeRange = timeRangeForVariable(sources[0])
-      let levels = Terrier.variableLevelsForStack(sources[0].name)
+      // Come up with the intersection set of levels
+      var levelSet = null
+      sources.forEach ( (source) => {
+        if (source.levels) {
+          if (levelSet) {
+            levelSet = levelSet.intersection(new Set(source.levels))
+          } else {
+            levelSet = new Set(source.levels)
+          }
+        }
+      }
+      )
+      var levels = Array.from(levelSet)
+      levels.sort(unitSort)
       let interp = interpForVariable(sources[0])
       let snap = snapForVariable(sources[0])
       switch (variable.dataType) {
@@ -571,12 +606,13 @@ function App() {
     }
 
     setLayers(newLayers)
-    if (newLayers.length > 0) {
+    if (newLayers.length > 0 && (curLayer < 0 || curLayer > newLayers.length) ) {
       setCurLayer(0)
       _setUnits(newLayers[0].units)    
-      setEnumValues(newLayers[0].enumValues)    
+      setEnumValues(newLayers[0].enumValues)  
+      setLevelOnLayer(newLayers[0],newLayers[0].levels[0])
     }
-  }, [displayAllLayers, source,sources,region,regions])
+  }, [displayAllLayers,source,sources,region,regions])
 
   // Called by the map component when Terrier has been properly set up
   let terrierReady = (ovl) => {

@@ -420,6 +420,9 @@ class TerrierLayer {
     setLevel(newLevel) {
         if (this.level != newLevel) {
             this.level = newLevel
+            // if (this.state && this.state.controller) {
+            //     this.state.controller.level = newLevel
+            // }
             this.refresh()
         }
     }
@@ -1044,7 +1047,7 @@ class TerrierModule {
              0xffff0139, 0xffff0139,
              0xfff704fc
             ]);
-                
+
         Terrier.RADAR_COLORS_GREY = Terrier.createColorMap([-30, 5, 70], [0x00000000, 0xFF111111, 0xFFFFFFFF]);
         Terrier.RADAR_COLORS_NOT_GREY = Terrier.createColorMap([
         -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
@@ -2147,6 +2150,7 @@ class TerrierModule {
                                                 name: variable.name,
                                                 variable: variable.name,
                                                 level: levelName,
+                                                levels: variable.levels,
                                                 interval: intervalName,
                                                 temporalType: variable.temporalType,
                                                 dataType: variable.dataType,

@@ -97,7 +97,7 @@ export default class Layer {
         if (onOff) {
             if (this.layer == null) {
                 const params = {}
-                if (this.level !== undefined) {
+                if (this.level !== undefined && this.level !== null) {
                     params['level'] = this.level
                 }
                 params['renderScale'] = this.renderScale

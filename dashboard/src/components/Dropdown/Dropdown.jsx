@@ -30,6 +30,10 @@ function Dropdown({layers,
     const [settingsMode,setSettingsMode] = useState(0)
     const numLayers = layers.length
 
+    if (curLayer < 0) {
+        return
+    }
+
     // Generating dropdown menu based on layers
     var dropdown
     for (var i = 0; i < layers.length; i++) {

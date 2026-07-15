@@ -2185,6 +2185,8 @@ class TerrierModule {
             }
         })
 
+        sources.sort((a, b) => a.drawOrder - b.drawOrder);
+
         return sources
     }
 

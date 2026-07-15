@@ -100,24 +100,37 @@ function snapForVariable(variable) {
 
 // Come up with a good time range for a variable
 // This is mostly obvious except for a few weird cases
-function  timeRangeForVariable(variable) {
+function  timeRangeForVariable(variable, numSlices) {
+  // Let us override the number of slices to "a lot"
+  let resNumSlices = (defSlices,numSlices) => {
+    if (numSlices == -1) {
+      return defSlices
+    }
+    return numSlices
+  }
+
+  // Hack for a data source we know has a lot of slices
+  if (variable.source == 'cuwx') {
+    return [-1*24*60*60,1*24*60*60,resNumSlices(200,numSlices)] 
+  }
+
   if (variable.source == 'flashwx') {
     switch (variable.name) {
         case "lightning_probability":
-          return [-1*3600,1*3600,48]
+          return [-1*3600,1*3600,resNumSlices(48,numSlices)]
         case "lightning_probability_extended":
-          return [0,24*3600,48]
+          return [0,24*3600,resNumSlices(48,numSlices)]
         case "lightning_firststrike":
         case "lightning_allclear":
-          return [-4*3600,0,48]
+          return [-4*3600,0,resNumSlices(48,numSlices)]
         case "golf_playability_index":
-          return [-12*3600,48*3600,96]
+          return [-12*3600,48*3600,resNumSlices(96,numSlices)]
     }
   }
   if (variable.source == 'airnow') {
     switch (variable.name) {
         case "forecasted_air_quality_index":
-          return [-14*24*3600,1*24*3600,32];
+          return [-14*24*3600,1*24*3600,resNumSlices(32,numSlices)];
     }
 }
 switch (variable.dataType) {
@@ -126,21 +139,21 @@ switch (variable.dataType) {
     case "velocity":
     case "visibility":
     case "cloudceiling":
-      return [-1*24*60*60,1*24*60*60,32]
+      return [-1*24*60*60,1*24*60*60,resNumSlices(32,numSlices)]
     case "visual":
-      return [-2*60*60,1*2*60*60,32]
+      return [-2*60*60,1*2*60*60,resNumSlices(32,numSlices)]
   }
   switch (variable.temporalType) {
     // Just observed data
     case "observed":
-      return [-4*60*60,0,64]
+      return [-4*60*60,0,resNumSlices(64,numSlices)]
     // Forecast and both we'll do the same
     case "forecast":
     case "both":
-      return [-1*24*60*60,1*24*60*60,32]
+      return [-1*24*60*60,1*24*60*60,resNumSlices(32,numSlices)]
   }
 
-  return [-1*24*60*60,1*24*60*60,32]
+  return [-1*24*60*60,1*24*60*60,resNumSlices(32,numSlices)]
 }
 
 // Sort an array 
@@ -460,7 +473,7 @@ function App() {
       let enumValues = Terrier.enumValuesForVariable(sources[0])
       let snowColorMap = Terrier.SNOW_COLORS_NOT_GREY
       let icon = iconForVariable(sources[0])
-      let timeRange = timeRangeForVariable(sources[0])
+      let timeRange = timeRangeForVariable(sources[0],-1)
       // Come up with the intersection set of levels
       var levelSet = null
       sources.forEach ( (source) => {

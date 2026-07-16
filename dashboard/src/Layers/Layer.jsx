@@ -91,6 +91,7 @@ export default class Layer {
         this.temperatureSources = this._teaseOutParam(params,'temperatureSources',null)
         this.loadCallback = this._teaseOutParam(params,'loadCallback',null)
         this.enumValues = this._teaseOutParam(params,'enumValues',[])
+        this.frameInfo = this._teaseOutParam(params,'frameInfo',false)
     }
 
     enable(onOff) {
@@ -109,6 +110,7 @@ export default class Layer {
                 if (this.arrows) {
                     params['arrows'] = this.arrows
                 }
+                params['frameInfo'] = this.frameInfo
                 if (this.source) {
                     // Start with a hard defined visual layer
                     params['source'] = this.source

@@ -19,6 +19,7 @@ function Dropdown({layers,
                     curLayer, setCurLayer, 
                     level, setLevel,
                     legendVisible, setLegendVisible,
+                    outputSlices, setOutputSlices,
                     snapFrame, setSnapFrame,
                     animSpeed, setAnimSpeed, 
                     displayAllLayers, setDisplayAllLayers,
@@ -89,6 +90,7 @@ function Dropdown({layers,
     } else if (settingsMode == 1) {
         const settingsContent = (
             <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+                              outputSlices={outputSlices} setOutputSlices={setOutputSlices}
                               snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                               animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
                               displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}

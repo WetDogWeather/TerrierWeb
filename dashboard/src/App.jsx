@@ -175,6 +175,7 @@ function App() {
   const [legendVisible, setLegendVisible] = useState(true)
   const [legendValue, setLegendValue] = useState(null)
   const [snapFrame, setSnapFrame] = useState(false)
+  const [outputSlices, setOutputSlices] = useState(false)
   const [curLayer, setCurLayer] = useState(-1)
   const [layers, setLayers] = useState([])
   const [level, setLevel] = useState(null)
@@ -500,6 +501,7 @@ function App() {
             'levels': levels,
             'units': variable.units,
             'enumValues': [],
+            'frameInfo': outputSlices,
             'colorsGrey': colorMap,
             'colors': colorMap,
             'arrows': {
@@ -529,6 +531,7 @@ function App() {
           'levels': levels,
           'units': 'dBz',
           'enumValues': [],
+          'frameInfo': outputSlices,
           'colorsGrey': colorMap,
           'colors': colorMap,
           'snowColors': snowColorMap,
@@ -576,6 +579,7 @@ function App() {
             'colorsGrey': colorMap,
             'colors': colorMap,
             'timeRange': timeRange,
+            'frameInfo': outputSlices,
             'interpMode': interp,
             // The load callback lets us insert some logic when the manifest for a
             //  given data source loads.  You'll see more than one data source, depending
@@ -609,7 +613,8 @@ function App() {
             'colors': colorMap,
             'timeRange': timeRange,
             'interpMode': interp,
-            'snapToFrame': snap
+            'snapToFrame': snap,
+            'frameInfo': outputSlices
             })                        
             break;
       }
@@ -625,7 +630,7 @@ function App() {
       setEnumValues(newLayers[0].enumValues)  
       setLevelOnLayer(newLayers[0],newLayers[0].levels[0])
     }
-  }, [displayAllLayers,source,sources,region,regions])
+  }, [displayAllLayers,source,sources,region,regions,outputSlices])
 
   // Called by the map component when Terrier has been properly set up
   let terrierReady = (ovl) => {
@@ -689,6 +694,7 @@ function App() {
                           curLayer={curLayer} setCurLayer={setCurLayer} 
                           level={level} setLevel={setLevel}
                           legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+                          outputSlices={outputSlices} setOutputSlices={setOutputSlices}
                           snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                           animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
                           displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}

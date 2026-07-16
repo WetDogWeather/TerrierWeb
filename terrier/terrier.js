@@ -108,6 +108,10 @@ class TerrierLayer {
         if ('loadCallback' in params) {
             this.loadCallback = params['loadCallback']
         }
+        this.outputFrameInfo = false
+        if ('frameInfo' in params) {
+            this.outputFrameInfo = params['frameInfo']
+        }
         if ('source' in params) {
             // model, region, type, variable, level
             this.source = params['source']
@@ -381,6 +385,20 @@ class TerrierLayer {
             this.ovl.setTimeRange(now+this.cadence[0]*1000,now+this.cadence[1]*1000)
         }
 
+        // Write out the selected frames for display
+        let terrierLayer = this
+        globalThis.Module.updateFrameInfo = (selectFrames) => {
+            if (terrierLayer.outputFrameInfo) {
+                let manifest = selectFrames.manifest
+                console.log("Selected frame: " + manifest.source + " " + manifest.region + " " + manifest.product + " " + manifest.variable)
+                console.log("  blend: ", selectFrames.interpolation)
+                selectFrames.slices.forEach( (slice) => {
+                    console.log("  " + "forecastEpoch: " + new Date((slice.forecastEpoch-slice.forecastDelta)*1000).toUTCString() + " delta: " + slice.forecastDelta + "s")
+                })
+                manifest.delete()
+            }
+        }
+
         // This creates the controls if they're not there already
         globalThis.Module.updateOverlay()
 
@@ -478,7 +496,8 @@ class TerrierLayer {
                     this.state.enabled = false
                 }
                 break;
-        }        
+        }      
+        globalThis.Module.updateFrameInfo = null  
     }
 
     /**
@@ -735,6 +754,7 @@ class TerrierOverlay {
      * 'colors' is a 2 component array of standard 3 component color values (with alpha defined first)
      * that will be used to scale from min to max.
      * 'image' is an optional URL for the PNG you'd like to use rather than our default arrow.
+     * 'frameInfo' is an optional bool that will write the current frames being displayed to the console
      * 
      * 'loadCallback' is a Javascript function you pass in that will be called as soon as the 
      * layer has loaded its manifest.  Your function's only argument is the manifest object.

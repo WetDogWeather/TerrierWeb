@@ -1112,6 +1112,7 @@ class TerrierModule {
             0xFF777777, // FIREWX = 22
             0xFF777777, // XHEAT = 23
             0xFF777777, // XCOLD = 24
+            0xFF777777, // SMOKE = 25
             0xFFff00ff  // Unknown
         ], [
             false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true
@@ -1151,6 +1152,9 @@ class TerrierModule {
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             [0x0006ecec, 0xff00a0f6, 0xff0600f6, 0xff01ff00, 0xff00c801, 
                 0xff009000, 0xffffff04, 0xffe7c102, 0xffff9100, 0xffff0100, 0xffff0100]);
+        Terrier.DEGREE_COLORS = Terrier.createColorMap(
+            [0, 72, 144, 216, 288, 360],
+            [0xFF2A52BD, 0xFF0088DD, 0xFFFFD301, 0xFFFF8B01, 0xFFC23B21, 0xFFA40001]);
         let feetToMm = 25.4;
         Terrier.HAIL_SIZE_COLORS = Terrier.createColorMap(
             [0.0*feetToMm, 0.05*feetToMm, 0.1*feetToMm, 0.15*feetToMm, 0.20*feetToMm, 0.25*feetToMm, 0.40*feetToMm, 
@@ -1759,8 +1763,11 @@ class TerrierModule {
             switch(variable.units.toLowerCase()) {
                 case "w/m^2":
                     return Terrier.RADIATION_FLUX
+                case "degrees":
+                    return Terrier.DEGREE_COLORS;
             }
         }
+
         switch (variable.dataType.toLowerCase()) {
             case "reflectivity":
                 return Terrier.REFLECTIVITY_HRRR_COMPATIBLE;

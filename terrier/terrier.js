@@ -1105,7 +1105,7 @@ class TerrierModule {
             // Fair, Rain, Mix, Snow, Sleet, Freezing Rain, Severe, Thunderstorm, Hail = 8, HIWIND = 9
             // SVRWND = 10, BLZRD = 11, ICING = 12, ICEFOG = 13, FZFOG = 14, FOG = 15, WINDY = 16
             // HAZE = 17, MIST = 18, FZDZ = 19, DRZL = 20, BLSNOW = 21, FIREWX = 22, XHEAT = 23, XCOLD = 24, UNKNOWN
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26
         ], [
             0x00000000, // Fair
             0xFF009100, // Rain
@@ -1846,7 +1846,7 @@ class TerrierModule {
             return ['Fair', 'Rain', 'Mixed', 'Snow', 'Sleet', 'Freezing Rain', 'Severe', 'Thunderstorm',
                     'Hail', 'Extreme Wind', 'Severe Wind', 'Blizzard', 'Icing', 'Ice Fog', 'Freezing Fog',
                     'Fog', 'Very Windy', 'Haze', 'Mist', 'Freezing Drizzle', 'Drizzle', 'Blowing Snow',
-                    'Fire Weather', 'Heat Advisory', 'Extreme Cold', 'Smoke', 'Uknown']
+                    'Fire Weather', 'Heat Advisory', 'Extreme Cold', 'Smoke', 'Unknown']
         }
 
         return []

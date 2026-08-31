@@ -10,10 +10,11 @@ function SettingsDropdown({legendVisible, setLegendVisible,
                             displayAllLayers, setDisplayAllLayers,
                             source, sources, setSource,
                             region, regions, setRegion,
-                            stackName, setStackName,
+                            stackName, stackAuth, setStackNameAuth,
                             baseMapName, basemaps, setBaseMapName}) 
 {
     const [localStackName,setLocalStackName] = useState(stackName)
+    const [localStackAuth,setLocalStackAuth] = useState(stackAuth)
 
     const updateAnimSpeed = (e) => {
         var newSpeed = e.target.value / 10 // Animation speed range goes from 1-99, but the real values that interact with the code should be 0.1-9.9
@@ -110,8 +111,12 @@ function SettingsDropdown({legendVisible, setLegendVisible,
                     value={localStackName} 
                     placeholder={stackName}
                     onChange={(e) => {setLocalStackName(e.target.value); return true}} />
-                <button className="stack-name-clear" onClick={() => {setLocalStackName('')}}>Clear</button>
-                <button className="stack-name-save" onClick={() => {setStackName(localStackName)}}>Save</button>
+                <input id='stack-auth'
+                    value={localStackAuth} 
+                    placeholder={''}
+                    onChange={(e) => {setLocalStackAuth(e.target.value); return true}} />
+                <button className="stack-name-clear" onClick={() => {setLocalStackName(''); setLocalStackAuth('')}}>Clear</button>
+                <button className="stack-name-save" onClick={() => {setStackNameAuth(localStackName,localStackAuth)}}>Save</button>
             </div>
             <br /><br />
 

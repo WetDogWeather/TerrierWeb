@@ -25,7 +25,7 @@ function Dropdown({layers,
                     displayAllLayers, setDisplayAllLayers,
                     source, sources, setSource,
                     region, regions, setRegion,
-                    stackName, setStackName,
+                    stackName, stackAuth, setStackNameAuth,
                     units, setUnits,
                     baseMapName, basemaps, setBaseMapName}) {
     const [settingsMode,setSettingsMode] = useState(0)
@@ -96,7 +96,7 @@ function Dropdown({layers,
                               displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}
                               source={source} sources={sources} setSource={setSource}
                               region={region} regions={regions} setRegion={setRegion}
-                              stackName={stackName} setStackName={setStackName}
+                              stackName={stackName} stackAuth={stackAuth} setStackNameAuth={setStackNameAuth}
                               baseMapName={baseMapName} basemaps={basemaps} setBaseMapName={setBaseMapName}
              />
         )    

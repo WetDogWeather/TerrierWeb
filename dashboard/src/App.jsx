@@ -194,6 +194,7 @@ function App() {
   const [units, _setUnits] = useState('')
   const [enumValues, setEnumValues] = useState([])
   const [stackName, setStackName] = useState('dev')
+  const [stackAuth, setStackAuth] = useState('PROVIDE_AUTH_TOKEN')
   const [baseMapName, setBaseMapName] = useState('alidade_smooth')
 
   function setRegion(newRegion) {
@@ -204,18 +205,23 @@ function App() {
     _setSource(newSource)
   }
 
+  function setStackNameAuth(newStackName,newStackAuth) {
+    setStackName(newStackName)
+    setStackAuth(newStackAuth)
+  }
+
   // React to stackName changes
   useEffect(() => {
     // Turn off our layers
     setLayers([])
     setCurLayer(-1)
 
-    Terrier.changeStack(stackName, "placeholderkey", (ovl) => {
+    Terrier.changeStack(stackName, stackAuth, (ovl) => {
       terrierReady(ovl)
     }, () => {
       console.log("Stack name was invalid.  Terrier won't work.")
     })
-  }, [stackName])
+  }, [stackName,stackAuth])
 
 
   // Turn on the layer when someone messes with curLayer
@@ -700,7 +706,7 @@ function App() {
                           displayAllLayers={displayAllLayers} setDisplayAllLayers={setDisplayAllLayers}
                           source={source} sources={sources} setSource={setSource}
                           region={region} regions={regions} setRegion={setRegion}
-                          stackName={stackName} setStackName={setStackName}
+                          stackName={stackName} stackAuth={stackAuth} setStackNameAuth={setStackNameAuth}
                           units={units} setUnits={setUnits}
                           baseMapName={baseMapName} basemaps={basemaps} setBaseMapName={setBaseMapName} />
               </Burger>
@@ -718,6 +724,7 @@ function App() {
         }
         <Map ref={map} 
              stackName={stackName} 
+             stackAuth={stackAuth}
              readyFunc={terrierReady} 
              fullScreen={!controlsVisible}
              mapName={baseMapName}

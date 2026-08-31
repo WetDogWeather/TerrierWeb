@@ -4,7 +4,7 @@ import Terrier from "../../terrier.js"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-export default function Map({stackName,readyFunc,fullScreen,mapName,onClick}) {
+export default function Map({stackName,stackAuth,readyFunc,fullScreen,mapName,onClick}) {
   const mapContainer = useRef(null);
   const [map,setMap] = useState(null);
   const [lng] = useState(-100);
@@ -16,7 +16,7 @@ export default function Map({stackName,readyFunc,fullScreen,mapName,onClick}) {
   // Called when the stackName changes
   useEffect(() => {
     if (stackName == Terrier.stackName) { return  }
-    Terrier.changeStack(stackName, null, (ovl) => {
+    Terrier.changeStack(stackName, stackAuth, (ovl) => {
         readyFunc(ovl)
     }, () => {
         console.log("Unable to use stack named: " + stackName)

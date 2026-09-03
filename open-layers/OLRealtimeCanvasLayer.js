@@ -5,9 +5,14 @@ class OLRealtimeCanvasLayer extends Layer {
     constructor(options) {
       super(options);  
 
+      var div = document.createElement("div")
+      div.className = "wdwDiv"
+      div.id = "wdwDivId"
       var canvas = document.createElement("canvas");
-      canvas.className  = "myClass";
-      canvas.id = "myId";
+      div.appendChild(canvas)
+      canvas.className  = "wdwCanvas";
+      canvas.id = "wdwCanvasId";
+      this._div = div
       this._canvas = canvas;
       canvas.style.visibility = "visible"
     }
@@ -40,7 +45,7 @@ class OLRealtimeCanvasLayer extends Layer {
       if (this._delegate) {
         this._delegate.onRender(frameState);
       }
-      return this._canvas;
+      return this._div;
     }
 }
   

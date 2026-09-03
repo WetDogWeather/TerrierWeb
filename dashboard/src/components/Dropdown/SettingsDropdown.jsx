@@ -28,9 +28,9 @@ function SettingsDropdown({legendVisible, setLegendVisible,
             <label htmlFor="sources">Source: </label>
 
             <select name="sources-select" key="sources-select" 
-                        selected={source} onChange={(e) => setSource(e.target.value)}>
+                        selected={source} defaultValue={source} onChange={(e) => setSource(e.target.value)}>
                 {sources.map( (thisSource) => {
-                        return (<option selected={source == thisSource ? 'selected' : ''} value={thisSource}>{thisSource} </option>)
+                        return (<option key={thisSource} value={thisSource}>{thisSource} </option>)
                 })}
             </select>   
             </>
@@ -41,9 +41,9 @@ function SettingsDropdown({legendVisible, setLegendVisible,
             <label htmlFor="regions">Region: </label>
 
             <select name="regions-select" key="regions-select" 
-                        selected={region} onChange={(e) => setRegion(e.target.value)}>
-            {regions.map( (region) => {
-                        return (<option value={region}>{region}</option>)
+                        selected={region} defaultValue={region} onChange={(e) => setRegion(e.target.value)}>
+            {regions.map( (thisRegion) => {
+                        return (<option key={thisRegion} value={thisRegion}>{thisRegion}</option>)
             })}
             </select>   
             </>
@@ -54,9 +54,9 @@ function SettingsDropdown({legendVisible, setLegendVisible,
             <label htmlFor="Basemap">Basemap: </label>
 
             <select name="basemap-select" key="basemap-select" 
-                        selected={baseMapName} onChange={(e) => setBaseMapName(e.target.value)}>
-            {basemaps.map( (basemap) => {
-                        return (<option value={basemap}>{basemap}</option>)
+                        selected={baseMapName} defaultValue={baseMapName} onChange={(e) => setBaseMapName(e.target.value)}>
+            {basemaps.map( (thisBasemap) => {
+                        return (<option key={thisBasemap} value={thisBasemap}>{thisBasemap}</option>)
             })}
             </select>   
             </>

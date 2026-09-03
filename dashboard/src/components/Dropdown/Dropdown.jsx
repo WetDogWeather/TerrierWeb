@@ -36,7 +36,7 @@ function Dropdown({layers,
     }
 
     // Generating dropdown menu based on layers
-    var dropdown
+    var dropdown = []
     for (var i = 0; i < layers.length; i++) {
         const layerId = i; // Constant so that the onClick events don't read the final value of i.
         const layer = layers[layerId]
@@ -49,7 +49,7 @@ function Dropdown({layers,
                 </DropdownButton>
             </>
         )
-        dropdown = [dropdown, content]
+        dropdown = dropdown.concat(content)
     }
 
     // One for the settings
@@ -60,17 +60,17 @@ function Dropdown({layers,
             </DropdownButton>
         </>
     )
-    dropdown = [dropdown, settingsButton]
+    dropdown = dropdown.concat(settingsButton)
 
     // And one for the attribution
     let attrButton = (
         <>
-            <DropdownButton icon={attributionIcon} key={'button-attribution'} 
+            <DropdownButton icon={attributionIcon} key='attribution'
                             layerName='attribution' isActive={settingsMode == 2} setActive={() => setSettingsMode(2)}>
             </DropdownButton>
         </>
     )
-    dropdown = [dropdown, attrButton]
+    dropdown = dropdown.concat(attrButton)
 
     // Generate the content for settings or attribution if needed
     if (settingsMode == 0) {
@@ -78,18 +78,18 @@ function Dropdown({layers,
         var layerContent
         if (layer.displayName.toLowerCase() == 'temperature') {
             layerContent = (
-                <TemperatureDropdown layer={layer} level={level} setLevel={setLevel} setUnits={setUnits} />
+                <TemperatureDropdown key={'temperature-'+layer.layerName} layer={layer} level={level} setLevel={setLevel} setUnits={setUnits} />
             )
         } else {
             layerContent = (
-                <LayerDropdown layer={layer} level={level} setLevel={setLevel} />
+                <LayerDropdown key={'layer-'+layer.layerName} layer={layer} level={level} setLevel={setLevel} />
             )
         }
 
-        dropdown = [dropdown, layerContent]
+        dropdown = dropdown.concat(layerContent)
     } else if (settingsMode == 1) {
         const settingsContent = (
-            <SettingsDropdown legendVisible={legendVisible} setLegendVisible={setLegendVisible}
+            <SettingsDropdown key={'settings-dropdown'} legendVisible={legendVisible} setLegendVisible={setLegendVisible}
                               outputSlices={outputSlices} setOutputSlices={setOutputSlices}
                               snapFrame={snapFrame} setSnapFrame={setSnapFrame}
                               animSpeed={animSpeed} setAnimSpeed={setAnimSpeed}
@@ -100,7 +100,7 @@ function Dropdown({layers,
                               baseMapName={baseMapName} basemaps={basemaps} setBaseMapName={setBaseMapName}
              />
         )    
-        dropdown = [dropdown, settingsContent]
+        dropdown = dropdown.concat(settingsContent)
     } else if (settingsMode == 2) {
         const attrContent = (
             <>
@@ -118,13 +118,13 @@ function Dropdown({layers,
                 </div>
             </>
         )
-        dropdown = [dropdown, attrContent]
+        dropdown = dropdown.concat(attrContent)
     }
 
     return (
         <>
-            <nav className='dropdown' key='dropdown'>
-                <ul className='dropdown-nav' key='dropdown-nav'>
+            <nav className='dropdown' key='dropdown-nav'>
+                <ul className='dropdown-nav' key='dropdown-ul'>
                     {dropdown}
                 </ul>
             </nav>

@@ -13,9 +13,9 @@ function LayerDropdown({layer, level, setLevel, extraFields}) {
             <>
                 <h3 key={'levels-'+layerName}>Levels</h3>
                 <select name="dropdown-level-select" key="dropdown-level-select" 
-                        value={levelStr} onChange={(e) => setLevel(e.target.value)}>
-                    {layer.levels.map( (level) => {
-                        return (<option value={level}>{level}</option>)
+                        defaultValue={levelStr} onChange={(e) => setLevel(e.target.value)}>
+                    {layer.levels.map( (thisLevel) => {
+                        return (<option key={thisLevel} value={thisLevel}>{thisLevel} </option>)
                     })}
                 </select>
             </>
@@ -37,7 +37,7 @@ function LayerDropdown({layer, level, setLevel, extraFields}) {
                 <label htmlFor='color'>Color</label><br />
             </div>
             <h3 key={'sample-type-'+layerName}>Data Sample Type</h3>
-            <div className='dropdown-input' key={'dropdown-input-2'+layerName}>
+            <div className='dropdown-input' key={'dropdown-input-2-'+layerName}>
                 <input type='radio' id='variable-nearest' key={'variable-nearest-'+layerName} name='variable' 
                     onClick={() => layer.dataSampleUpdate(0)} 
                     defaultChecked={(layer.dataSampleType == 0)} />

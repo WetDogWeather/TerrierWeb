@@ -28,7 +28,7 @@ canvasLayer.setZIndex(99)
 
 // Call into Terrier with our interface layer and OpenLayers map
 // Terrier will get set up and then call us back for the rest
-Terrier.startOpenLayers("dev", "authtoken", map, canvasLayer, (ovl) => {
+Terrier.startOpenLayers("dev", "PROVIDE_AUTH_TOKEN", map, canvasLayer, (ovl) => {
   let hrrr_refl = Terrier.sourcesForVariable({
     source: "mrms",
     product: "mbr",
@@ -52,4 +52,8 @@ Terrier.startOpenLayers("dev", "authtoken", map, canvasLayer, (ovl) => {
   let animSpeed = 1;
 
   ovl.timePlay({ period: 30.0 / animSpeed, pause: 1.0 });
+
+  // setTimeout(() => {
+  //   ovl.stopLayer(re)
+  // },2000)
 });

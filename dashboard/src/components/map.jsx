@@ -10,7 +10,7 @@ export default function Map({stackName,stackAuth,readyFunc,fullScreen,mapName,on
   const [lng] = useState(-100);
   const [lat] = useState(35.6844);
   const [zoom] = useState(3);
-  const [API_KEY] = useState('cc323035-fcde-415b-b043-f7ada67d4723');
+  const [API_KEY] = useState('PROVIDE_AUTH_TOKEN');
   const [navControl,setNavControl] = useState(null)
 
   // Called when the stackName changes
@@ -53,7 +53,7 @@ export default function Map({stackName,stackAuth,readyFunc,fullScreen,mapName,on
       }
       
       // Tell Terrier to hook itself into MapLibre
-      let apiKey = "5f399f64-af7a-4902-a147-db4da405017c"
+      let apiKey = "PROVIDE_AUTH_TOKEN"
       Terrier.startMapLibre(stackName, apiKey, newMap, (ovl) => {
           readyFunc(ovl)
 

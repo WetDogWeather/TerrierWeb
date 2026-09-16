@@ -114,6 +114,17 @@ function  timeRangeForVariable(variable, numSlices) {
     return [-1*24*60*60,1*24*60*60,resNumSlices(200,numSlices)] 
   }
 
+  // Preferred way to show of meandair data
+  // The high res version has a lot of slices
+  if (variable.source == 'meandair') {
+    return [-1*24*60*60,1*24*60*60,resNumSlices(200,numSlices)] 
+  }
+
+  // Opera radar doesn't have an advected version at the moment
+  if (variable.source == 'opera_radar') {
+    return [-4*60*60,0,resNumSlices(200,numSlices)] 
+  }
+
   if (variable.source == 'flashwx') {
     switch (variable.name) {
         case "lightning_probability":
@@ -132,8 +143,8 @@ function  timeRangeForVariable(variable, numSlices) {
         case "forecasted_air_quality_index":
           return [-14*24*3600,1*24*3600,resNumSlices(32,numSlices)];
     }
-}
-switch (variable.dataType) {
+  }
+  switch (variable.dataType) {
     case "temperature":
     case "wind_uv":
     case "velocity":
@@ -405,8 +416,9 @@ function App() {
       // We can filter by region or source, optionally
       var searchParams = {variable: variable.name}
       // Filter to only a familiar set of sources that work well together
-      var radarOnly = true
+      var radarOnly = false
       if (!displayAllLayers) {
+        radarOnly = true
         if (variable.dataType != 'visual') {
           if (varName == 'reflectivity') {
             // Note: We can set radarOnly here to just see radar data
@@ -464,7 +476,8 @@ function App() {
 
       // For reflectivity we have the option of adding a temperature source for precip type
       var temperatureSources = null
-      if (varName.includes('reflectivity')) {
+      // Just use this trick for the default view
+      if (varName.includes('reflectivity') && source == 'All') {
         temperatureSources = Terrier.sourcesForVariable(
           {"source": ["gfs","hrrr"],
             "level": "2m",
@@ -524,8 +537,6 @@ function App() {
       case 'reflectivity':
         if (radarOnly) {
           timeRange = [-2*60*60,1*60*60,64]
-        } else {
-          timeRange = [-4*60*60,4*60*60,64]
         }
         newLayer = new Layer(terrierOvl, 
           {'displayName': variable.name,
@@ -635,6 +646,8 @@ function App() {
       _setUnits(newLayers[0].units)    
       setEnumValues(newLayers[0].enumValues)  
       setLevelOnLayer(newLayers[0],newLayers[0].levels[0])
+    } else {
+      setCurLayer(curLayer)
     }
   }, [displayAllLayers,source,sources,region,regions,outputSlices])
 

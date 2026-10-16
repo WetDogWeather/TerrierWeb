@@ -131,6 +131,8 @@ class TerrierLayer {
         }
         // Optional temperature sources for reflectivity precip type
         let temperatureJsonSources = params['temperatureSources']
+        // Optional precip type sources for reflectivity precip type
+        let precipTypeJsonSources = params['precipTypeSources']
 
         let dataType = jsonSources[0].dataType
         this.dataType = dataType
@@ -198,6 +200,35 @@ class TerrierLayer {
                     source.setClipCadence(cadence[0],cadence[1],cadence[2])
                 }
                 temperatureSources.push(source)
+            })
+        }
+        var precipTypeSources = null
+        if (precipTypeJsonSources != undefined && precipTypeJsonSources && precipTypeJsonSources.length > 0) {
+            precipTypeSources = []
+            precipTypeJsonSources.forEach(jsonSource => {
+                let source = new globalThis.Module.TrrDataSource(
+                    jsonSource.source,
+                    jsonSource.region,
+                    jsonSource.product,
+                    jsonSource.variable,
+                    jsonSource.level,
+                    jsonSource.interval,
+                    jsonSource.temporalType,
+                    jsonSource.dataType,
+                    jsonSource.projection,
+                    jsonSource.depth,
+                    jsonSource.isGlobal,
+                    jsonSource.hasMissingValues,
+                    jsonSource.zeroNoData,
+                    jsonSource.importanceScale,
+                    jsonSource.enableForRange[0],
+                    jsonSource.enableForRange[1]
+                )
+                if ('cadence' in jsonSource) {
+                    let cadence = jsonSource['cadence']
+                    source.setClipCadence(cadence[0],cadence[1],cadence[2])
+                }
+                precipTypeSources.push(source)
             })
         }
 
@@ -328,6 +359,33 @@ class TerrierLayer {
                 } else
                     globalThis.Module.tempSources = null
                 foundState = findControllerState("radar")
+                break;
+            case "precip":
+                globalThis.Module.enablePrecip = true
+                globalThis.Module.numConnections = 32
+                globalThis.Module.precipColorMap = this.colorMap ? this.colorMap : Terrier.RADAR_COLORS_NOT_GREY;
+                globalThis.Module.precipCadence = this.cadence
+                if (this.level !== null && this.level !== undefined) {
+                    globalThis.Module.selectedLevel = this.level
+                } else {
+                    globalThis.Module.selectedLevel = null
+                }
+                if (!hasImportScale) {
+                    this.importScale = 16.0
+                }
+                if (this.startFrame !== null && this.startFrame !== undefined) {
+                    globalThis.Module.precipStartFrame = this.startFrame
+                }
+                if (this.loadCallback !== null && this.loadCallback !== undefined) {
+                    globalThis.Module.precipCallback = this.loadCallback
+                }
+                globalThis.Module.precipScale = this.renderScale
+                globalThis.Module.precipSources = sources
+                if (precipTypeSources) {
+                    globalThis.Module.precipTypeSources = precipTypeSources
+                } else
+                    globalThis.Module.precipTypeSources = null
+                foundState = findControllerState("precip")
                 break;
             case "visual":
                 globalThis.Module.enableVisual = true
@@ -474,6 +532,14 @@ class TerrierLayer {
             });
             this.temperatureSources = undefined
         }
+        if (this.precipTypeSources) {
+            this.precipTypeSources.forEach(source => {
+                // Call shutdown() before delete() to properly release WASM resources
+                try { source.shutdown(); } catch (e) { }
+                source.delete()
+            });
+            this.precipTypeSources = undefined
+        }
         switch (this.dataType) {
             // Three of these are special
             case "wind_uv":
@@ -486,6 +552,9 @@ class TerrierLayer {
             case "radar":
             case "reflectivity":
                 globalThis.Module.enableRadar = false
+                break;
+            case "precip":
+                globalThis.Module.enablePrecip = false
                 break;
             // And the rest more generic
             case "visual":
@@ -1650,6 +1719,7 @@ class TerrierModule {
             debugTemp: false,
             debugWind: false,
             debugRadar: false,
+            debugPrecip: false,
             numConnections: Terrier.numConnections,
 
             print: (function () {
@@ -1690,6 +1760,7 @@ class TerrierModule {
                 globalThis.Module.tempCadence = [-24 * 3600, 24 * 3600, 40];
                 globalThis.Module.windCadence = [-25 * 3600, 24 * 3600, 40];
                 globalThis.Module.radarCadence = [-2 * 3600, 0 * 3600, 40];
+                globalThis.Module.precipCadence = [-2 * 3600, 0 * 3600, 40];
 
                 if (globalThis.Module.doMapInit) {
                     Terrier.initFunc()
@@ -2237,6 +2308,7 @@ class TerrierModule {
                 params['variable'] = 'temperature'
                 break;
             case "radar":
+            case "precip":
                 break;
             case "visual":
                 // TODO: Fix this one
@@ -2586,6 +2658,7 @@ class TerrierModule {
         globalThis.Module.enableWind = false
         globalThis.Module.enableTemp = false
         globalThis.Module.enableRadar = false
+        globalThis.Module.enablePrecip = false
         globalThis.Module.enableVisual = false
         for (var key in globalThis.Module.controllerState) {
             globalThis.Module.controllerState[key].enabled = false
@@ -2602,6 +2675,7 @@ class TerrierModule {
 
         // Clear controller references (already deleted above via controllerState)
         globalThis.Module.radarCtl = null;
+        globalThis.Module.precipCtl = null;
         globalThis.Module.windCtl = null;
         globalThis.Module.tempCtl = null;
         globalThis.Module.visualCtl = null;

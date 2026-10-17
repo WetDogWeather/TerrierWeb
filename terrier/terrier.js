@@ -88,6 +88,9 @@ class TerrierLayer {
         if ('snowColorMap' in params) {
             this.snowColorMap = params['snowColorMap']
         }
+        if ('precipTypeColorMaps' in params) {
+            this.precipTypeColorMaps = params['precipTypeColorMaps']
+        }
         if ('renderScale' in params) {
             this.renderScale = params['renderScale']
         }
@@ -383,6 +386,8 @@ class TerrierLayer {
                 globalThis.Module.precipSources = sources
                 if (precipTypeSources) {
                     globalThis.Module.precipTypeSources = precipTypeSources
+                    globalThis.Module.precipTypeColorMaps = this.precipTypeColorMaps ? this.precipTypeColorMaps : 
+                                                                [Terrier.RADAR_COLORS_NOT_GREY, Terrier.SNOW_COLORS_NOT_GREY, Terrier.SNOW_COLORS_NOT_GREY, Terrier.SNOW_COLORS_NOT_GREY];
                 } else
                     globalThis.Module.precipTypeSources = null
                 foundState = findControllerState("precip")

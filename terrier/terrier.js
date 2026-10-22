@@ -2349,6 +2349,11 @@ class TerrierModule {
                                         }
                                         if (levelMatched && intervalMatched) {
                                             foundVariable = true
+                                            // Tweak the ordering a bit of it's not global
+                                            var drawOrder = source.order
+                                            if (region.name != 'global') {
+                                                drawOrder = drawOrder + 1
+                                            }
                                             var newVar = {
                                                 source: source.name,
                                                 region: region.name,
@@ -2366,7 +2371,7 @@ class TerrierModule {
                                                 hasMissingValues: variable.hasEmptyVals,
                                                 zeroNoData: variable.zeroNoData,
                                                 importanceScale: 1.0,
-                                                drawOrder: source.order,
+                                                drawOrder: drawOrder,
                                                 enableForRange: [false,false]
                                             }
                                             if (variable.projection) {

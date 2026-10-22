@@ -1370,8 +1370,8 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  252916: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
- 253360: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
+  258708: ($0) => { const v = Emval.toValue($0); v.product = v.product || null; v.level = v.level || null; if (!v.product || v.product.length == 0) { v.product = null; } if (Array.isArray(v.proj)) { v.proj = v.proj[0]; } if (v.minVal == null) { v.minVal = 0.0; } if (v.maxVal == null) { v.maxVal = 0.0; } if (v.level == null) { v.level == "none"; } if (v.timeSlices && Array.isArray(v.timeSlices)) { v.timeSlices.forEach(s => s.product = s.product || null); } },  
+ 259152: ($0, $1, $2) => { _jsAsyncFetchJSON(Emval.toValue($0), Emval.toValue($1), $2); }
 };
 
 // end include: preamble.js
@@ -11958,6 +11958,63 @@ var ASM_CONSTS = {
     }
     Module.controllerState['Radar'].controller = Module.radarCtl
   
+    // Intensity with precip type
+    if (!Module.enablePrecip && Module.precipCtl) {
+      if (Module.debugLayers) {
+        console.log("Stop Precip");
+      }
+      _removeControllerId(Module.precipCtl.getId());
+      tempId = Module.precipCtl.getTemperatureControllerId();
+      if (tempId) {
+        _removeControllerId(tempId);
+      }
+      Module.precipCtl.removeOnFrameChange(Module.precipCtlFrameChange|0);
+      Module.precipCtl.stop(null);
+      Module.precipCtl.delete();
+      Module.precipCtl = null;
+      change = true;
+    } else if (Module.enablePrecip && !Module.precipCtl) {
+      if (Module.debugLayers) {
+        console.log("Start Precip");
+      }
+      Module.precipCtl = new Module.TrrPrecipController(Module.service, rc, Module.tracker, Module.precipSources, Module.precipTypeSources);
+      _addControllerId(Module.precipCtl.getId());
+      precipTypeId = Module.precipCtl.getPrecipTypeControllerId();
+      if (precipTypeId) {
+        _addControllerId(precipTypeId);
+      }
+      Module.precipCtl.debugMode = !!Module.debugPrecip;
+      Module.precipCtl.scale = Module.precipScale || 0.25;
+      Module.precipCtl.opacity = 0.75;
+      Module.precipCtl.varInterp = Module.TexInterpType.Linear;
+      Module.precipCtl.visInterp = Module.TexInterpType.Linear;
+      Module.precipCtl.minImportanceFactor = 5.0;
+      Module.precipCtl.connections = Module.numConnections;
+      Module.precipCtl.loadAllFrames = false;
+      Module.precipCtl.snapToFrame = true;
+      if (Module.precipStartFrame !== undefined) {
+        Module.precipCtl.startFrame = _processStartFrame(Module.precipStartFrame)
+      }
+      if (Module.selectedLevel) {
+        Module.precipCtl.level = Module.selectedLevel;
+      }
+      if (Module.precipCadence) {
+        Module.precipCtl.setCadence(...Module.precipCadence);
+      }
+      if (Module.precipTypeColorMaps) {
+          Module.precipCtl.setColorMaps(Module.precipTypeColorMaps[0],Module.precipTypeColorMaps[1],Module.precipTypeColorMaps[2],Module.precipTypeColorMaps[3]);
+      }
+      if (Module.precipCallback) {
+        Module.precipCtl.addLoadCallback(Module.precipCallback)
+      }
+      if (Module.updateFrameInfo) {
+        Module.precipCtlFrameChange = Module.precipCtl.addOnFrameChange(Module.updateFrameInfo);
+      }
+      Module.precipCtl.start(null);
+      change = true;
+    }
+    Module.controllerState['Precip'].controller = Module.precipCtl
+  
     // Wind
     if (!Module.enableWind && Module.windCtl) {
       if (Module.debugLayers) {
@@ -12007,7 +12064,7 @@ var ASM_CONSTS = {
     }
     Module.controllerState['WindUV'].controller = Module.windCtl
   
-    Module.controllers = [Module.windCtl, Module.tempCtl, Module.radarCtl].
+    Module.controllers = [Module.windCtl, Module.tempCtl, Module.radarCtl, Module.precipCtl].
                           concat(Module.controllerState.types.map(x=>Module.controllerState[x].controller)).
                           filter(Boolean);
   
@@ -12747,6 +12804,7 @@ var ASM_CONSTS = {
       // Shut down the existing layers
       Module.enableTemp = false
       Module.enableRadar = false
+      Module.enablePrecip = false
       Module.enableWind = false
       Module.controllers.forEach(x => x.enable = false)
       Module.updateOverlay();

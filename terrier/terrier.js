@@ -244,6 +244,11 @@ class TerrierLayer {
             }
         }
 
+        // Reflectivity may use the radar or the newer precip controller
+        if (dataType == 'reflectivity' && precipTypeSources) {
+            dataType = 'precip'
+        }
+
         var foundState = null
         // TODO: Switch to an a/b/c/d endpoint and set this high
         globalThis.Module.numConnections = Terrier.numConnections
@@ -387,7 +392,7 @@ class TerrierLayer {
                 if (precipTypeSources) {
                     globalThis.Module.precipTypeSources = precipTypeSources
                     globalThis.Module.precipTypeColorMaps = this.precipTypeColorMaps ? this.precipTypeColorMaps : 
-                                                                [Terrier.RADAR_COLORS_NOT_GREY, Terrier.SNOW_COLORS_NOT_GREY, Terrier.SNOW_COLORS_NOT_GREY, Terrier.SNOW_COLORS_NOT_GREY];
+                                                                [Terrier.PRECIP_RAIN_COLORS, Terrier.PRECIP_SNOW_COLORS, Terrier.PRECIP_FRZR_COLORS, Terrier.PRECIP_SLEET_COLORS];
                 } else
                     globalThis.Module.precipTypeSources = null
                 foundState = findControllerState("precip")
@@ -405,7 +410,6 @@ class TerrierLayer {
                 globalThis.Module.visualSources = sources
                 break;
             // And the rest more generic
-            // TODO: Pass in the colormap
             default:
                 // Look for the controller state
                 foundState = findControllerState(dataType)
@@ -441,6 +445,7 @@ class TerrierLayer {
         foundState.sources = sources
         this.sources = sources
         this.temperatureSources = temperatureSources
+        this.precipTypeSources = precipTypeSources
         this.state = foundState
 
         if (this.cadence) {
@@ -959,7 +964,7 @@ class TerrierOverlay {
      * Nearest frame mode means we snap to the nearest frame time when setting
      * the value (and tracker) for display.
      * 
-     * @param {double} nearFrame 
+     * @param {bool} nearFrame 
      */
     setNearestFrame(nearFrame) {
         if (globalThis.Module === undefined || globalThis.Module.tracker === undefined) { return }
@@ -1174,6 +1179,102 @@ class TerrierModule {
             true, true, true, true, true, true,
             true, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true
+        ]);
+        Terrier.PRECIP_RAIN_COLORS = Terrier.createColorMap([
+        0, 
+        0, 2.5, 5.0, 7.5, 
+        10.0, 12.5, 15.0, 17.5, 
+        20.0, 22.5, 25.0, 27.5, 
+        30.0, 32.5, 35.0, 37.5, 
+        40.0, 42.5, 45.0, 47.5, 
+        50.0, 52.5
+        ], [
+            0x00000000,
+            0xFFF1F1EF, 0xFFEFF0E8, 0xFFD2F0D2, 0xFFC3E8C5, 
+            0xFFABE1B1, 0xFF96D8A2, 0xFF7ECE90, 0xFF61C37D, 
+            0xFF3FB974, 0xFF19AA65, 0xFF059956, 0xFF048A4C, 
+            0xFF067B40, 0xFF086C37, 0xFF03552B, 0xFF01451A, 
+            0xFFFFE34F, 0xFFFFCE47, 0xFFFFCB49, 0xFFFFB041,
+            0xFFFFA23B, 0xFFFEA13A
+        ], [false,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true
+        ]);
+        Terrier.PRECIP_SNOW_COLORS = Terrier.createColorMap([
+        0, 
+        0, 2.5, 5.0, 7.5, 
+        10.0, 12.5, 15.0, 17.5, 
+        20.0, 22.5, 25.0, 27.5, 
+        30.0, 32.5, 35.0, 37.5, 
+        40.0, 42.5, 45.0, 47.5, 
+        50.0, 52.5
+        ], [
+            0x00000000,
+            0xFF74C0D1, 0xFF56B6C7, 0xFF8DCADA, 0xFFAAD5DF, 
+            0xFF33A7BF, 0xFF009CB7, 0xFF0190B0, 0xFF0984A7, 
+            0xFF03769E, 0xFF0B6893, 0xFF025D8D, 0xFF005080, 
+            0xFF003D72, 0xFF023D76, 0xFF012967, 0xFF002061, 
+            0xFF94052F, 0xFFC4004E, 0xFFE50267, 0xFFF32E8E,
+            0xFFE963AD, 0xFFF32E8E
+        ], [false,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true
+        ]);
+        Terrier.PRECIP_FRZR_COLORS = Terrier.createColorMap([
+        0, 
+        0, 2.5, 5.0, 7.5, 
+        10.0, 12.5, 15.0, 17.5, 
+        20.0, 22.5, 25.0, 27.5, 
+        30.0, 32.5, 35.0, 37.5, 
+        40.0, 42.5, 45.0, 47.5, 
+        50.0, 52.5
+        ], [
+            0x00000000,
+            0xFFF4EEE7, 0xFFFAE5DD, 0xFFFFDDD1, 0xFFFFCEBF, 
+            0xFFFFC0AF, 0xFFFFB19E, 0xFFFFA38D, 0xFFFF917C, 
+            0xFFFF826F, 0xFFFF7162, 0xFFFF6053, 0xFFFF534D, 
+            0xFFF9403F, 0xFFF72935, 0xFFEA1B31, 0xFFDB0025, 
+            0xFFDA0026, 0xFFBC0022, 0xFFBC0221, 0xFF930625,
+            0xFF7B0011, 0xFF780211
+        ], [false,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true
+        ]);
+        Terrier.PRECIP_SLEET_COLORS = Terrier.createColorMap([
+        0, 
+        0, 2.5, 5.0, 7.5, 
+        10.0, 12.5, 15.0, 17.5, 
+        20.0, 22.5, 25.0, 27.5, 
+        30.0, 32.5, 35.0, 37.5, 
+        40.0, 42.5, 45.0, 47.5, 
+        50.0, 52.5
+        ], [
+            0x00000000,
+            0xFFF8F5F7, 0xFFF5F2F3, 0xFFE9E8EE, 0xFFE8E7F0, 
+            0xFFDEDEEA, 0xFFDBDAEA, 0xFFC7CBE0, 0xFFB8BBD5, 
+            0xFFB8BBD6, 0xFFA8A8CE, 0xFF9897C2, 0xFF9998C3, 
+            0xFF8887B7, 0xFF7C78B1, 0xFF7C78B1, 0xFF6C619A, 
+            0xFF674C9A, 0xFF5B348D, 0xFF58368D, 0xFF4A1B7F,
+            0xFF4C1B80, 0xFF461578
+        ], [false,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true
         ]);
         Terrier.WEATHER_COLORS = Terrier.createColorMap([
             // Fair, Rain, Mix, Snow, Sleet, Freezing Rain, Severe, Thunderstorm, Hail = 8, HIWIND = 9

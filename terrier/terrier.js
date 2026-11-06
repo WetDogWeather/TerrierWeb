@@ -1310,7 +1310,7 @@ class TerrierModule {
             0xFF777777, // SMOKE = 25
             0xFFff00ff  // Unknown
         ], [
-            false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true
+            false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true
         ]);
         Terrier.REFLECTIVITY_HRRR_COMPATIBLE = Terrier.createColorMap([
             -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
@@ -1407,7 +1407,7 @@ class TerrierModule {
         let hfeetToMeters = 100.0/3.28084
         Terrier.CLOUD_CEILING2 = Terrier.createColorMap(
             [0.0*hfeetToMeters,1*hfeetToMeters,2*hfeetToMeters,3*hfeetToMeters,4*hfeetToMeters,5*hfeetToMeters,6*hfeetToMeters,7*hfeetToMeters,8*hfeetToMeters,9*hfeetToMeters,
-             10*hfeetToMeters,1.*hfeetToMeters,14*hfeetToMeters,16*hfeetToMeters,18*hfeetToMeters,
+             10*hfeetToMeters,12.*hfeetToMeters,14*hfeetToMeters,16*hfeetToMeters,18*hfeetToMeters,
              20*hfeetToMeters,22*hfeetToMeters,24*hfeetToMeters,26*hfeetToMeters,28*hfeetToMeters,
              30*hfeetToMeters,35*hfeetToMeters,
 
